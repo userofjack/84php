@@ -1,0 +1,20 @@
+<IfModule mod_rewrite.c>
+Options +FollowSymLinks +SymLinksIfOwnerMatch
+RewriteEngine On
+RewriteBase /
+
+RewriteCond %{REQUEST_URI} !^/Web/(.*)$ [NC]
+RewriteRule ^(.*)$ /Web/$1 [QSA,PT,NC]
+
+RewriteCond %{REQUEST_FILENAME} -d [OR]
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(.*)$ $1 [QSA,PT,L]
+
+RewriteCond %{REQUEST_URI} ^(.*)$ [NC]
+RewriteRule ^Web/(.*)$ Web/index.php?p_a_t_h=/$1 [QSA,PT,NC,L]
+
+</IfModule>
+
+<FilesMatch "\.*$">
+	RequestHeader unset If-Modified-Since
+</FilesMatch>
