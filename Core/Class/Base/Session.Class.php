@@ -19,7 +19,7 @@ require(RootPath."/Config/Session.php");
 
 class Session{
 	public function __construct(){
-		if($GLOBALS['FrameworkConfig']['SessionStart']&&!isset($_SESSION)){
+		if(!isset($_SESSION)){
 			session_start();
 		}
 	}

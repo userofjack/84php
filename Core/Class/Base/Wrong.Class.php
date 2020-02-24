@@ -34,7 +34,10 @@ class Wrong{
 			$DebugState=$GLOBALS['FrameworkConfig']['Debug'];
 		}
 		ob_clean();
-		$Style=file_get_contents(RootPath."/Core/Errors/Style.php");
+		if(!$GLOBALS['FrameworkConfig']['Always200']){
+			http_response_code($ErrorCode);
+		}
+		$Style=file_get_contents(RootPath.'/Core/Errors/Style.php');
 		if(!$Style){
 			die('Error#B.2.0');
 		}
