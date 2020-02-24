@@ -32,9 +32,11 @@ $FrameworkConfig=array(
 	//安全码
 	'SafeCode'=>'',
 	//SESSION自动开启
-	'SessionStart'=>TRUE,
+	'SessionStart'=>FALSE,
 	//时区
 	'TimeZone'=>'Asia/Shanghai',
 	//X-Powered-By隐藏
 	'XPoweredBy'=>'ASP.NET',
+	//始终返回200状态码
+	'Always200'=>TRUE
 );

@@ -54,7 +54,9 @@ class Cache{
 			$TempWait=str_replace(array(';;'),array(';'),$TempWait);
 			$TempWait=preg_replace(array('/(?:^|\n|\s+)\/\/.*/',"/\/\*(.|\r\n)*\*\//"),array('',"\r\n"),$TempWait);
 			$Return=preg_replace_callback('/(.*?)#(.*?)<(.*?)@(.*)>(.*)/',array($this,'FastClassCall'),$TempWait);
-			$Return=preg_replace('/(?:^|\n|\s+)#.*/','',$Return);
+			$Return=preg_replace(array('/(?:^|\n|\s+)#.*/','/\?>(\s)\?/'),'',$Return);
+
+			$Return=preg_replace(array('/(?:^|\n|\s+)#.*/','/\?>(\s\r\n)*/'),'',$Return)."?>\r\n";
 			$this->IncludeArray=array_unique($this->IncludeArray);
 			foreach($this->IncludeArray as $IncludeClass){
 				$ClassType='';

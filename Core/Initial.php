@@ -18,16 +18,17 @@
 if($_SERVER['REQUEST_METHOD']=='OPTIONS'){
 	die('OPTIONS request blocked by framework.');
 }
-require(dirname(__FILE__).'/Common.php');
+
+define("RootPath",substr(str_replace(array('\\','//'),'/',dirname(__FILE__)),0,-5));
+
+require(RootPath.'/Core/Common.php');
 date_default_timezone_set($FrameworkConfig['TimeZone']);
 
 if($FrameworkConfig['RunTimeLimit']!==FALSE){
 	set_time_limit($FrameworkConfig['RunTimeLimit']);
 }
 
-define("RootPath",substr(str_replace('\\','/',str_replace("//",'/',dirname(__FILE__))),0,-5));
-
-require(dirname(__FILE__)."/Class/Base/Wrong.Class.php"); 
+require(RootPath.'/Core/Class/Base/Wrong.Class.php'); 
 
 if($FrameworkConfig['Https']){
 	if(isset($_SERVER['HTTPS'])){
@@ -42,8 +43,11 @@ if($FrameworkConfig['Route']!='BASE'&&$FrameworkConfig['Route']!='PATH'&&$Framew
 	Wrong::Report(__FILE__,__LINE__,'Error#C.1.1',TRUE);
 }
 
-require_once(dirname(__FILE__)."/Class/Base/Session.Class.php");
-$SessionClass=new Session;
+if($FrameworkConfig['SessionStart']&&!isset($_SESSION)){
+	require(RootPath.'/Core/Class/Base/Session.Class.php');
+	$SessionClass=new Session;
+}
+
 
 if(!empty($_SESSION['ModuleSetting'])){
 	$_SESSION['ModuleSetting']=array();
@@ -59,9 +63,9 @@ if(!$FrameworkConfig['Debug']){
 	error_reporting(0);
 }
 else{
-	header('Cache-Control: no-cache,must-revalidate');   
-	header('Pragma: no-cache');   
-	header("Expires: -1"); 
+	header('Cache-Control: no-cache,must-revalidate');
+	header('Pragma: no-cache');
+	header("Expires: -1");
 	header('Last-Modified: '.gmdate('D, d M Y 00:00:00',time()).' GMT');
 }
 
@@ -113,7 +117,7 @@ if($FrameworkConfig['RequestLog']['state']&&strlen($FrameworkConfig['SafeCode'])
 	if(!@file_exists(RootPath.'/Temp/Log')){
 		@mkdir(RootPath.'/Temp/Log',0777,TRUE);
 	}
-	else if(strtoupper($FrameworkConfig['RequestLog']['interval'])=='D'){
+	if(strtoupper($FrameworkConfig['RequestLog']['interval'])=='D'){
 		$LogFileName=date('Y-m-d',time());
 	}
 	else if(strtoupper($FrameworkConfig['RequestLog']['interval'])=='H'){
@@ -125,12 +129,12 @@ if($FrameworkConfig['RequestLog']['state']&&strlen($FrameworkConfig['SafeCode'])
 	else{
 		$LogFileName='clientlog';
 	}
-	$LogFp=@fopen(RootPath.'/Temp/Log/'.$LogFileName.'-'.$FrameworkConfig['SafeCode'].'.txt','a');
-	if($LogFp){
-		if(flock($LogFp,LOCK_EX)){
-			fwrite($LogFp,time().'|TIME:'.date('Y-m-d H:i:s',time()).'|CLIENT_IP:'.$_SERVER['REMOTE_ADDR'].'|PHP_SELF:'.$_SERVER['PHP_SELF'].':'.$_SERVER['REMOTE_PORT'].'|DOMAIN:'.$_SERVER['SERVER_NAME'].'|REQUEST_METHOD:'.$_SERVER['REQUEST_METHOD'].'|HTTP_REFERER:'.((empty($_SERVER['HTTP_REFERER']))?'':$_SERVER['HTTP_REFERER']).'|UA:'.$_SERVER['HTTP_USER_AGENT'].'|SESSION:'.json_encode(!empty($_SESSION)?$_SESSION:'',320).'|COOKIE:'.json_encode($_COOKIE,320)."\r\n");
+	$Handle=@fopen(RootPath.'/Temp/Log/'.$LogFileName.'-'.$FrameworkConfig['SafeCode'].'.txt','a');
+	if($Handle){
+		if(flock($Handle,LOCK_EX)){
+			fwrite(Handle,time().'|TIME:'.date('Y-m-d H:i:s',time()).'|CLIENT_IP:'.$_SERVER['REMOTE_ADDR'].'|PHP_SELF:'.$_SERVER['PHP_SELF'].':'.$_SERVER['REMOTE_PORT'].'|DOMAIN:'.$_SERVER['SERVER_NAME'].'|REQUEST_METHOD:'.$_SERVER['REQUEST_METHOD'].'|HTTP_REFERER:'.((empty($_SERVER['HTTP_REFERER']))?'':$_SERVER['HTTP_REFERER']).'|UA:'.$_SERVER['HTTP_USER_AGENT'].'|SESSION:'.json_encode(!empty($_SESSION)?$_SESSION:'',320).'|COOKIE:'.json_encode($_COOKIE,320)."\r\n");
 		}
-		fclose($LogFp);
+		fclose($Handle);
 	}
 }
 
