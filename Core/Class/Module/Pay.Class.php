@@ -16,16 +16,14 @@
   框架版本号：3.0.0
 */
 
-require(RootPath."/Config/Pay.php");
-require_once(RootPath."/Core/Class/Module/Send.Class.php");
+require(RootPath.'/Config/Pay.php');
 
 class Pay{
-
+	
 	public function __construct(){
-		if(!empty($_SESSION['ModuleSetting'][__CLASS__])&&is_array($_SESSION['ModuleSetting'][__CLASS__])){
-			foreach($_SESSION['ModuleSetting'][__CLASS__] as $ModuleSettingKey => $ModuleSettingVal){
-				$GLOBALS['ModuleConfig_Pay'][$ModuleSettingKey]=$ModuleSettingVal;
-			}
+		if(!isset($_SERVER['84PHP_MODULE']['Send'])){
+			require(RootPath.'/Core/Class/Module/Send.Class.php');
+			$_SERVER['84PHP_MODULE']['Send']=new Send;
 		}
 	}
 
@@ -50,7 +48,7 @@ class Pay{
 	}
 	
 	//支付宝支付接口
-	public function Alipay($UnionData){
+	public function Alipay($UnionData=array()){
 		$Id=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'id','编号');
 		$Title=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'title','标题');
 		$Total=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'total','金额');
@@ -59,15 +57,15 @@ class Pay{
 		
 		$PostArray=array(
 				'service'=>'create_direct_pay_by_user',
-				'partner'=>$GLOBALS['ModuleConfig_Pay']['AliPid'],
+				'partner'=>$_SERVER['84PHP_CONFIG']['Pay']['AliPid'],
 				'_input_charset'=>'utf-8',
-				'notify_url'=>$GLOBALS['ModuleConfig_Pay']['AliNotifyUrl'],
-				'return_url'=>$GLOBALS['ModuleConfig_Pay']['AliReturnUrl'],
+				'notify_url'=>$_SERVER['84PHP_CONFIG']['Pay']['AliNotifyUrl'],
+				'return_url'=>$_SERVER['84PHP_CONFIG']['Pay']['AliReturnUrl'],
 				'out_trade_no'=>$Id,
 				'subject'=>$Title,	
 				'payment_type'=>'1',
 				'total_fee'=>intval($Total)/100,
-				'seller_id'=>$GLOBALS['ModuleConfig_Pay']['AliPid'],
+				'seller_id'=>$_SERVER['84PHP_CONFIG']['Pay']['AliPid'],
 				'it_b_pay'=>'1h',
 				);
 		if($QR){
@@ -86,12 +84,12 @@ class Pay{
 			$SortString.=$Key.'='.$Val.'&';
 		}
 		$SortString=substr($SortString, 0, -1);
-		$Md5=md5($SortString.$GLOBALS['ModuleConfig_Pay']['AliKey']);
+		$Md5=md5($SortString.$_SERVER['84PHP_CONFIG']['Pay']['AliKey']);
 		$SortString.='&sign='.$Md5.'&sign_type=MD5';
 		return 'https://mapi.alipay.com/gateway.do?'.$SortString;
 	}
 	//微信支付接口
-	public function Wxpay($UnionData){
+	public function Wxpay($UnionData=array()){
 		$Id=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'id','编号');
 		$Title=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'title','标题');
 		$Total=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'total','金额');
@@ -108,65 +106,65 @@ class Pay{
 			$Random=mt_rand(0,34);
 			$String.=$Word[$Random];
 		}
-		$ExpireTime=date('YmdHis',time()+3600);
+		$ExpireTime=date('YmdHis',Runtime+3600);
 		$PostArray=array(
-				'appid'=>$GLOBALS['ModuleConfig_Pay']['WxAppid'],
-				'mch_id'=>$GLOBALS['ModuleConfig_Pay']['WxMchId'],
+				'appid'=>$_SERVER['84PHP_CONFIG']['Pay']['WxAppid'],
+				'mch_id'=>$_SERVER['84PHP_CONFIG']['Pay']['WxMchId'],
 				'nonce_str'=>$String,
 				'body'=>$Title,
 				'out_trade_no'=>$Id,
 				'total_fee'=>$Total,
 				'spbill_create_ip'=>$Ip,
 				'time_expire'=>$ExpireTime,
-				'notify_url'=>$GLOBALS['ModuleConfig_Pay']['WxNotifyUrl'],
+				'notify_url'=>$_SERVER['84PHP_CONFIG']['Pay']['WxNotifyUrl'],
 				'trade_type'=>$Mode,
 				);
 		if($Mode=='JSAPI'){
 			$PostArray['openid']=$OpenID;
 		}
 		if($Mode=='MWEB'){
-			$PostArray['scene_info']=json_encode($GLOBALS['ModuleConfig_Pay']['WxSceneInfo']);
+			$PostArray['scene_info']=json_encode($_SERVER['84PHP_CONFIG']['Pay']['WxSceneInfo']);
 		}
 		ksort($PostArray);
 		$SortString=NULL;
 		foreach ($PostArray as $Key => $Val){
 			$SortString.=$Key.'='.$Val.'&';
 		}
-		$Md5=md5($SortString.'key='.$GLOBALS['ModuleConfig_Pay']['WxKey']);
+		$Md5=md5($SortString.'key='.$_SERVER['84PHP_CONFIG']['Pay']['WxKey']);
 		
 		$Data='<?xml version=\'1.0\'?>'."\r\n".
 		'<xml>'."\r\n".
-		'<appid>'.$GLOBALS['ModuleConfig_Pay']['WxAppid'].'</appid>'."\r\n".
-		'<mch_id>'.$GLOBALS['ModuleConfig_Pay']['WxMchId'].'</mch_id>'."\r\n".
+		'<appid>'.$_SERVER['84PHP_CONFIG']['Pay']['WxAppid'].'</appid>'."\r\n".
+		'<mch_id>'.$_SERVER['84PHP_CONFIG']['Pay']['WxMchId'].'</mch_id>'."\r\n".
 		'<nonce_str>'.$String.'</nonce_str>'."\r\n".
 		'<body>'.$Title.'</body>'."\r\n".
 		'<out_trade_no>'.$Id.'</out_trade_no>'."\r\n".
 		'<total_fee>'.$Total.'</total_fee>'."\r\n".
 		'<spbill_create_ip>'.$Ip.'</spbill_create_ip>'."\r\n".
 		'<time_expire>'.$ExpireTime.'</time_expire>'."\r\n".
-		'<notify_url>'.$GLOBALS['ModuleConfig_Pay']['WxNotifyUrl'].'</notify_url>'."\r\n".
+		'<notify_url>'.$_SERVER['84PHP_CONFIG']['Pay']['WxNotifyUrl'].'</notify_url>'."\r\n".
 		'<trade_type>'.$Mode.'</trade_type>'."\r\n";
 		if($Mode=='JSAPI'){
 			$Data.='<openid>'.$OpenID.'</openid>'."\r\n";
 		}
 		if($Mode=='MWEB'){
-			$Data.='<scene_info>'.json_encode($GLOBALS['ModuleConfig_Pay']['WxSceneInfo']).'</scene_info>'."\r\n";
+			$Data.='<scene_info>'.json_encode($_SERVER['84PHP_CONFIG']['Pay']['WxSceneInfo']).'</scene_info>'."\r\n";
 		}
 		$Data.='<sign>'.$Md5.'</sign>'."\r\n".
 		'</xml>
 		';
-		$Send=new Send;
-		$Send=$Send->Post(array(
+
+		$Send=$_SERVER['84PHP_MODULE']['Send']->Post(array(
 			'url'=>'https://api.mch.weixin.qq.com/pay/unifiedorder',
 			'data'=>$Data,
 			'header'=>'Content-Type: text/xml; charset=UTF-8',
 			'encode'=>TRUE,
-			'timeout'=>$GLOBALS['ModuleConfig_Pay']['Timeout']));
+			'timeout'=>$_SERVER['84PHP_CONFIG']['Pay']['Timeout']));
 		
 		xml_parse_into_struct(xml_parser_create(),$Send,$ReturnArray);
 		$Return=FALSE;
 		if(empty($ReturnArray)){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.7.0',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.7.0');
 		}
 		$ReturnResult=TRUE;
 		foreach($ReturnArray as $Val){
@@ -190,7 +188,7 @@ class Pay{
 	}
 	
 	//支付宝支付验签
-	public function AlipayVerify(){
+	public function AlipayVerify($UnionData=array()){
 		$PostArray=$_POST;
 		if(empty($PostArray)){
 			return FALSE;
@@ -207,16 +205,15 @@ class Pay{
 			}
 		}
 		$WillCheck=substr($WillCheck, 0, -1);
-		$Sign=md5($WillCheck.$GLOBALS['ModuleConfig_Pay']['AliKey']);
+		$Sign=md5($WillCheck.$_SERVER['84PHP_CONFIG']['Pay']['AliKey']);
 		if($Sign!=$PostArray['sign']){
 			return FALSE;
 		}
-		$Send=new Send;
-		$NotifyResult=$Send->Get();
+		$NotifyResult=$_SERVER['84PHP_MODULE']['Send']->Get();
 
 		$Send=$Send->Post(array(
-			'url'=>'https://mapi.alipay.com/gateway.do?service=notify_verify&partner='.$GLOBALS['ModuleConfig_Pay']['AliPid'].'&notify_id='.$PostArray['notify_id'],
-			'timeout'=>$GLOBALS['ModuleConfig_Pay']['Timeout']));
+			'url'=>'https://mapi.alipay.com/gateway.do?service=notify_verify&partner='.$_SERVER['84PHP_CONFIG']['Pay']['AliPid'].'&notify_id='.$PostArray['notify_id'],
+			'timeout'=>$_SERVER['84PHP_CONFIG']['Pay']['Timeout']));
 
 		if(strtoupper($NotifyResult)=='TRUE'){
 			return TRUE;
@@ -226,7 +223,7 @@ class Pay{
 		}
 	}
 	//微信支付验签
-	public function WxpayVerify($UnionData){
+	public function WxpayVerify($UnionData=array()){
 		$String=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'string','字符串');
 		$XmlArray=json_decode(json_encode(simplexml_load_string($String,'SimpleXMLElement',LIBXML_NOCDATA)),TRUE);
 		if(empty($XmlArray)){
@@ -239,7 +236,7 @@ class Pay{
 				$WillCheck.=$Key.'='.$Val.'&';
 			}
 		}
-		$Sign=strtoupper(md5($WillCheck.'key='.$GLOBALS['ModuleConfig_Pay']['WxKey']));
+		$Sign=strtoupper(md5($WillCheck.'key='.$_SERVER['84PHP_CONFIG']['Pay']['WxKey']));
 		if($Sign==$XmlArray['sign']){
 			return $XmlArray;
 		}

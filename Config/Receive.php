@@ -1,5 +1,5 @@
 <?php
-$ModuleConfig_Receive=array(
+$_SERVER['84PHP_CONFIG']['Receive']=array(
 	'DangerChar'=>array(
 		'|'=>'∣',//U+2223,&#8739,
 		';'=>'；',//U+FF1B,&#65307,
@@ -20,7 +20,7 @@ $ModuleConfig_Receive=array(
 		'\''=>'＇',//U+FF07,&#65287,
 		'='=>'＝',//U+FF1D,&#65309,
 	),
-	'BeforeDomainCheck'=>TRUE,
+	'BeforeDomainCheck'=>FALSE,
 	'TokenExpTime'=>600,
 	'KillEmoji'=>TRUE
 );

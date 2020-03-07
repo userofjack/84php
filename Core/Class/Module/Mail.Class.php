@@ -16,20 +16,12 @@
   框架版本号：3.0.0
 */
 
-require(RootPath."/Config/Mail.php");
+require(RootPath.'/Config/Mail.php');
 
 class Mail{
 
-	public function __construct(){
-		if(!empty($_SESSION['ModuleSetting'][__CLASS__])&&is_array($_SESSION['ModuleSetting'][__CLASS__])){
-			foreach($_SESSION['ModuleSetting'][__CLASS__] as $ModuleSettingKey => $ModuleSettingVal){
-				$GLOBALS['ModuleConfig_Mail'][$ModuleSettingKey]=$ModuleSettingVal;
-			}
-		}
-	}
-
 	//Jmail发送
-	public function Jsend($UnionData){
+	public function Jsend($UnionData=array()){
 		$Address=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'address','地址');
 		$Title=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'title','标题');
 		$Content=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'content','内容');
@@ -38,22 +30,22 @@ class Mail{
 		set_time_limit($Timeout);
 		$JmailCOM=new COM("Jmail.Message");
 		if(!$JmailCOM){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.5.0',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.5.0');
 		}
 		$JmailCOM->Silent=TRUE;
 		$JmailCOM->Logging=TRUE;
 		$JmailCOM->CharSet='utf-8';
 		$JmailCOM->ContentType="Text/html";
-		$JmailCOM->MailServerUsername=$GLOBALS['ModuleConfig_Mail']['UserName'];
-		$JmailCOM->MailServerPassword=$GLOBALS['ModuleConfig_Mail']['PassWord'];
+		$JmailCOM->MailServerUsername=$_SERVER['84PHP_CONFIG']['Mail']['UserName'];
+		$JmailCOM->MailServerPassword=$_SERVER['84PHP_CONFIG']['Mail']['PassWord'];
 		
-		$JmailCOM->FromName=$GLOBALS['ModuleConfig_Mail']['FromName'];
-		$JmailCOM->From=$GLOBALS['ModuleConfig_Mail']['FromAddress'];
+		$JmailCOM->FromName=$_SERVER['84PHP_CONFIG']['Mail']['FromName'];
+		$JmailCOM->From=$_SERVER['84PHP_CONFIG']['Mail']['FromAddress'];
 		
 		$JmailCOM->AddRecipient($Address);
 		$JmailCOM->Subject=$Title;
 		$JmailCOM->Body=$Content;
-		$JmailState=$JmailCOM->Send($GLOBALS['ModuleConfig_Mail']['Server']);
+		$JmailState=$JmailCOM->Send($_SERVER['84PHP_CONFIG']['Mail']['Server']);
 		if($JmailState){
 			return TRUE;
 		}
@@ -69,7 +61,7 @@ class Mail{
 	}
 	
 	//Socket发送
-	public function Ssend($UnionData){
+	public function Ssend($UnionData=array()){
 		$Address=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'address','地址');
 		$Title=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'title','标题');
 		$Content=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'content','内容');
@@ -77,13 +69,13 @@ class Mail{
 
 		$Send=NULL;
 		$Response='';
-		$Handle=fsockopen($GLOBALS['ModuleConfig_Mail']['Server'],$GLOBALS['ModuleConfig_Mail']['Port'],$Errno,$ErrMsg,$Timeout);
+		$Handle=fsockopen($_SERVER['84PHP_CONFIG']['Mail']['Server'],$_SERVER['84PHP_CONFIG']['Mail']['Port'],$Errno,$ErrMsg,$Timeout);
 		if(!$Handle&&$Errno===0){
 			$this->SsendError($Handle);
 		}
 		stream_set_blocking($Handle,1);
 		$Response.=fgets($Handle,512);
-		$Send='EHLO '.'=?utf-8?B?'.base64_encode($GLOBALS['ModuleConfig_Mail']['FromName']).'?='."\r\n";
+		$Send='EHLO '.'=?utf-8?B?'.base64_encode($_SERVER['84PHP_CONFIG']['Mail']['FromName']).'?='."\r\n";
 		if(!fwrite($Handle,$Send)){
 			return FALSE;
 		}
@@ -99,17 +91,17 @@ class Mail{
 			$this->SsendError($Handle);
 		}
 		$Response.=fgets($Handle,512);
-		$Send=base64_encode($GLOBALS['ModuleConfig_Mail']['UserName'])."\r\n";
+		$Send=base64_encode($_SERVER['84PHP_CONFIG']['Mail']['UserName'])."\r\n";
 		if(!fwrite($Handle,$Send)){
 			$this->SsendError($Handle);
 		}
 		$Response.=fgets($Handle,512);
-		$Send=base64_encode($GLOBALS['ModuleConfig_Mail']['PassWord'])."\r\n";
+		$Send=base64_encode($_SERVER['84PHP_CONFIG']['Mail']['PassWord'])."\r\n";
 		if(!fwrite($Handle,$Send)){
 			$this->SsendError($Handle);
 		}
 		$Response.=fgets($Handle,512);
-		$Send='MAIL FROM: <'.$GLOBALS['ModuleConfig_Mail']['FromAddress'].">\r\n";
+		$Send='MAIL FROM: <'.$_SERVER['84PHP_CONFIG']['Mail']['FromAddress'].">\r\n";
 
 		if(!fwrite($Handle,$Send)){
 			$this->SsendError($Handle);
@@ -126,10 +118,10 @@ class Mail{
 		}
 		$Response.=fgets($Handle,512);
 		if(!empty($NewFromAddress)){
-			$Head='From: =?utf-8?B?'.base64_encode($GLOBALS['ModuleConfig_Mail']['FromName']).'?= <'.$NewFromAddress.">\r\n";
+			$Head='From: =?utf-8?B?'.base64_encode($_SERVER['84PHP_CONFIG']['Mail']['FromName']).'?= <'.$NewFromAddress.">\r\n";
 		}
 		else{
-			$Head='From: =?utf-8?B?'.base64_encode($GLOBALS['ModuleConfig_Mail']['FromName']).'?= <'.$GLOBALS['ModuleConfig_Mail']['FromAddress'].">\r\n";
+			$Head='From: =?utf-8?B?'.base64_encode($_SERVER['84PHP_CONFIG']['Mail']['FromName']).'?= <'.$_SERVER['84PHP_CONFIG']['Mail']['FromAddress'].">\r\n";
 		}
 		$Head.='To: '.$Address."\r\n";
 		$Head.='Subject: =?utf-8?B?'.base64_encode($Title)."?=\r\n";

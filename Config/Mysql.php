@@ -1,6 +1,8 @@
 <?php
 
-$ModuleConfig_Mysql=array(
+$_SERVER['84PHP_CONFIG']['Mysql']=array(
+	'Log'=>FALSE,
+
 	'RW_Splitting'=>FALSE,
 
 	'DbInfo'=>array(

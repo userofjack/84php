@@ -18,14 +18,6 @@
 
 class Load{
 
-	public function __construct(){
-		if(!empty($_SESSION['ModuleSetting'][__CLASS__])&&is_array($_SESSION['ModuleSetting'][__CLASS__])){
-			foreach($_SESSION['ModuleSetting'][__CLASS__] as $ModuleSettingKey => $ModuleSettingVal){
-				$GLOBALS['ModuleConfig_Load'][$ModuleSettingKey]=$ModuleSettingVal;
-			}
-		}
-	}
-
 	private function UpCall($FileError,$FileName,$FileSize,$FileTmpName,$SaveNameInfo,$Pathinfo,$SizeInfo,$TypeInfo,$IgnoreErrorInfo){
 		if($FileError>0){
 			switch ($FileError){
@@ -46,7 +38,7 @@ class Load{
 					break;
 			}
 			if(!$IgnoreErrorInfo){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.4.'.$ModuleError,TRUE);
+				Wrong::Report(__FILE__,__LINE__,'Error#M.4.'.$ModuleError);
 			}
 			else{
 				return NULL;
@@ -61,7 +53,7 @@ class Load{
 		}
 		if(!in_array(strtoupper($Suffix),$TypeInfo)){
 			if(!$IgnoreErrorInfo){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.4.8',TRUE);
+				Wrong::Report(__FILE__,__LINE__,'Error#M.4.8');
 			}
 			else{
 				return NULL;
@@ -70,7 +62,7 @@ class Load{
 			
 		if($FileSize>$SizeInfo){
 			if(!$IgnoreErrorInfo){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.4.9',TRUE);
+				Wrong::Report(__FILE__,__LINE__,'Error#M.4.9');
 			}
 			else{
 				return NULL;
@@ -88,7 +80,7 @@ class Load{
 		if (is_uploaded_file($FileTmpName)) { 	
  			if(!move_uploaded_file($FileTmpName,$Pathinfo.'/'.$FileName)){
 				if(!$IgnoreErrorInfo){
-					Wrong::Report(__FILE__,__LINE__,'Error#M.4.10',TRUE);
+					Wrong::Report(__FILE__,__LINE__,'Error#M.4.10');
 				}
 				else{
 					return NULL;
@@ -97,7 +89,7 @@ class Load{
  		}
 		else{
 			if(!$IgnoreErrorInfo){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.4.11',TRUE);
+				Wrong::Report(__FILE__,__LINE__,'Error#M.4.11');
 			}
 			else{
 				return NULL;
@@ -108,7 +100,7 @@ class Load{
 	}
 	
 	//上传
-	public function Up($UnionData){
+	public function Up($UnionData=array()){
 		$FieldCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段');
 		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
 		$Type=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'type','类型');
@@ -219,7 +211,7 @@ class Load{
 	}
 	
 	//下载
-	public function Down($UnionData){
+	public function Down($UnionData=array()){
 		$Url=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'url','地址');
 		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
 		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,86400);
@@ -230,17 +222,17 @@ class Load{
 		if(!file_exists($Path)){
 			mkdir($Path,0777,TRUE);
 		}
-		$NewName=$Path.'/'.time().mt_rand(111,999).'-'.basename($Url);
+		$NewName=$Path.'/'.Runtime.mt_rand(111,999).'-'.basename($Url);
 		$Handle=@fopen($Url,'rb');
 		if($Handle){
 			$NewHandle=@fopen($NewName,"wb");
 			if(!$NewHandle){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.4.12',TRUE);
+				Wrong::Report(__FILE__,__LINE__,'Error#M.4.12');
 			}
 			if($NewHandle){
 				while(!feof($Handle)){
 					if(!fwrite($NewHandle,@fread($Handle,1024*8),1024*8)){
-						Wrong::Report(__FILE__,__LINE__,'Error#M.4.13',TRUE);
+						Wrong::Report(__FILE__,__LINE__,'Error#M.4.13');
 					};
 				}
 				fclose($NewHandle);
@@ -248,7 +240,7 @@ class Load{
 			fclose($Handle);
 		}
 		else{
-			Wrong::Report(__FILE__,__LINE__,'Error#M.4.14',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.4.14');
 		}
 		return $NewName;
 	}

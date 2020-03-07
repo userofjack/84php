@@ -16,14 +16,18 @@
   框架版本号：3.0.0
 */
 
-require(RootPath."/Config/Mysql.php");
+require(RootPath.'/Config/Mysql.php');
 
 class Mysql{
 	private $Mysqli;
 	private $NowDb;
 	
 	public function __construct(){
-		if($GLOBALS['ModuleConfig_Mysql']['RW_Splitting']){
+		if($_SERVER['84PHP_CONFIG']['Mysql']['Log']){
+			LoadModule('Log','Base');
+		}
+
+		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']){
 			$this->NowDb=$this->RandomDb();
 		}
 		$this->Connect();
@@ -32,7 +36,7 @@ class Mysql{
 	//读写分离随机选择数据库
 	private function RandomDb(){
 		$AllSql=array();
-		foreach($GLOBALS['ModuleConfig_Mysql']['DbInfo'] as $Key => $Val){
+		foreach($_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'] as $Key => $Val){
 			$AllSql[]=$Key;
 		}
 		return $AllSql[mt_rand(1,(count($AllSql)-1))];
@@ -41,8 +45,8 @@ class Mysql{
 	//选择数据库
 	public function Choose($ChooseDb){
 		$this->Mysqli->close();
-		if(empty($GLOBALS['ModuleConfig_Mysql']['DbInfo'][$ChooseDb])){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.0',TRUE);
+		if(empty($_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$ChooseDb])){
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.0');
 		}
 		$this->NowDb=$ChooseDb;
 		$this->Connect();
@@ -53,12 +57,19 @@ class Mysql{
 		if(empty($this->NowDb)){
 			$this->NowDb='default';
 		}
-		$this->Mysqli=@new mysqli($GLOBALS['ModuleConfig_Mysql']['DbInfo'][$this->NowDb]['address'],$GLOBALS['ModuleConfig_Mysql']['DbInfo'][$this->NowDb]['username'],$GLOBALS['ModuleConfig_Mysql']['DbInfo'][$this->NowDb]['password'],$GLOBALS['ModuleConfig_Mysql']['DbInfo'][$this->NowDb]['dbname'],$GLOBALS['ModuleConfig_Mysql']['DbInfo'][$this->NowDb]['port']);
+		$this->Mysqli=@new mysqli($_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb]['address'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb]['username'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb]['password'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb]['dbname'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb]['port']);
 		if($this->Mysqli->connect_errno){
 			Wrong::Report(__FILE__,__LINE__,'Error#M.6.1 @ Detail: '.$this->Mysqli->connect_error);
 		}
 	}
 	
+	//写入日志
+	private function SqlLog($SqL){
+		if($_SERVER['84PHP_CONFIG']['Mysql']['Log']){
+			$_SERVER['84PHP_LOG'].='[sql] '.$SqL.' <'.strval((intval(microtime(TRUE)*1000)-intval(Runtime*1000))/1000)."s>\r\n";
+		}
+	}
+
 	//字段名解析
 	private function SplitField($FieldName){
 		$FieldName=str_replace(' ','',$FieldName);
@@ -231,7 +242,7 @@ class Mysql{
 	}
 	
 	//查询一条数据
-	public function Select($UnionData){
+	public function Select($UnionData=array()){
 		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
 		$Field=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
 		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值',FALSE,NULL);
@@ -244,7 +255,7 @@ class Mysql{
 		$FieldLimit=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field_limit','字段限制',FALSE,NULL);		
 		$QueryString=$this->QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,array(1),$Index,NULL);
 
-		if($GLOBALS['ModuleConfig_Mysql']['RW_Splitting']&&$this->NowDb=='default'){
+		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']&&$this->NowDb=='default'){
 			$this->Mysqli->close();
 			$this->NowDb=$this->RandomDb();
 			$this->Connect();
@@ -252,6 +263,7 @@ class Mysql{
 		
 		$QueryString='SELECT '.$this->GetFieldList($FieldLimit,'*').' FROM'.$this->GetTableList($Table).$QueryString;
 
+		$this->SqlLog($QueryString);
 		$Result=$this->Mysqli->query($QueryString);
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.$this->Mysqli->errno;
@@ -267,7 +279,7 @@ class Mysql{
 	}
 	
 	//查询多条数据
-	public function SelectMore($UnionData){
+	public function SelectMore($UnionData=array()){
 		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
 		$Field=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
 		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值',FALSE,NULL);
@@ -282,7 +294,7 @@ class Mysql{
 		$GroupBy=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'group_by','分组',FALSE,NULL);
 		$QueryString=$this->QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,$GroupBy);
 		
-		if($GLOBALS['ModuleConfig_Mysql']['RW_Splitting']&&$this->NowDb=='default'){
+		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']&&$this->NowDb=='default'){
 			$this->Mysqli->close();
 			$this->NowDb=$this->RandomDb();
 			$this->Connect();
@@ -290,6 +302,7 @@ class Mysql{
 
 		$QueryString='SELECT '.$this->GetFieldList($FieldLimit,'*').' FROM'.$this->GetTableList($Table).$QueryString;
 
+		$this->SqlLog($QueryString);
 		$Result=$this->Mysqli->query($QueryString,MYSQLI_USE_RESULT);
 
 		if(!$Result){
@@ -306,7 +319,7 @@ class Mysql{
 	}
 		
 	//记录总数
-	public function Total($UnionData){
+	public function Total($UnionData=array()){
 		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
 		$Field=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
 		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值',FALSE,NULL);
@@ -320,7 +333,7 @@ class Mysql{
 		$GroupBy=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'group_by','分组',FALSE,NULL);
 		$QueryString=$this->QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,$GroupBy);
 						
-		if($GLOBALS['ModuleConfig_Mysql']['RW_Splitting']&&$this->NowDb=='default'){
+		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']&&$this->NowDb=='default'){
 			$this->Mysqli->close();
 			$this->NowDb=$this->RandomDb();
 			$this->Connect();
@@ -333,6 +346,7 @@ class Mysql{
 		
 		$QueryString='SELECT '.$FieldLimit.' COUNT(*) AS `Total` FROM'.$this->GetTableList($Table).$QueryString;
 		
+		$this->SqlLog($QueryString);
 		$Result=$this->Mysqli->query($QueryString,MYSQLI_USE_RESULT);
 
 		if(!$Result){
@@ -352,7 +366,7 @@ class Mysql{
 	}
 	
 	//求和
-	public function Sum($UnionData){
+	public function Sum($UnionData=array()){
 		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
 		$Field=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
 		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值',FALSE,NULL);
@@ -382,7 +396,7 @@ class Mysql{
 
 		$QueryString=$this->QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
 		
-		if($GLOBALS['ModuleConfig_Mysql']['RW_Splitting']&&$this->NowDb=='default'){
+		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']&&$this->NowDb=='default'){
 			$this->Mysqli->close();
 			$this->NowDb=$this->RandomDb();
 			$this->Connect();
@@ -390,6 +404,7 @@ class Mysql{
 
 		$QueryString='SELECT'.$SumSql.' FROM'.$this->GetTableList($Table).$QueryString;
 
+		$this->SqlLog($QueryString);
 		$Result=$this->Mysqli->query($QueryString,MYSQLI_USE_RESULT);
 
 		if(!$Result){
@@ -413,7 +428,7 @@ class Mysql{
 	}
 	
 	//插入数据
-	public function Insert($UnionData){
+	public function Insert($UnionData=array()){
 		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
 		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据');
 		$Sql=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'sql','sql',FALSE,NULL);
@@ -428,7 +443,7 @@ class Mysql{
 		$InsertField=substr($InsertField,0,-1);
 		$InsertValue=substr($InsertValue,0,-1);
 		
-		if($GLOBALS['ModuleConfig_Mysql']['RW_Splitting']&&$this->NowDb!='default'){
+		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']&&$this->NowDb!='default'){
 			$this->Mysqli->close();
 			$this->NowDb='default';
 			$this->Connect();
@@ -436,6 +451,7 @@ class Mysql{
 		
 		$QueryString='INSERT INTO'.$this->GetTableList($Table).' ( '.$InsertField.' ) VALUES ( '.$InsertValue.' )'.' '.$Sql;
 
+		$this->SqlLog($QueryString);
 		$Result=$this->Mysqli->query($QueryString,MYSQLI_USE_RESULT);
 
 		if(!$Result){
@@ -448,7 +464,7 @@ class Mysql{
 	}
 	
 	//删除数据
-	public function Delete($UnionData){
+	public function Delete($UnionData=array()){
 		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
 		$Field=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
 		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值',FALSE,NULL);
@@ -460,7 +476,7 @@ class Mysql{
 		$Sql=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'sql','sql',FALSE,NULL);
 		$QueryString=$this->QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
 		
-		if($GLOBALS['ModuleConfig_Mysql']['RW_Splitting']&&$this->NowDb!='default'){
+		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']&&$this->NowDb!='default'){
 			$this->Mysqli->close();
 			$this->NowDb='default';
 			$this->Connect();
@@ -468,6 +484,7 @@ class Mysql{
 		
 		$QueryString='DELETE FROM'.$this->GetTableList($Table).$QueryString;
 
+		$this->SqlLog($QueryString);
 		$Result=$this->Mysqli->query($QueryString,MYSQLI_USE_RESULT);
 
 		if(!$Result){
@@ -477,7 +494,7 @@ class Mysql{
 	}
 	
 	//更新数据
-	public function Update($UnionData){
+	public function Update($UnionData=array()){
 		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
 		$Field=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
 		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值',FALSE,NULL);
@@ -509,7 +526,7 @@ class Mysql{
 		}
 		$DataSql=substr($DataSql,0,-1);
 		
-		if($GLOBALS['ModuleConfig_Mysql']['RW_Splitting']&&$this->NowDb!='default'){
+		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']&&$this->NowDb!='default'){
 			$this->Mysqli->close();
 			$this->NowDb='default';
 			$this->Connect();
@@ -517,6 +534,7 @@ class Mysql{
 		
 		$QueryString='UPDATE'.$this->GetTableList($Table).' SET '.$DataSql.$QueryString;
 
+		$this->SqlLog($QueryString);
 		$Result=$this->Mysqli->query($QueryString,MYSQLI_USE_RESULT);
 
 		if(!$Result){
@@ -526,16 +544,17 @@ class Mysql{
 	}
 	
 	//查询自定义语句
-	public function Other($UnionData){
+	public function Other($UnionData=array()){
 		$Sql=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'sql','sql',FALSE,NULL);
 		$Fetch=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'fetch_result','取回结果',FALSE,FALSE);
 
-		if($GLOBALS['ModuleConfig_Mysql']['RW_Splitting']&&$this->NowDb=='default'){
+		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']&&$this->NowDb=='default'){
 			$this->Mysqli->close();
 			$this->NowDb=$this->RandomDb();
 			$this->Connect();
 		}
 
+		$this->SqlLog($QueryString);
 		$Result=$this->Mysqli->query($Sql,MYSQLI_USE_RESULT);
 
 		if(!$Result){
@@ -557,7 +576,7 @@ class Mysql{
 	}
 	
 	//备份
-	public function BackUp($UnionData){
+	public function BackUp($UnionData=array()){
 		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
 
 		$Path=AddRootPath($Path);
@@ -570,7 +589,7 @@ class Mysql{
 		
 		$Handle=@fopen($FilePath,'w');
 		if(!$Handle){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.7',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.7');
 		}
 		
 		$this->Mysqli->query('set names \'utf8\'');
@@ -599,22 +618,21 @@ class Mysql{
 		}
 				
 		if(!fwrite($Handle,$SQLContext)){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.8',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.8');
 		};
 		fclose($Handle);
 		$AllTables->free();
 	}
 
-	
-	//调用方法不存在
-	public function __call($Method,$Parameters){
-		MethodNotExist(__CLASS__,$Method);
-	}
-	
-	//关闭数据库连接
+	//关闭连接
 	public function __destruct(){
 		if(!$this->Mysqli->connect_errno){
 			$this->Mysqli->close();
 		}
+	}
+	
+	//调用方法不存在
+	public function __call($Method,$Parameters){
+		MethodNotExist(__CLASS__,$Method);
 	}
 }

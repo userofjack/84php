@@ -15,7 +15,7 @@
 
   框架版本号：3.0.0
 */
-require(RootPath."/Config/Session.php");
+require(RootPath.'/Config/Session.php');
 
 class Session{
 	public function __construct(){

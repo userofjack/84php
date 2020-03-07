@@ -1,4 +1,4 @@
 <?php
-$ModuleConfig_Ip=array(
+$_SERVER['84PHP_CONFIG']['Ip']=array(
 	'ExitProgream'=>TRUE
 );

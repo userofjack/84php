@@ -17,7 +17,8 @@
 */
 
 //框架配置项
-$FrameworkConfig=array(
+
+define('FrameworkConfig',array(
 	//调试模式
 	'Debug'=>TRUE,
 	//路由模式（'BASE'或'PATH'或'MIX'）
@@ -25,12 +26,10 @@ $FrameworkConfig=array(
 	
 	//强制HTTPS,
 	'Https'=>FALSE,
-	//记录请求信息
-	'RequestLog'=>array('state'=>FALSE, 'interval'=>'H'),
 	//超时时限（秒）
 	'RunTimeLimit'=>FALSE,
 	//安全码
-	'SafeCode'=>'',
+	'SafeCode'=>'cfchcggcychcgmhcmchgm',
 	//SESSION自动开启
 	'SessionStart'=>FALSE,
 	//时区
@@ -39,4 +38,4 @@ $FrameworkConfig=array(
 	'XPoweredBy'=>'ASP.NET',
 	//始终返回200状态码
 	'Always200'=>TRUE
-);
+));

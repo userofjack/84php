@@ -16,38 +16,30 @@
   框架版本号：3.0.0
 */
 
-require(RootPath."/Config/Receive.php");
+require(RootPath.'/Config/Receive.php');
 
 class Receive{
 
-	public function __construct(){
-		if(!empty($_SESSION['ModuleSetting'][__CLASS__])&&is_array($_SESSION['ModuleSetting'][__CLASS__])){
-			foreach($_SESSION['ModuleSetting'][__CLASS__] as $ModuleSettingKey => $ModuleSettingVal){
-				$GLOBALS['ModuleConfig_Receive'][$ModuleSettingKey]=$ModuleSettingVal;
-			}
-		}
-	}
-
 	//来源检测
-	public function FromCheck($UnionData){
+	public function FromCheck($UnionData=array()){
 		$TokenCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'token_check','token检查',FALSE,FALSE);
 		$UnsetToken=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'unset_token','清除token',FALSE,TRUE);
 
 		if (!isset($_SERVER['HTTP_REFERER'])){
-			Wrong::Report(__FILE__,__LINE__,'Error#B.1.0',TRUE,400);
+			Wrong::Report(__FILE__,__LINE__,'Error#B.1.0',FALSE,400);
 		}
-		if ($GLOBALS['ModuleConfig_Receive']['BeforeDomainCheck']&&parse_url($_SERVER['HTTP_REFERER'])['host']!=$_SERVER['SERVER_NAME']){
-			Wrong::Report(__FILE__,__LINE__,'Error#B.1.1',TRUE,400);
+		if ($_SERVER['84PHP_CONFIG']['Receive']['BeforeDomainCheck']&&parse_url($_SERVER['HTTP_REFERER'])['host']!=$_SERVER['SERVER_NAME']){
+			Wrong::Report(__FILE__,__LINE__,'Error#B.1.1',FALSE,400);
 		}
 		if($TokenCheck){
 			if(isset($_POST['Token'],$_GET['Token'])){
-				Wrong::Report(__FILE__,__LINE__,'Error#B.1.2',TRUE,400);
+				Wrong::Report(__FILE__,__LINE__,'Error#B.1.2',FALSE,400);
 			}
 			if(!isset($_SESSION['Token'])){
-				Wrong::Report(__FILE__,__LINE__,'Error#B.1.3',TRUE,400);
+				Wrong::Report(__FILE__,__LINE__,'Error#B.1.3',FALSE,400);
 			}
-			if((isset($_POST['Token'])&&$_POST['Token']!=$_SESSION['Token']['token'])||(isset($_GET['Token'])&&$_GET['Token']!=$_SESSION['Token']['token'])||$_SESSION['Token']['time']+$GLOBALS['ModuleConfig_Receive']['TokenExpTime']<time()){
-				Wrong::Report(__FILE__,__LINE__,'Error#B.1.4',TRUE,401);
+			if((isset($_POST['Token'])&&$_POST['Token']!=$_SESSION['Token']['token'])||(isset($_GET['Token'])&&$_GET['Token']!=$_SESSION['Token']['token'])||$_SESSION['Token']['time']+$_SERVER['84PHP_CONFIG']['Receive']['TokenExpTime']<Runtime){
+				Wrong::Report(__FILE__,__LINE__,'Error#B.1.4',FALSE,401);
 			}
 			if($UnsetToken){
 				unset($_SESSION['Token']);
@@ -56,14 +48,14 @@ class Receive{
 	}
 
 	//安全检测模块
-	public function SafeCheck($UnionData) {
+	public function SafeCheck($UnionData=array()) {
 		$WillCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'string','字符串');
 
 		$Return=$WillCheck;
-		foreach ($GLOBALS['ModuleConfig_Receive']['DangerChar'] as $Key=>$Val) {
+		foreach ($_SERVER['84PHP_CONFIG']['Receive']['DangerChar'] as $Key=>$Val) {
 			$Return=str_replace($Key,$Val,$Return);
 		}
-		if($GLOBALS['ModuleConfig_Receive']['KillEmoji']){
+		if($_SERVER['84PHP_CONFIG']['Receive']['KillEmoji']){
 			$Return=preg_replace_callback('/./u',function($TempArray){
 				if(strlen($TempArray[0])>=4){
 					return NULL;
@@ -75,7 +67,7 @@ class Receive{
 	}
 	
 	//Post接收
-	public function Post($UnionData){
+	public function Post($UnionData=array()){
 		$TokenCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'token_check','token检查',FALSE,FALSE);
 		$FieldCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
 		$FromCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'from_check','来源检查',FALSE,TRUE);
@@ -115,7 +107,7 @@ class Receive{
 	}
 	
 	//Get接收
-	public function Get($UnionData){
+	public function Get($UnionData=array()){
 		$TokenCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'token_check','token检查',FALSE,FALSE);
 		$FieldCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
 		$FromCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'from_check','来源检查',FALSE,TRUE);
@@ -153,7 +145,7 @@ class Receive{
 	}
 	
 	//Header接收过滤
-	public function Header($UnionData){
+	public function Header($UnionData=array()){
 		$FieldCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
 		$SafeCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'safe_check','安全检查',FALSE,TRUE);
 
@@ -177,7 +169,7 @@ class Receive{
 	}
 	
 	//Cookie过滤接收
-	public function Cookie($UnionData){
+	public function Cookie($UnionData=array()){
 		$FieldCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
 		$SafeCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'safe_check','安全检查',FALSE,TRUE);
 
@@ -202,7 +194,7 @@ class Receive{
 	}
 
 	//Json过滤
-	public function Json($UnionData){
+	public function Json($UnionData=array()){
 		$JsonString=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'srting','字符串');
 		$FieldCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
 		$SafeCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'safe_check','安全检查',FALSE,TRUE);

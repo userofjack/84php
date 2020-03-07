@@ -16,7 +16,7 @@
   框架版本号：3.0.0
 */
 
-require(RootPath."/Config/Ip.php");
+require(RootPath.'/Config/Ip.php');
 
 Class Ip{
 	private $BlackListFile;
@@ -26,32 +26,23 @@ Class Ip{
 
 
 	public function __construct(){
-		if(!empty($_SESSION['ModuleSetting'][__CLASS__])&&is_array($_SESSION['ModuleSetting'][__CLASS__])){
-			foreach($_SESSION['ModuleSetting'][__CLASS__] as $ModuleSettingKey => $ModuleSettingVal){
-				$GLOBALS['ModuleConfig_Ip'][$ModuleSettingKey]=$ModuleSettingVal;
-			}
-		}
-
-		if(!isset($_SESSION)){
-			session_start();
-		}
 		
 		$this->BlackListFile=RootPath.'/Temp/ip-blacklist.php';
 		$this->WhiteListFile=RootPath.'/Temp/ip-whitelist.php';
 		if(!file_exists($this->BlackListFile)){
 			if(!file_put_contents($this->BlackListFile,'<?php exit; ?>')){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.3.0',TRUE);
+				Wrong::Report(__FILE__,__LINE__,'Error#M.3.0');
 			}
 		}
 		if(!file_exists($this->WhiteListFile)){
 			if(!file_put_contents($this->WhiteListFile,'<?php exit; ?>')){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.3.0',TRUE);
+				Wrong::Report(__FILE__,__LINE__,'Error#M.3.0');
 			}
 		}
 		$BlackListText=file_get_contents($this->BlackListFile);
 		$WhiteListText=file_get_contents($this->WhiteListFile);
-		if(!$BlackListText||!WhiteListText){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.3.1',TRUE);
+		if($BlackListText===FALSE||$WhiteListText===FALSE){
+			Wrong::Report(__FILE__,__LINE__,'Error#M.3.1');
 		}
 		
 		$this->BlackList=$this->TextToArray($BlackListText);
@@ -70,35 +61,20 @@ Class Ip{
 	
 	//转换
 	private function Transform($Str,$Start=TRUE){
-		$StrLen=strlen($Str);
-		if(ctype_digit($Str)&&$StrLen>=10&&$StrLen<=12){
-			return substr($Str,0,$StrLen-9).'.'.intval(substr($Str,-9,3)).'.'.intval(substr($Str,-6,3)).'.'.intval(substr($Str,-3,3));
+		if(ctype_digit($Str)){
+			return long2ip($Str);
 		}
-		else if($this->IpCheck($Str)){
-			$TempArray=explode('.',$Str);
-			for($i=0;$i<4;$i++){
-				if($TempArray[$i]=='*'){
-					if($Start){
-						$TempArray[$i]='000';
-					}
-					else{
-						$TempArray[$i]='255';
-					}
-				}
-				$TempLen=strlen($TempArray[$i]);
-				if($TempLen==1){
-					$TempArray[$i]='00'.$TempArray[$i];
-				}
-				if($TempLen==2){
-					$TempArray[$i]='0'.$TempArray[$i];
-				}
-			}
-
-			return floatval($TempArray[0].$TempArray[1].$TempArray[2].$TempArray[3]);
+		if($Start){
+			$Str=str_replace('*','0',$Str);
 		}
 		else{
+			$Str=str_replace('*','255',$Str);
+		}
+		$IntIP=ip2long($Str);
+		if($IntIP===FALSE){
 			return FALSE;
 		}
+		return sprintf('%u',$IntIP);
 	}
 	
 	//文本转数组
@@ -166,20 +142,20 @@ Class Ip{
 	}	
 	
 	//写入文件
-	private function Save($UnionData){
+	private function Save($UnionData=array()){
 		$Type=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'type','类型',FALSE,'b');
 		if(strtolower($Type)=='b'){
 			$ListText=$this->ArrayToText($this->BlackList);
 			$Handle=@fopen($this->BlackListFile,'w');
 			if(!$Handle){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.3.2',TRUE);
+				Wrong::Report(__FILE__,__LINE__,'Error#M.3.2');
 			}
 		}
 		else{
 			$ListText=$this->ArrayToText($this->WhiteList);
 			$Handle=@fopen($this->WhiteListFile,'w');
 			if(!$Handle){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.3.2',TRUE);
+				Wrong::Report(__FILE__,__LINE__,'Error#M.3.2');
 			}
 		}
 		fwrite($Handle,'<?php exit; ?>'.$ListText);
@@ -187,7 +163,7 @@ Class Ip{
 	}
 	
 	//添加
-	public function Add($UnionData){
+	public function Add($UnionData=array()){
 		$Type=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'type','类型');
 		$StartIP=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'ip_start','起始ip');
 		$EndIP=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'ip_end','结束ip',FALSE,NULL);
@@ -195,16 +171,16 @@ Class Ip{
 		if(empty($StartIP)){
 			return FALSE;
 		}
-		if(!$this->IpCheck($StartIP)){
+		if(ip2long($StartIP)===FALSE){
 			return FALSE;
 		}
 		if(empty($EndIP)){
 			$EndIP=$StartIP;
 		}
-		if(!$this->IpCheck($EndIP)){
+		if(ip2long($EndIP)===FALSE){
 			return FALSE;
 		}
-		if(!empty($ExpTime)&&intval($ExpTime)<time()){
+		if(!empty($ExpTime)&&intval($ExpTime)<Runtime){
 			return FALSE;
 		}
 		$StartIPNumber=$this->Transform($StartIP);
@@ -221,20 +197,20 @@ Class Ip{
 	}
 	
 	//移除
-	public function Delete($UnionData){
+	public function Delete($UnionData=array()){
 		$StartIP=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'ip_start','起始ip');
 		$EndIP=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'ip_end','结束ip',FALSE,NULL);
 		$Type=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'type','类型');
 		if(empty($StartIP)){
 			return FALSE;
 		}
-		if(!$this->IpCheck($StartIP)){
+		if(ip2long($StartIP)===FALSE){
 			return FALSE;
 		}
 		if(empty($EndIP)){
 			$EndIP=$StartIP;
 		}
-		if(!$this->IpCheck($EndIP)){
+		if(ip2long($EndIP)===FALSE){
 			return FALSE;
 		}
 		$StartIPNumber=$this->Transform($StartIP);
@@ -245,10 +221,10 @@ Class Ip{
 	}
 	
 	//IP黑名单检测
-	public function Check(){
+	public function Check($UnionData=array()){
 		if(!$this->Find(2,$_SERVER['REMOTE_ADDR'])&&$this->Find(1,$_SERVER['REMOTE_ADDR'])){
-			if($GLOBALS['ModuleConfig_Ip']['ExitProgream']){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.3.3',TRUE);
+			if($_SERVER['84PHP_CONFIG']['Ip']['ExitProgream']){
+				Wrong::Report(__FILE__,__LINE__,'Error#M.3.3');
 			}
 			else{
 				return FALSE;
@@ -258,7 +234,7 @@ Class Ip{
 	}
 	
 	//导出全部记录
-	public function GetAll($UnionData){
+	public function GetAll($UnionData=array()){
 		$Type=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'type','类型');
 		$Return=array();
 		if(strtolower($Type)=='b'){
@@ -278,13 +254,13 @@ Class Ip{
 	}
 	
 	//查找
-	public function Find($UnionData){
+	public function Find($UnionData=array()){
 		$Type=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'type','类型');
 		$IP=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'ip','ip地址');
 		if(empty($IP)){
 			return FALSE;
 		}
-		if(!$this->IpCheck($IP)){
+		if(ip2long($IP)===FALSE){
 			return FALSE;
 		}
 		$IPNumber=$this->Transform($IP);
@@ -295,7 +271,7 @@ Class Ip{
 			$ListArray=$this->WhiteList;
 		}
 		foreach($ListArray as $Val){
-			if(($IPNumber==$Val[0]||($IPNumber>$Val[0]&&$IPNumber<$Val[1]))&&(time()<=$Val[2]||empty($Val[2]))){
+			if(($IPNumber==$Val[0]||($IPNumber>$Val[0]&&$IPNumber<$Val[1]))&&(Runtime<=$Val[2]||empty($Val[2]))){
 				return TRUE;
 			}
 		}
@@ -303,7 +279,7 @@ Class Ip{
 	}
 	
 	//清理
-	public function Clean($UnionData){
+	public function Clean($UnionData=array()){
 		$Reset=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'reset','重置',FALSE,FALSE);
 		$Type=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'type','类型');
 		if($Reset){
@@ -317,14 +293,14 @@ Class Ip{
 		else{
 			if(strtolower($Type)=='b'||empty($Type)){
 				foreach($this->BlackList as $Key=>$Val){
-					if(!empty($Val[2])&&intval($Val[2])<time()){
+					if(!empty($Val[2])&&intval($Val[2])<Runtime){
 						unset($this->BlackList[$Key]);
 					}
 				}
 			}
 			if(strtolower($Type)=='w'||empty($Type)){
 				foreach($this->WhiteList as $Key=>$Val){
-					if(!empty($Val[2])&&intval($Val[2])<time()){
+					if(!empty($Val[2])&&intval($Val[2])<Runtime){
 						unset($this->WhiteList[$Key]);
 					}
 				}

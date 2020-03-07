@@ -16,12 +16,17 @@
   框架版本号：3.0.0
 */
 
-require_once(RootPath."/Core/Class/Module/Mysql.Class.php");
-
 class Page{
 	
+	public function __construct(){
+		if(!isset($_SERVER['84PHP_MODULE']['Mysql'])){
+			require(RootPath.'/Core/Class/Module/Mysql.Class.php');
+			$_SERVER['84PHP_MODULE']['Mysql']=new Mysql;
+		}
+	}
+
 	//分页
-	public function Base($UnionData){
+	public function Base($UnionData=array()){
 		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
 		$Field=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
 		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值',FALSE,NULL);
@@ -40,8 +45,7 @@ class Page{
 		$NowPage=intval($Page);
 		$Number=intval($Number);
 		$Start=0;
-		$MysqlModule=new Mysql;
-		$TotalNumber=$MysqlModule->Total(array(
+		$TotalNumber=$_SERVER['84PHP_MODULE']['Mysql']->Total(array(
 			'table'=>$Table,
 			'field'=>$Field,
 			'value'=>$Value,
@@ -84,7 +88,7 @@ class Page{
 			$End=$TotalNumber;
 		};
 		
-		$Result['result']=$MysqlModule->SelectMore(array(
+		$Result['result']=$_SERVER['84PHP_MODULE']['Mysql']->SelectMore(array(
 			'table'=>$Table,
 			'field'=>$Field,
 			'value'=>$Value,

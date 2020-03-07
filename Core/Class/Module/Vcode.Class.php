@@ -16,17 +16,9 @@
   框架版本号：3.0.0
 */
 
-require(RootPath."/Config/Vcode.php");
+require(RootPath.'/Config/Vcode.php');
 
 class Vcode{
-
-	public function __construct(){
-		if(!empty($_SESSION['ModuleSetting'][__CLASS__])&&is_array($_SESSION['ModuleSetting'][__CLASS__])){
-			foreach($_SESSION['ModuleSetting'][__CLASS__] as $ModuleSettingKey => $ModuleSettingVal){
-				$GLOBALS['ModuleConfig_Vcode'][$ModuleSettingKey]=$ModuleSettingVal;
-			}
-		}
-	}
 
 	//颜色转换
 	private function HexRGB($HexColor){
@@ -43,9 +35,9 @@ class Vcode{
 		$Dot=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'dot','文字',FALSE,27);
 		$Line=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'line','文字',FALSE,15);
 		
-		$Font=AddRootPath($GLOBALS['ModuleConfig_Vcode']['FontFile']);
+		$Font=AddRootPath($_SERVER['84PHP_CONFIG']['Vcode']['FontFile']);
 		if(!file_exists($Font)){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.10.0',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.10.0');
 		}
 		$PossibleLetters='0123456789bcdfghjkmnpqrstvwxyz';
 		$NoiseHexColor=$WordColor;
@@ -87,7 +79,7 @@ class Vcode{
 		header('Cache-Control: no-cache,must-revalidate');   
 		header('Pragma: no-cache');   
 		header("Expires: -1"); 
-		header('Last-Modified: '.gmdate('D, d M Y 01:01:01',time()).' GMT');
+		header('Last-Modified: '.gmdate('D, d M Y 00:00:00',Runtime).' GMT');
 		imagejpeg($NewImg);
 		imagedestroy($NewImg);
 		return TRUE;

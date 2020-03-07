@@ -1,5 +1,5 @@
 <?php
-$ModuleConfig_Cache=array(
+$_SERVER['84PHP_CONFIG']['Cache']=array(
 	'TPath'=>'/Source/Template',
 	'DPath'=>'/Source/Data',
 

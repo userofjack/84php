@@ -18,7 +18,7 @@
 
 class Dir{
 	//目录文件属性
-	public function State($UnionData){
+	public function State($UnionData=array()){
 		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
 		
 		if(!is_array($Path)){
@@ -82,12 +82,12 @@ class Dir{
 			return $DirSize;
 		}
 		else{
-			Wrong::Report(__FILE__,__LINE__,'Error#M.0.0',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.0.0');
 		}
 	}
 	
 	//目录大小
-	public function Size($UnionData){
+	public function Size($UnionData=array()){
 		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
 		$Unit=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'unit','单位',FALSE,NULL);
 
@@ -129,13 +129,13 @@ class Dir{
 				rmdir($Dir);
 			}
 			else{
-				Wrong::Report(__FILE__,__LINE__,'Error#M.0.1',TRUE);
+				Wrong::Report(__FILE__,__LINE__,'Error#M.0.1');
 			}
 		}
 	}
 	
 	//删除目录
-	public function Delete($UnionData){
+	public function Delete($UnionData=array()){
 		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
 
 		if(!is_array($Path)){
@@ -151,7 +151,7 @@ class Dir{
 	//复制目录调用
 	private function CopyCall($From,$To){
 		if(!file_exists($From)){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.0.0',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.0.0');
 		}
 		if(is_file($To)){
 			exit;
@@ -175,12 +175,12 @@ class Dir{
 			closedir($DirHandle);
 		}
 		else{
-			Wrong::Report(__FILE__,__LINE__,'Error#M.0.1',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.0.1');
 		}
 	}
 	
 	//复制目录
-	public function Copy($UnionData){
+	public function Copy($UnionData=array()){
 		$From=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'from','源路径');
 		$To=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'to','目标路径');
 

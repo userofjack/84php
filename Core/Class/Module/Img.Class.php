@@ -16,17 +16,9 @@
   框架版本号：3.0.0
 */
 
-require(RootPath."/Config/Img.php");
+require(RootPath.'/Config/Img.php');
 
 class Img{
-
-	public function __construct(){
-		if(!empty($_SESSION['ModuleSetting'][__CLASS__])&&is_array($_SESSION['ModuleSetting'][__CLASS__])){
-			foreach($_SESSION['ModuleSetting'][__CLASS__] as $ModuleSettingKey => $ModuleSettingVal){
-				$GLOBALS['ModuleConfig_Img'][$ModuleSettingKey]=$ModuleSettingVal;
-			}
-		}
-	}
 
 	//颜色转换
 	private function HexRGB($HexColor){
@@ -47,7 +39,7 @@ class Img{
 		$FunExists=function_exists('imagecreatefrom'.$FileType);
 		
 		if(!$Support||!$FunExists){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.2.0',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.2.0');
 		}
 		
 	}
@@ -56,7 +48,7 @@ class Img{
 	private function GetImage($From,$DataType){
 		if($DataType=='path'){
 			if(!file_exists($From)){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.2.1',TRUE);
+				Wrong::Report(__FILE__,__LINE__,'Error#M.2.1');
 			}
 			$Exp=explode('.',$From);
 			$MIME=end($Exp);
@@ -81,7 +73,7 @@ class Img{
 		}
 
 		if(!$ImgInfo||$ImgData===FALSE){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.2.2',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.2.2');
 		}
 		
 		$Return=$ImgInfo;
@@ -128,12 +120,12 @@ class Img{
 		}
 		
 		if(!$OutPut){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.2.3',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.2.3');
 		}
 	}
 	
 	//伸缩和水印
-	public function Change($UnionData){
+	public function Change($UnionData=array()){
 		$From=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'image','源图片');
 		$DataType=strtolower(QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data_type','资源类型',FALSE,'path'));
 		$To=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'to','目标路径',FALSE,NULL);
@@ -183,7 +175,7 @@ class Img{
 		}
 		$NewImg=imagecreatetruecolor($NewWidth,$NewHeight);
 		if(!$NewImg){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.2.4',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.2.4');
 		}
 		imagecopyresampled($NewImg,$ImgInfo['Data'],0,0,0,0,$NewWidth,$NewHeight,$ImgInfo[0],$ImgInfo[1]);
 		if(!empty($Word)){
@@ -193,8 +185,8 @@ class Img{
 			if($WordColor!=NULL){
 				$WordColorArray=$this->HexRGB($WordColor);
 			}
-			if(!imagettftext($NewImg,$FontSize,0,$WordMarginX,$WordMarginY,$textcolor1,AddRootPath($GLOBALS['ModuleConfig_Img']['FontFile']),$Word)){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.2.5',TRUE);
+			if(!imagettftext($NewImg,$FontSize,0,$WordMarginX,$WordMarginY,$textcolor1,AddRootPath($_SERVER['84PHP_CONFIG']['Img']['FontFile']),$Word)){
+				Wrong::Report(__FILE__,__LINE__,'Error#M.2.5');
 			}
 		}
 		
@@ -205,7 +197,7 @@ class Img{
 	}
 	
 	//合并图片
-	public function Merge($UnionData){
+	public function Merge($UnionData=array()){
 		$Background=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'background','背景');
 		$Foreground=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'foreground','前景');
 		$DataType=strtolower(QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data_type','资源类型',FALSE,'path'));
