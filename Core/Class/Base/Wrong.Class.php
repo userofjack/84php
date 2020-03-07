@@ -16,41 +16,37 @@
   框架版本号：3.0.0
 */
 
+require(RootPath.'/Config/Wrong.php');
 class Wrong{
 
 	public function __construct(){
-		if(!empty($_SESSION['ModuleSetting'][__CLASS__])&&is_array($_SESSION['ModuleSetting'][__CLASS__])){
-			foreach($_SESSION['ModuleSetting'][__CLASS__] as $ModuleSettingKey => $ModuleSettingVal){
-				$GLOBALS['ModuleConfig_Wrong'][$ModuleSettingKey]=$ModuleSettingVal;
-			}
+		if($_SERVER['84PHP_CONFIG']['Wrong']['Log']){
+			LoadModule('Log','Base');
 		}
 	}
 
 	public static function Report($File,$Line,$ErrorDetail,$Anytime=FALSE,$ErrorCode=500){
-		if(isset($_SESSION['Debug'])){
-			$DebugState=isset($_SESSION['Debug']);
-		}
-		else{
-			$DebugState=$GLOBALS['FrameworkConfig']['Debug'];
-		}
 		ob_clean();
-		if(!$GLOBALS['FrameworkConfig']['Always200']){
+		if(!FrameworkConfig['Always200']){
 			http_response_code($ErrorCode);
 		}
 		$Style=file_get_contents(RootPath.'/Core/Errors/Style.php');
-		if(!$Style){
+		if($Style==FALSE){
 			die('Error#B.2.0');
 		}
 		if(!strstr($Style,'{$ErrorInfo}')){
 			$Style='{$ErrorInfo}';
 		}
-		if(!$DebugState&&!$Anytime){
+		if(!FrameworkConfig['Debug']&&!$Anytime){
 			$Style=str_replace('{$ErrorInfo}','Error#C.0.4',$Style);
 		}
-		if($DebugState&&!empty($File)){
+		if(FrameworkConfig['Debug']&&!empty($File)){
 			$ErrorDetail.=' @ Debug#the error in [ '.$File.' ] on [ '.$Line.' ].';
 		}
 		$ErrorDetail=str_replace('\\','/',$ErrorDetail);
+		if($_SERVER['84PHP_CONFIG']['Wrong']['Log']){
+			$_SERVER['84PHP_LOG'].='[error] '.$ErrorDetail.' @ Debug#the error in [ '.$File.' ] on [ '.$Line.' ].'.' <'.strval((intval(microtime(TRUE)*1000)-intval(Runtime*1000))/1000)."s>\r\n";
+		}
 		$ErrorDetail=substr(substr(json_encode(array('*'=>$ErrorDetail),320),6),0,-2);
 		$Style=str_replace('{$ErrorInfo}',$ErrorDetail,$Style);
 		$Style=str_replace('{$ErrorCode}',$ErrorCode,$Style);

@@ -16,30 +16,22 @@
   框架版本号：3.0.0
 */
 
-require(RootPath."/Config/Ftp.php");
+require(RootPath.'/Config/Ftp.php');
 
 class Ftp{
 
-	public function __construct(){
-		if(!empty($_SESSION['ModuleSetting'][__CLASS__])&&is_array($_SESSION['ModuleSetting'][__CLASS__])){
-			foreach($_SESSION['ModuleSetting'][__CLASS__] as $ModuleSettingKey => $ModuleSettingVal){
-				$GLOBALS['ModuleConfig_Ftp'][$ModuleSettingKey]=$ModuleSettingVal;
-			}
-		}
-	}
-
 	//上传
-	public function Up($UnionData){
+	public function Up($UnionData=array()){
 		$From=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'from','本地路径');
 		$To=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'to','远程路径');
 		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,90);
 		
 		$From=AddRootPath($From);
 
-		$Connect=ftp_connect($GLOBALS['ModuleConfig_Ftp']['Server'],$GLOBALS['ModuleConfig_Ftp']['Port'],$Timeout);
-		$Login=ftp_login($Connect,$GLOBALS['ModuleConfig_Ftp']['User'],$GLOBALS['ModuleConfig_Ftp']['Password']);
+		$Connect=ftp_connect($_SERVER['84PHP_CONFIG']['Ftp']['Server'],$_SERVER['84PHP_CONFIG']['Ftp']['Port'],$Timeout);
+		$Login=ftp_login($Connect,$_SERVER['84PHP_CONFIG']['Ftp']['User'],$_SERVER['84PHP_CONFIG']['Ftp']['Password']);
 		if((!$Connect)||(!$Login)){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.1.0',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.1.0');
 		}
 		$Upload=ftp_put($Connect,$To,$From,FTP_ASCII); 
 		ftp_close($Connect);
@@ -52,17 +44,17 @@ class Ftp{
 	}
 
 	//下载
-	public function Down($UnionData){
+	public function Down($UnionData=array()){
 		$From=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'from','远程路径');
 		$To=RootPath.QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'to','本地路径');
 		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,90);
 		
 		$To=AddRootPath($To);
 
-		$Connect=ftp_connect($GLOBALS['ModuleConfig_Ftp']['Server'],$GLOBALS['ModuleConfig_Ftp']['Port'],$Timeout);
-		$Login=ftp_login($Connect,$GLOBALS['ModuleConfig_Ftp']['User'],$GLOBALS['ModuleConfig_Ftp']['Password']);
+		$Connect=ftp_connect($_SERVER['84PHP_CONFIG']['Ftp']['Server'],$_SERVER['84PHP_CONFIG']['Ftp']['Port'],$Timeout);
+		$Login=ftp_login($Connect,$_SERVER['84PHP_CONFIG']['Ftp']['User'],$_SERVER['84PHP_CONFIG']['Ftp']['Password']);
 		if((!$Connect)||(!$Login)){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.1.0',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.1.0');
 		}
 		$Download=ftp_get($Connect,$To,$From,FTP_ASCII); 
 		ftp_close($Connect);

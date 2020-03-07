@@ -16,20 +16,12 @@
   框架版本号：3.0.0
 */
 
-require(RootPath."/Config/Tool.php");
+require(RootPath.'/Config/Tool.php');
 
 class Tool{
 
-	public function __construct(){
-		if(!empty($_SESSION['ModuleSetting'][__CLASS__])&&is_array($_SESSION['ModuleSetting'][__CLASS__])){
-			foreach($_SESSION['ModuleSetting'][__CLASS__] as $ModuleSettingKey => $ModuleSettingVal){
-				$GLOBALS['ModuleConfig_Tool'][$ModuleSettingKey]=$ModuleSettingVal;
-			}
-		}
-	}
-
 	//随机字符
-	public function Random($UnionData){
+	public function Random($UnionData=array()){
 		$Mode=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'mode','模式',FALSE,'AaN');
 		$StringLength=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'length','长度',FALSE,32);
 
@@ -59,14 +51,34 @@ class Tool{
 		return $String;
 	}
 	
+	//生成UUID
+	public function Uuid($UnionData=array()){
+		$MD5=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'md5','md5',FALSE,FALSE);
+		$Return=md5(memory_get_usage().$this->Random().uniqid('', true).mt_rand(1,99999).$_SERVER['REMOTE_ADDR']);
+		
+		if(!$MD5){
+			$Return=
+				'{'.
+				substr($Return,0,8).'-'.
+				substr($Return,8,4).'-'.
+				substr($Return,12,4).'-'.
+				substr($Return,16,4).'-'.
+				substr($Return,20,12).
+				'}';
+		}
+		
+		return $Return;
+	}
+
+	
 	//设置Token
-	public function Token(){
+	public function Token($UnionData=array()){
 		if(!isset($_SESSION)){
 			session_start();
 		}
-		$Token=md5($this->Random().$NowTime);
+		$Token=$this->Uuid(array('md5'=>TRUE));
 		
-		$NowTime=time();
+		$NowTime=Runtime;
 
 		$_SESSION['Token']=array(
 								'token'=>$Token,
@@ -87,12 +99,12 @@ class Tool{
 	}
 	
 	//还原HTML标记
-	public function Html($UnionData){
+	public function Html($UnionData=array()){
 		$String=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'string','字符串',FALSE,'AaN');
 		$Tag_other=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'tag_other','其它标记',FALSE,NULL);
 		$Event=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'event','事件',FALSE,FALSE);
 
-		$AllowTag=$GLOBALS['ModuleConfig_Tool']['HtmlTag'];
+		$AllowTag=$_SERVER['84PHP_CONFIG']['Tool']['HtmlTag'];
 		if(!empty($Tag_other)){
 			$AllowTag.='|'.$Tag_other;
 		}

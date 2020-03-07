@@ -18,16 +18,8 @@
 
 Class Send{
 
-	public function __construct(){
-		if(!empty($_SESSION['ModuleSetting'][__CLASS__])&&is_array($_SESSION['ModuleSetting'][__CLASS__])){
-			foreach($_SESSION['ModuleSetting'][__CLASS__] as $ModuleSettingKey => $ModuleSettingVal){
-				$GLOBALS['ModuleConfig_Send'][$ModuleSettingKey]=$ModuleSettingVal;
-			}
-		}
-	}
-
 	//Post提交
-	public function Post($UnionData){
+	public function Post($UnionData=array()){
 		$Url=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'url','地址');
 		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据',FALSE,array());
 		$Headers=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'header','header',FALSE,array());
@@ -50,7 +42,7 @@ Class Send{
 		$Context=stream_context_create($Params);
 		$Handle=@fopen($Url,'rb',FALSE,$Context);
 		if(!$Handle){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.8.0',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.8.0');
 		}
 		$Response=@stream_get_contents($Handle);
 		fclose($Handle);
@@ -58,7 +50,7 @@ Class Send{
 	}
 	
 	//Get提交
-	public function Get($UnionData){
+	public function Get($UnionData=array()){
 		$Url=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'url','地址');
 		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据',FALSE,array());
 		$Headers=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'header','header',FALSE,array());
@@ -77,7 +69,7 @@ Class Send{
 		$Context=stream_context_create($Params);
 		$Handle=@fopen($Url.$SendData,'rb',FALSE,$Context);
 		if(!$Handle){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.8.0',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.8.0');
 		}
 		$Response=@stream_get_contents($Handle);
 		fclose($Handle);
@@ -85,7 +77,7 @@ Class Send{
 	}
 	
 	//Post含文件提交
-	public function Posts($UnionData){
+	public function Posts($UnionData=array()){
 		$Url=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'url','地址');
 		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据',FALSE,array());
 		$File=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'file','文件',FALSE,array());
@@ -94,7 +86,7 @@ Class Send{
 		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,15);
 
 		if(!function_exists('curl_init')){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.8.1',TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.8.1');
 		}
 		
 		$Response=NULL;
@@ -130,7 +122,7 @@ Class Send{
 		$CurlErrno=curl_errno($Handle);
 		curl_close($Handle);
 		if($Response===FALSE&&$CurlErrno>0){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.8.0 @ '.$CurlErrno,TRUE);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.8.0 @ '.$CurlErrno);
 		}
 		return $Response;
 	}

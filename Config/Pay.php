@@ -1,5 +1,5 @@
 <?php
-$ModuleConfig_Pay=array(
+$_SERVER['84PHP_CONFIG']['Pay']=array(
 	'Timeout'=>15,
 	
 	'AliPid'=>'',

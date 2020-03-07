@@ -19,54 +19,51 @@ if($_SERVER['REQUEST_METHOD']=='OPTIONS'){
 	die('OPTIONS request blocked by framework.');
 }
 
-define("RootPath",substr(str_replace(array('\\','//'),'/',dirname(__FILE__)),0,-5));
+define('Runtime',microtime(TRUE));
+define('RootPath',substr(str_replace(array('\\','//'),'/',dirname(__FILE__)),0,-5));
+$_SERVER['84PHP_MODULE']=array();
+$_SERVER['84PHP_CONFIG']=array();
+$_SERVER['84PHP_LOG']='';
 
-require(RootPath.'/Core/Common.php');
-date_default_timezone_set($FrameworkConfig['TimeZone']);
+require(RootPath.'/Config/Common.php');
+date_default_timezone_set(FrameworkConfig['TimeZone']);
 
-if($FrameworkConfig['RunTimeLimit']!==FALSE){
-	set_time_limit($FrameworkConfig['RunTimeLimit']);
+if(FrameworkConfig['RunTimeLimit']!==FALSE){
+	set_time_limit(FrameworkConfig['RunTimeLimit']);
 }
 
-require(RootPath.'/Core/Class/Base/Wrong.Class.php'); 
+require(RootPath.'/Core/Class/Base/Wrong.Class.php');
+$_SERVER['84PHP_MODULE']['Wrong']=new Wrong;
 
-if($FrameworkConfig['Https']){
+if(FrameworkConfig['Https']){
 	if(isset($_SERVER['HTTPS'])){
-		Wrong::Report(__FILE__,__LINE__,'Error#C.1.0',TRUE);
+		Wrong::Report(__FILE__,__LINE__,'Error#C.1.0');
 	}
 	if($_SERVER['HTTPS']==''||$_SERVER['HTTPS']=='off'){
 		header('Location: https://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
 	}
 }
 
-if($FrameworkConfig['Route']!='BASE'&&$FrameworkConfig['Route']!='PATH'&&$FrameworkConfig['Route']!='MIX'){
-	Wrong::Report(__FILE__,__LINE__,'Error#C.1.1',TRUE);
+if(FrameworkConfig['Route']!='BASE'&&FrameworkConfig['Route']!='PATH'&&FrameworkConfig['Route']!='MIX'){
+	Wrong::Report(__FILE__,__LINE__,'Error#C.1.1');
 }
 
-if($FrameworkConfig['SessionStart']&&!isset($_SESSION)){
+if(FrameworkConfig['SessionStart']&&!isset($_SESSION)){
 	require(RootPath.'/Core/Class/Base/Session.Class.php');
-	$SessionClass=new Session;
+	$_SERVER['84PHP_MODULE']['Session']=new Session;
 }
 
+header('X-Powered-By: '.FrameworkConfig['XPoweredBy']);
 
-if(!empty($_SESSION['ModuleSetting'])){
-	$_SESSION['ModuleSetting']=array();
-}
 
-header('X-Powered-By: '.$FrameworkConfig['XPoweredBy']);
-
-if(isset($_SESSION['Debug'])){
-	$_SESSION['Debug']=$FrameworkConfig['Debug'];
-}
-
-if(!$FrameworkConfig['Debug']){
+if(!FrameworkConfig['Debug']){
 	error_reporting(0);
 }
 else{
 	header('Cache-Control: no-cache,must-revalidate');
 	header('Pragma: no-cache');
 	header("Expires: -1");
-	header('Last-Modified: '.gmdate('D, d M Y 00:00:00',time()).' GMT');
+	header('Last-Modified: '.gmdate('D, d M Y 00:00:00',Runtime).' GMT');
 }
 
 // 错误处理
@@ -110,32 +107,6 @@ function SystemErrorHandler($ErrorNo,$ErrorMsg,$ErrorFile,$ErrorLine) {
 	$PHPSystemError.=$ErrorMsg.' in '.$ErrorFile.' on '.$ErrorLine;
 	Wrong::Report('','',$PHPSystemError);
 	return TRUE;
-}
-
-//记录客户端信息
-if($FrameworkConfig['RequestLog']['state']&&strlen($FrameworkConfig['SafeCode'])>=10){
-	if(!@file_exists(RootPath.'/Temp/Log')){
-		@mkdir(RootPath.'/Temp/Log',0777,TRUE);
-	}
-	if(strtoupper($FrameworkConfig['RequestLog']['interval'])=='D'){
-		$LogFileName=date('Y-m-d',time());
-	}
-	else if(strtoupper($FrameworkConfig['RequestLog']['interval'])=='H'){
-		$LogFileName=date('Y-m-d H',time()).'h';
-	}
-	else if(strtoupper($FrameworkConfig['RequestLog']['interval'])=='M'){
-		$LogFileName=date('Y-m-d H:i',time());
-	}
-	else{
-		$LogFileName='clientlog';
-	}
-	$Handle=@fopen(RootPath.'/Temp/Log/'.$LogFileName.'-'.$FrameworkConfig['SafeCode'].'.txt','a');
-	if($Handle){
-		if(flock($Handle,LOCK_EX)){
-			fwrite(Handle,time().'|TIME:'.date('Y-m-d H:i:s',time()).'|CLIENT_IP:'.$_SERVER['REMOTE_ADDR'].'|PHP_SELF:'.$_SERVER['PHP_SELF'].':'.$_SERVER['REMOTE_PORT'].'|DOMAIN:'.$_SERVER['SERVER_NAME'].'|REQUEST_METHOD:'.$_SERVER['REQUEST_METHOD'].'|HTTP_REFERER:'.((empty($_SERVER['HTTP_REFERER']))?'':$_SERVER['HTTP_REFERER']).'|UA:'.$_SERVER['HTTP_USER_AGENT'].'|SESSION:'.json_encode(!empty($_SESSION)?$_SESSION:'',320).'|COOKIE:'.json_encode($_COOKIE,320)."\r\n");
-		}
-		fclose($Handle);
-	}
 }
 
 //快捷传参
@@ -192,6 +163,14 @@ function AddRootPath($Path,$Prefix=''){
 function MethodNotExist($ModuleName,$MethodName){
 	$ErrorMsg='Error#C.0.6 @ '.$ModuleName.'->'.$MethodName.'()';
 	Wrong::Report(__FILE__,__LINE__,$ErrorMsg);
+}
+
+//自动载入文件并实例化
+function LoadModule($Module,$Type){
+	if(!isset($_SERVER['84PHP_MODULE'][$Module])){
+		require(RootPath.'/Core/Class/'.$Type.'/'.$Module.'.Class.php');
+		$_SERVER['84PHP_MODULE'][$Module]=new $Module;
+	}
 }
 
 //缓冲区控制开启
