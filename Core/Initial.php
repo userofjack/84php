@@ -15,18 +15,20 @@
 
   框架版本号：3.0.0
 */
+define('RootPath',substr(str_replace(array('\\','//'),'/',dirname(__FILE__)),0,-5));
+
+require(RootPath.'/Config/Common.php');
+
 if($_SERVER['REQUEST_METHOD']=='OPTIONS'){
 	die('OPTIONS request blocked by framework.');
 }
 
+date_default_timezone_set(FrameworkConfig['TimeZone']);
 define('Runtime',microtime(TRUE));
-define('RootPath',substr(str_replace(array('\\','//'),'/',dirname(__FILE__)),0,-5));
+
 $_SERVER['84PHP_MODULE']=array();
 $_SERVER['84PHP_CONFIG']=array();
 $_SERVER['84PHP_LOG']='';
-
-require(RootPath.'/Config/Common.php');
-date_default_timezone_set(FrameworkConfig['TimeZone']);
 
 if(FrameworkConfig['RunTimeLimit']!==FALSE){
 	set_time_limit(FrameworkConfig['RunTimeLimit']);

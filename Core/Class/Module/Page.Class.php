@@ -55,6 +55,7 @@ class Page{
 			'index'=>$Index,
 			'sql'=>$Sql
 		));
+		$TotalNumber=intval($TotalNumber);
 		$TotalPage=intval(ceil($TotalNumber/$Number));
 		if($Number>0){
 			if($NowPage>=2&&$Number!=0){
