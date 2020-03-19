@@ -23,8 +23,8 @@ class Cache{
 	
 	//模块语法编译调用
 	private function FastClassCall($WaitReplace){
-		$this->IncludeArray[]=$WaitReplace[3];
-		return	$WaitReplace[0]=$WaitReplace[2].'$_SERVER[\'84PHP_MODULE\'][\''.$WaitReplace[3].'\']->'.$WaitReplace[4].";\r\n";
+		$this->IncludeArray[]=$WaitReplace[1];
+		return	$WaitReplace[0]='$_SERVER[\'84PHP_MODULE\'][\''.$WaitReplace[1].'\']->'.$WaitReplace[2].'('.$WaitReplace[3].')';
 	}
 	
 	//得到核心目录相对路径
@@ -52,9 +52,7 @@ class Cache{
 			}
 			$TempWait=str_replace(array(';;'),array(';'),$TempWait);
 			$TempWait=preg_replace(array('/(?:^|\n|\s+)\/\/.*/',"/\/\*(.|\r\n)*\*\//"),array('',"\r\n"),$TempWait);
-			$Return=preg_replace_callback('/(.*?)#(.*?)<(.*?)@(.*)>(.*)/',array($this,'FastClassCall'),$TempWait);
-			$Return=preg_replace(array('/(?:^|\n|\s+)#.*/','/\?>(\s)\?/'),'',$Return);
-
+			$Return=preg_replace_callback('/\[[ \t]*([_a-zA-Z][_a-zA-Z0-9]*)[ \t]*>>[ \t]*([_a-zA-Z][_a-zA-Z0-9]*)[ \t]*\((.*?)\)[ \t]*\]/',array($this,'FastClassCall'),$TempWait);
 			$Return=preg_replace(array('/(?:^|\n|\s+)#.*/','/\?>(\s\r\n)*/'),'',$Return)."?>\r\n";
 			$this->IncludeArray=array_unique($this->IncludeArray);
 			foreach($this->IncludeArray as $IncludeClass){
