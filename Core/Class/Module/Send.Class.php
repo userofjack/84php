@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：3.0.0
+  框架版本号：4.0.0
 */
 
 Class Send{
@@ -23,17 +23,15 @@ Class Send{
 		$Url=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'url','地址');
 		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据',FALSE,array());
 		$Headers=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'header','header',FALSE,array());
-		$BuildQuery=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'encode','编码',FALSE,TRUE);
 		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,15);
 
 		$Response=NULL;
-		$SendData='';
-		if (is_array($Data)&&$BuildQuery){
-			$SendData=http_build_query($Data);
+		if(is_array($Data)){
+			$Data=http_build_query($Data);
 		}
 		$Params=array('http'=>array(
 					'method'=>'POST',
-					'content'=>$SendData
+					'content'=>$Data
 		));
 		$Params['http']['timeout']=floatval($Timeout);
 		if(!empty($Headers)){
@@ -57,9 +55,16 @@ Class Send{
 		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,15);
 
 		$Response=NULL;
-		$SendData='';
 		if(!empty($Data)){
-			$SendData='?'.http_build_query($Data);
+			if(is_array($Data)){
+				$Data='?'.http_build_query($Data);
+			}
+			else{
+				$Data='?'.$Data;
+			}
+		}
+		else{
+			$Data='';
 		}
 		$Params=array('http'=>array('method'=>'GET'));
 		$Params['http']['timeout']=floatval($Timeout);
@@ -67,7 +72,7 @@ Class Send{
 			$Params['http']['header']=$Headers;
 		}
 		$Context=stream_context_create($Params);
-		$Handle=@fopen($Url.$SendData,'rb',FALSE,$Context);
+		$Handle=@fopen($Url.$Data,'rb',FALSE,$Context);
 		if(!$Handle){
 			Wrong::Report(__FILE__,__LINE__,'Error#M.8.0');
 		}
@@ -82,7 +87,6 @@ Class Send{
 		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据',FALSE,array());
 		$File=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'file','文件',FALSE,array());
 		$Headers=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'header','header',FALSE,array());
-		$BuildQuery=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'encode','编码',FALSE,TRUE);
 		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,15);
 
 		if(!function_exists('curl_init')){
@@ -105,9 +109,7 @@ Class Send{
 		curl_setopt($Handle,CURLOPT_RETURNTRANSFER,TRUE);
 		
 		foreach($Data as $Key=>$Val){
-			if($BuildQuery){
-				$Val=urlencode($Val);
-			}
+			$Val=urlencode($Val);
 			$SendData[$Key]=$Val;
 		}
 		

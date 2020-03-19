@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：3.0.0
+  框架版本号：4.0.0
 */
 
 require(RootPath.'/Config/Receive.php');

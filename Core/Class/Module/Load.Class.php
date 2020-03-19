@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：3.0.0
+  框架版本号：4.0.0
 */
 
 class Load{
@@ -77,25 +77,15 @@ class Load{
 		if(!file_exists($Pathinfo)){
 			mkdir($Pathinfo,0777,TRUE);
 		}
-		if (is_uploaded_file($FileTmpName)) { 	
- 			if(!move_uploaded_file($FileTmpName,$Pathinfo.'/'.$FileName)){
-				if(!$IgnoreErrorInfo){
-					Wrong::Report(__FILE__,__LINE__,'Error#M.4.10');
-				}
-				else{
-					return NULL;
-				}
-			}
- 		}
-		else{
+		if(!move_uploaded_file($FileTmpName,$Pathinfo.'/'.$FileName)){
 			if(!$IgnoreErrorInfo){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.4.11');
+				Wrong::Report(__FILE__,__LINE__,'Error#M.4.10');
 			}
 			else{
 				return NULL;
 			}
 		}
-		return str_replace(RootPath.'/Web','',$Pathinfo.'/'.$FileName);
+		return str_replace(RootPath,'',$Pathinfo.'/'.$FileName);
 
 	}
 	
@@ -227,12 +217,12 @@ class Load{
 		if($Handle){
 			$NewHandle=@fopen($NewName,"wb");
 			if(!$NewHandle){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.4.12');
+				Wrong::Report(__FILE__,__LINE__,'Error#M.4.11');
 			}
 			if($NewHandle){
 				while(!feof($Handle)){
 					if(!fwrite($NewHandle,@fread($Handle,1024*8),1024*8)){
-						Wrong::Report(__FILE__,__LINE__,'Error#M.4.13');
+						Wrong::Report(__FILE__,__LINE__,'Error#M.4.12');
 					};
 				}
 				fclose($NewHandle);
@@ -240,7 +230,7 @@ class Load{
 			fclose($Handle);
 		}
 		else{
-			Wrong::Report(__FILE__,__LINE__,'Error#M.4.14');
+			Wrong::Report(__FILE__,__LINE__,'Error#M.4.13');
 		}
 		return $NewName;
 	}

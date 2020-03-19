@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：3.0.0
+  框架版本号：4.0.0
 */
 
 class Page{
@@ -55,6 +55,7 @@ class Page{
 			'index'=>$Index,
 			'sql'=>$Sql
 		));
+		$TotalNumber=intval($TotalNumber);
 		$TotalPage=intval(ceil($TotalNumber/$Number));
 		if($Number>0){
 			if($NowPage>=2&&$Number!=0){
