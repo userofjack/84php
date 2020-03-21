@@ -554,7 +554,7 @@ class Mysql{
 			$this->Connect();
 		}
 
-		$this->SqlLog($QueryString);
+		$this->SqlLog($Sql);
 		$Result=$this->Mysqli->query($Sql,MYSQLI_USE_RESULT);
 
 		if(!$Result){

@@ -29,7 +29,7 @@ define('FrameworkConfig',array(
 	//超时时限（秒）
 	'RunTimeLimit'=>FALSE,
 	//安全码
-	'SafeCode'=>'cfchcggcychcgmhcmchgm',
+	'SafeCode'=>'',
 	//SESSION自动开启
 	'SessionStart'=>FALSE,
 	//时区
