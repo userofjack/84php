@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：4.0.0
+  框架版本号：4.0.1
 */
 define('RootPath',substr(str_replace(array('\\','//'),'/',dirname(__FILE__)),0,-5));
 

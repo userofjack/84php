@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：4.0.0
+  框架版本号：4.0.1
 */
 
 require(RootPath.'/Config/Mail.php');
