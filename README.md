@@ -8,6 +8,11 @@
 
 [https://doc.bux.cn/84php](https://doc.bux.cn/84php)
 
+## 视频教程及Demo
+
+[https://www.84php.com/?class=15&space=news](https://www.84php.com/?class=15&space=news)
+
+
 ## QQ群
 
 * 823907259
