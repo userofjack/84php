@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：4.0.1
+  框架版本号：4.0.2
 */
 
 require(RootPath.'/Config/Tool.php');

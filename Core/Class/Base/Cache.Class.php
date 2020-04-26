@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：4.0.1
+  框架版本号：4.0.2
 */
 
 require(RootPath.'/Config/Cache.php');
@@ -238,7 +238,7 @@ class Cache{
 					$this->EveryFile($AllFile);
 				}
 				else if(strtoupper(end($Exp))=='PHP'){
-					$this->Compile(substr(str_replace(array(RootPath.$_SERVER['84PHP_CONFIG']['Cache']['TPath'],RootPath.$_SERVER['84PHP_CONFIG']['Cache']['DPath']),'',$AllFile),0,-4),TRUE);
+					$this->Compile(array('path'=>substr(str_replace(array(RootPath.$_SERVER['84PHP_CONFIG']['Cache']['TPath'],RootPath.$_SERVER['84PHP_CONFIG']['Cache']['DPath']),'',$AllFile),0,-4),'force'=>'DT'));
 				}
 			}
 		}
