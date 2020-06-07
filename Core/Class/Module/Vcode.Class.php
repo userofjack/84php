@@ -22,7 +22,7 @@ class Vcode{
 
 	//颜色转换
 	private function HexRGB($HexColor){
-		$Hex=hexdec($HexColor);
+		$Hex=hexdec(str_replace('#','',$HexColor));
 		return array("red"=>0xFF&($Hex>>0x10),"green"=>0xFF&($Hex>>0x8),"blue"=>0xFF&$Hex);
 	}
 	//验证码
