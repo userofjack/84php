@@ -9,7 +9,7 @@
 <meta name="screen-orientation" content="portrait">
 <meta name="browsermode" content="application">
 <meta name="x5-orientation" content="portrait">
-<title>欢迎/Welcome -84PHP</title>
+<title>欢迎 -84PHP</title>
 <script type="text/javascript" src="js/js.js"></script>
 <link rel="stylesheet" href="css/style.css" type="text/css" />
 </head>
