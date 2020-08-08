@@ -59,7 +59,7 @@ class Mysql{
 		}
 		$this->Mysqli=@new mysqli($_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb]['address'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb]['username'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb]['password'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb]['dbname'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb]['port']);
 		if($this->Mysqli->connect_errno){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.1 @ Detail: '.$this->Mysqli->connect_error);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.1'."\r\n\r\n @ ".'Detail: '.$this->Mysqli->connect_error);
 		}
 	}
 	
@@ -264,7 +264,7 @@ class Mysql{
 		$Result=$this->Mysqli->query($QueryString);
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2 @ Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError);
 		}
 		$Return=$Result->fetch_assoc();
 		$Result->free();
@@ -300,7 +300,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2 @ Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError);
 		}
 		
 		$Return=$Result->fetch_all(MYSQLI_ASSOC);
@@ -340,7 +340,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2 @ Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError);
 		}
 		
 		$Return=$Result->fetch_all(MYSQLI_ASSOC);
@@ -394,7 +394,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2 @ Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError);
 		}
 		
 		$Return=$Result->fetch_assoc();
@@ -441,7 +441,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.3 @ Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.3'."\r\n\r\n @ ".'Detail: '.$ModuleError);
 		}
 
 		$Result=$this->Mysqli->insert_id;
@@ -474,7 +474,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2 @ Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError);
 		}
 	}
 	
@@ -524,7 +524,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.4 @ Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.4'."\r\n\r\n @ ".'Detail: '.$ModuleError);
 		}
 	}
 	
@@ -538,7 +538,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$Sql.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.5 @ Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.5'."\r\n\r\n @ ".'Detail: '.$ModuleError);
 		}
 		
 		if($Fetch){

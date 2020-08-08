@@ -64,7 +64,7 @@ class Cache{
 					$ClassType='Module';
 				}
 				else{
-					Wrong::Report(__FILE__,__LINE__,'Error#B.0.1 @ '.ucfirst($IncludeClass).' @ '.$FilePath);
+					Wrong::Report(__FILE__,__LINE__,'Error#B.0.1'."\r\n\r\n @ ".ucfirst($IncludeClass)."\r\n @ ".$FilePath);
 				}
 				$NewClass.='LoadModule(\''.ucfirst($IncludeClass).'\',\''.$ClassType."');\r\n";
 			}
@@ -161,7 +161,7 @@ class Cache{
 		$DSource=$this->FileInfo(RootPath.$_SERVER['84PHP_CONFIG']['Cache']['DPath'].$Path);
 		
 		if(!is_dir($CachePath)&&!@mkdir($CachePath,0777,TRUE)){
-			Wrong::Report(__FILE__,__LINE__,'Error#B.0.5 @ '.$CachePath);
+			Wrong::Report(__FILE__,__LINE__,'Error#B.0.5'."\r\n\r\n @ ".$CachePath);
 		};
 
 
@@ -215,7 +215,7 @@ class Cache{
 
 		if(!is_dir(dirname($CacheFile['path']))&&($CacheChanged['T']||$CacheChanged['D'])){
 			if(!mkdir(dirname($CacheFile['path']),0777,TRUE)){
-				Wrong::Report(__FILE__,__LINE__,'Error#B.0.5 @ '.dirname($CacheFile['path']));
+				Wrong::Report(__FILE__,__LINE__,'Error#B.0.5'."\r\n\r\n @ ".dirname($CacheFile['path']));
 			}
 		}
 

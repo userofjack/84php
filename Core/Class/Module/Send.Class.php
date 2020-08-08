@@ -124,7 +124,7 @@ Class Send{
 		$CurlErrno=curl_errno($Handle);
 		curl_close($Handle);
 		if($Response===FALSE&&$CurlErrno>0){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.8.0 @ '.$CurlErrno);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.8.0'."\r\n\r\n @ ".$CurlErrno);
 		}
 		return $Response;
 	}

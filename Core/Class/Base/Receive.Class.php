@@ -81,7 +81,7 @@ class Receive{
 			(isset($OpArray[2])&&$StrLen<intval($OpArray[2]))||
 			(isset($OpArray[3])&&$StrLen>intval($OpArray[3])))
 			{
-				Wrong::Report(__FILE__,__LINE__,'Error#B.1.6 @ '.$TempOp[0],FALSE,400);
+				Wrong::Report(__FILE__,__LINE__,'Error#B.1.6'."\r\n\r\n @ ".$TempOp[0],FALSE,400);
 			}
 		}
 	}
@@ -98,7 +98,7 @@ class Receive{
 			foreach ($FieldCheck as $Val){
 				$TempOp=explode(',',$Val);
 				if(!isset($_POST[$TempOp[0]])||!$this->B_1_5_Check($TempOp,$_POST[$TempOp[0]])){
-					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5 @ '.$TempOp[0],FALSE,400);
+					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5'."\r\n\r\n @ ".$TempOp[0],FALSE,400);
 				}
 				$this->B_1_6_Check($TempOp,$_POST[$TempOp[0]]);
 			}
@@ -135,7 +135,7 @@ class Receive{
 			foreach ($FieldCheck as $Val){
 				$TempOp=explode(',',$Val);
 				if(!isset($_GET[$TempOp[0]])||!$this->B_1_5_Check($TempOp,$_GET[$TempOp[0]])){
-					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5 @ '.$TempOp[0],FALSE,400);
+					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5'."\r\n\r\n @ ".$TempOp[0],FALSE,400);
 				}
 				$this->B_1_6_Check($TempOp,$_GET[$TempOp[0]]);				
 			}
@@ -172,7 +172,7 @@ class Receive{
 				$KeyName='HTTP_'.str_replace('-','_',strtoupper($TempOp[0]));
 				
 				if(!isset($_SERVER[$KeyName])||!$this->B_1_5_Check($TempOp,$_SERVER[$KeyName])){
-					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5 @ '.$KeyName,FALSE,400);
+					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5'."\r\n\r\n @ ".$KeyName,FALSE,400);
 				}
 				$this->B_1_6_Check($TempOp,$_SERVER[$KeyName]);
 				
@@ -198,7 +198,7 @@ class Receive{
 				$TempOp=explode(',',$Val);
 				
 				if(!isset($_COOKIE[$TempOp[0]])||!$this->B_1_5_Check($TempOp,$_COOKIE[$TempOp[0]])){
-					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5 @ '.$TempOp[0],FALSE,400);
+					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5'."\r\n\r\n @ ".$TempOp[0],FALSE,400);
 				}
 				$this->B_1_6_Check($TempOp,$_COOKIE[$TempOp[0]]);
 			}
@@ -229,7 +229,7 @@ class Receive{
 				$TempOp=explode(',',$Val);
 				
 				if(!isset($TempArray[$TempOp[0]])||!$this->B_1_5_Check($TempOp,$TempArray[$TempOp[0]])){
-					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5 @ '.$TempOp[0],FALSE,400);
+					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5'."\r\n\r\n @ ".$TempOp[0],FALSE,400);
 				}
 				$this->B_1_6_Check($TempOp,$TempArray[$TempOp[0]]);
 			}

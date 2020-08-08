@@ -172,7 +172,7 @@ class Pay{
 				$ReturnResult=FALSE;
 			}
 			if(!$ReturnResult&&$Val['tag']=='RETURN_MSG'){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.7.1 @ '.$Val['value']);
+				Wrong::Report(__FILE__,__LINE__,'Error#M.7.1'."\r\n\r\n @ ".$Val['value']);
 			}
 			if($Val['tag']=='PREPAY_ID'&&$Mode=='JSAPI'){
 				$Return=$Val['value'];
