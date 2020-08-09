@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：4.0.1
+  框架版本号：4.0.2
 */
 
 class Load{
@@ -106,11 +106,11 @@ class Load{
 				$TempOp=explode(',',$Val);
 				$TempField=str_replace('[]','',$TempOp[0]);
 				if((!isset($_FILES[$TempField]))||(isset($TempOp[1])&&strtoupper($TempOp[1])=='TRUE'&&empty($_FILES[$TempField]['tmp_name']))){
-					Wrong::Report(__FILE__,__LINE__,'Error#M.4.0 @ '.$TempField,FALSE,400);
+					Wrong::Report(__FILE__,__LINE__,'Error#M.4.0'."\r\n\r\n @ ".$TempField,FALSE,400);
 				}
 				if(is_array($Path)){
 					if(empty($Path[$TempField])){
-						Wrong::Report(__FILE__,__LINE__,'Error#M.4.1 @ '.$TempField,FALSE,400);
+						Wrong::Report(__FILE__,__LINE__,'Error#M.4.1'."\r\n\r\n @ ".$TempField,FALSE,400);
 					}
 					else{
 						$TempPath=$Path[$TempField];
@@ -121,7 +121,7 @@ class Load{
 				}
 				if(is_array($Type)){
 					if(empty($Type[$TempField])){
-						Wrong::Report(__FILE__,__LINE__,'Error#M.4.2 @ '.$TempField,FALSE,400);
+						Wrong::Report(__FILE__,__LINE__,'Error#M.4.2'."\r\n\r\n @ ".$TempField,FALSE,400);
 					}
 					else{
 						$TempType=$Type[$TempField];

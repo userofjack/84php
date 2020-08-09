@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：4.0.1
+  框架版本号：4.0.2
 */
 
 require(RootPath.'/Config/Wrong.php');
@@ -25,12 +25,18 @@ class Wrong{
 		}
 	}
 
-	public static function Report($File,$Line,$ErrorDetail,$Anytime=FALSE,$ErrorCode=500){
+	public static function Report($File,$Line,$ErrorDetail,$Anytime=FALSE,$StatusCode=500){
 		ob_clean();
+		$ByAjax=isset($_SERVER["HTTP_X_REQUESTED_WITH"])&&strtolower($_SERVER["HTTP_X_REQUESTED_WITH"]=='xmlhttprequest');
 		if(!FrameworkConfig['Always200']){
-			http_response_code($ErrorCode);
+			http_response_code($StatusCode);
 		}
-		$Style=file_get_contents(RootPath.'/Core/Errors/Style.php');
+		if($ByAjax){
+			$Style=file_get_contents(RootPath.'/Core/Errors/json-style.php');
+		}
+		else{
+			$Style=file_get_contents(RootPath.'/Core/Errors/html-style.php');
+		}
 		if($Style==FALSE){
 			die('Error#B.2.0');
 		}
@@ -41,15 +47,17 @@ class Wrong{
 			$Style=str_replace('{$ErrorInfo}','Error#C.0.4',$Style);
 		}
 		if(FrameworkConfig['Debug']&&!empty($File)){
-			$ErrorDetail.=' @ Debug#the error in [ '.$File.' ] on [ '.$Line.' ].';
+			$ErrorDetail.="\r\n\r\n".' @ Debug#the error in [ '.$File.' ] on [ '.$Line.' ].';
 		}
 		$ErrorDetail=str_replace('\\','/',$ErrorDetail);
 		if($_SERVER['84PHP_CONFIG']['Wrong']['Log']){
 			$_SERVER['84PHP_LOG'].='[error] '.$ErrorDetail.' @ Debug#the error in [ '.$File.' ] on [ '.$Line.' ].'.' <'.strval((intval(microtime(TRUE)*1000)-intval(Runtime*1000))/1000)."s>\r\n";
 		}
-		$ErrorDetail=substr(substr(json_encode(array('*'=>$ErrorDetail),320),6),0,-2);
+		if($ByAjax){
+			$ErrorDetail=substr(substr(json_encode(array('*'=>$ErrorDetail),320),6),0,-2);
+		}
 		$Style=str_replace('{$ErrorInfo}',$ErrorDetail,$Style);
-		$Style=str_replace('{$ErrorCode}',$ErrorCode,$Style);
+		$Style=str_replace('{$StatusCode}',$StatusCode,$Style);
 		
 		die($Style);
 	}
