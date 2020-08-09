@@ -1,7 +1,7 @@
 <?php
 LoadModule('Receive','Base');
 $Config=array(
-	'字段'=>array('testinput,true')
+	'字段'=>array('testinput')
 );
 $Post=$_SERVER['84PHP_MODULE']['Receive']->Post($Config);
 if(empty($Post['testinput'])){

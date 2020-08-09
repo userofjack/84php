@@ -198,16 +198,15 @@
 		width: 100%;
 		height: 0;
 		flex-grow: 1;
-		position: relative;
 		margin-bottom: 3%;
+		margin-top: 1em;
+		flex-direction: column;
+		display: flex
 	}
 	.main-detail-code{
-		height: 100%;
 		width: 100%;
-		position: absolute;
-		left: 0;
-		top: 0;
-		z-index: 1;
+		flex-grow: 1;
+		flex-shrink: 0;
 		line-height: 1;
 		background-color: #fff;
 		color: #aaa;
@@ -216,15 +215,13 @@
 		box-sizing: border-box;
 		font-family: Consolas, "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", Monaco, "Courier New", "monospace", "Microsoft YaHei", 微软雅黑, 等线, 黑体;
 		white-space: pre-line;
-		overflow-y: auto
+		overflow-y: auto;
+		margin: auto;
 	}
 	.main-detail-support{
 		width: 100%;
-		position: absolute;
-		left: 0;
-		bottom: 0;
-		z-index: 10;
-		line-height: 1;
+		flex-shrink: 0;
+		line-height: 1.2;
 		background-color: #3377ff;
 		color: #fff;
 		font-size: 18rem;
@@ -253,6 +250,7 @@
 		}
 		.main-notice{
 			width: 96%;
+			font-size: 18rem
 		}
 		.main-notice-text-box{
 			width: 90%;
@@ -283,8 +281,17 @@
 		}
 		.main-detail{
 			width: 94%;
-			margin: auto;
+			margin-top: 3%;
 			margin-bottom: 3%;
+		}
+		.main-detail-code{
+			font-size: 18rem;
+		}
+		.main-detail-support{
+			font-size: 14rem;
+		}
+		.main-detail-support span{
+			font-size: 14rem;
 		}
 	}
 </style>
@@ -313,7 +320,7 @@
 		</div>
 		<div class="main-detail">
 			<pre class="main-detail-code">{$ErrorInfo}</pre>
-			<div class="main-detail-support">有关此错误的更多详情，请访问 <a href="https://www.84php.com" target="_blank">https://www.84php.com</a> 中的 <span>【文档】-【错误码查询】</span> 栏目</div>
+			<div class="main-detail-support">有关此错误的更多详情，请访问 <a href="https://www.84php.com" target="_blank">84PHP官网</a> 中的 <span>【文档】-【错误码查询】</span> 栏目</div>
 		</div>
 	</div>
 </body>

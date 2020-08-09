@@ -3,7 +3,7 @@ exit;#
 //“exit;#”是为了防止模板代码被运行。它不会存在于生成的文件中。
 
 $Config=array(
-	'字段'=>array('testinput,true')
+	'字段'=>array('testinput')
 );
 
 $Post=[Receive >> Post($Config)];
