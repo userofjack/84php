@@ -1,55 +1,46 @@
 <?php
-/*****************************************************/
-/*****************************************************/
-/*                                                   */
-/*               84PHP-www.84php.com                 */
-/*                                                   */
-/*****************************************************/
-/*****************************************************/
-
 /*
-  本框架为免费开源、遵循Apache2开源协议的框架，但不得删除此文件的版权信息，违者必究。
-  This framework is free and open source, following the framework of Apache2 open source protocol, but the copyright information of this file is not allowed to be deleted,violators will be prosecuted to the maximum extent possible.
+  84PHP开源框架
 
-  ©2017-2020 Bux. All rights reserved.
+  ©2017-2021 84PHP.COM
 
-  框架版本号：4.0.2
+  框架版本号：5.0.0
 */
 
 class Dir{
 	//目录文件属性
-	public function State($UnionData=array()){
+	public static function State($UnionData=[]){
 		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
 		
 		if(!is_array($Path)){
-			$PathArray=array($Path);
+			$PathArray=[$Path];
 		}
 		else{
 			$PathArray=$Path;
 		}
 
 		clearstatcache();
-		$Return=array();
+		$Return=[];
 		foreach ($PathArray as $Key => $Val){
-			$TempArray=array();
+			$TempArray=[];
 
-			if(file_exists(AddRootPath($Val))){
-				if (is_readable(AddRootPath($Val))){
+			if(file_exists(DiskPath($Val))){
+				if (is_readable(DiskPath($Val))){
 					$TempArray['R']='Y';
 				}
 				else{
 					$TempArray['R']='N';
 				}
 				
-				if (is_writable(AddRootPath($Val))){
+				if (is_writable(DiskPath($Val))){
 					$TempArray['W']='Y';
 				}
 				else{
 					$TempArray['W']='N';
 				}
 				
-				if(is_dir(AddRootPath($Val))){
-					if (is_executable(AddRootPath($Val))){
+				if(is_dir(DiskPath($Val))){
+					if (is_executable(DiskPath($Val))){
 						$TempArray['Ex']='Y';
 					}
 					else{
@@ -58,7 +49,7 @@ class Dir{
 				}
 			}
 			else{
-				$TempArray=array();
+				$TempArray=[];
 			}
 			$Return[$Val]=$TempArray;
 		}
@@ -66,14 +57,14 @@ class Dir{
 	}
 	
 	//目录大小调用
-	private function SizeCall($Path){
+	private static function SizeCall($Path){
 		$DirSize=0;
 		if(file_exists($Path)&&$DirHandle=@opendir($Path)){
 			while($FileName=readdir($DirHandle)){
 				if($FileName!="."&&$FileName!=".."){
 					$SubFile=$Path."/".$FileName;
 					if(is_dir($SubFile))
-						$DirSize+=$this->SizeCall($SubFile);
+						$DirSize+=self::SizeCall($SubFile);
 					if(is_file($SubFile))
 						$DirSize+=filesize($SubFile);
 				}
@@ -87,11 +78,11 @@ class Dir{
 	}
 	
 	//目录大小
-	public function Size($UnionData=array()){
+	public static function Size($UnionData=[]){
 		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
 		$Unit=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'unit','单位',FALSE,NULL);
 
-		$DirSize=$this->SizeCall(AddRootPath($Path));
+		$DirSize=self::SizeCall(DiskPath($Path));
 		
 		if($Unit=='KB'){
 			$DirSize=round($DirSize/pow(1024,1),2);
@@ -111,14 +102,14 @@ class Dir{
 	}
 	
 	//删除目录调用
-	private function DeleteCall($Dir){
+	private static function DeleteCall($Dir){
 		if(file_exists($Dir)){
 			if($DirHandle=@opendir($Dir)){
 				while($FileName=readdir($DirHandle)){
 					if($FileName!="."&&$FileName!=".."){
 						$SubFile=$Dir."/".$FileName;
 						if(is_dir($SubFile)){
-							$this->DelCall($SubFile);
+							self::DelCall($SubFile);
 						}
 						if(is_file($SubFile)){
 							@unlink($SubFile);
@@ -135,21 +126,21 @@ class Dir{
 	}
 	
 	//删除目录
-	public function Delete($UnionData=array()){
+	public static function Delete($UnionData=[]){
 		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
 
 		if(!is_array($Path)){
-			$this->DeleteCall(AddRootPath($Path));
+			self::DeleteCall(DiskPath($Path));
 		}
 		else{
 			foreach($Path as $Val){
-				$this->DeleteCall(AddRootPath($Path));
+				self::DeleteCall(DiskPath($Path));
 			}
 		}
 	}
 	
 	//复制目录调用
-	private function CopyCall($From,$To){
+	private static function CopyCall($From,$To){
 		if(!file_exists($From)){
 			Wrong::Report(__FILE__,__LINE__,'Error#M.0.0');
 		}
@@ -165,7 +156,7 @@ class Dir{
 					$FromPath=$From."/".$FileName;
 					$ToPath=$To."/".$FileName;
 					if(is_dir($FromPath)){
-						$this->CopyCall($FromPath,$ToPath);
+						self::CopyCall($FromPath,$ToPath);
 					}
 					if(is_file($FromPath)){
 						copy($FromPath,$ToPath);
@@ -180,11 +171,11 @@ class Dir{
 	}
 	
 	//复制目录
-	public function Copy($UnionData=array()){
+	public static function Copy($UnionData=[]){
 		$From=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'from','源路径');
 		$To=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'to','目标路径');
 
-		$this->CopyCall(AddRootPath($Path), AddRootPath($Path));
+		self::CopyCall(DiskPath($Path), DiskPath($Path));
 	}
 	
 	//调用方法不存在

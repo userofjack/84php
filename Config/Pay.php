@@ -1,5 +1,5 @@
 <?php
-$_SERVER['84PHP_CONFIG']['Pay']=array(
+$_SERVER['84PHP_CONFIG']['Pay']=[
 	'Timeout'=>15,
 	
 	'AliPid'=>'',
@@ -11,11 +11,11 @@ $_SERVER['84PHP_CONFIG']['Pay']=array(
 	'WxMchId'=>'',
 	'WxKey'=>'',
 	'WxNotifyUrl'=>'',
-	'WxSceneInfo'=>array(
-		'h5_info'=>array(
+	'WxSceneInfo'=>[
+		'h5_info'=>[
 			'type'=>'',
 			'wap_url'=>'',
 			'wap_name'=>''
-		)
-	)
-);
+		]
+	]
+];

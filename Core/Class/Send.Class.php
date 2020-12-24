@@ -1,38 +1,30 @@
 <?php
-/*****************************************************/
-/*****************************************************/
-/*                                                   */
-/*               84PHP-www.84php.com                 */
-/*                                                   */
-/*****************************************************/
-/*****************************************************/
-
 /*
-  本框架为免费开源、遵循Apache2开源协议的框架，但不得删除此文件的版权信息，违者必究。
-  This framework is free and open source, following the framework of Apache2 open source protocol, but the copyright information of this file is not allowed to be deleted,violators will be prosecuted to the maximum extent possible.
+  84PHP开源框架
 
-  ©2017-2020 Bux. All rights reserved.
+  ©2017-2021 84PHP.COM
 
-  框架版本号：4.0.2
+  框架版本号：5.0.0
 */
 
 Class Send{
 
 	//Post提交
-	public function Post($UnionData=array()){
+	public static function Post($UnionData=[]){
 		$Url=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'url','地址');
-		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据',FALSE,array());
-		$Headers=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'header','header',FALSE,array());
+		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据',FALSE,[]);
+		$Headers=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'header','header',FALSE,[]);
 		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,15);
 
 		$Response=NULL;
 		if(is_array($Data)){
 			$Data=http_build_query($Data);
 		}
-		$Params=array('http'=>array(
+		$Params=['http'=>[
 					'method'=>'POST',
 					'content'=>$Data
-		));
+					]
+				];
 		$Params['http']['timeout']=floatval($Timeout);
 		if(!empty($Headers)){
 			$Params['http']['header']=$Headers;
@@ -48,10 +40,10 @@ Class Send{
 	}
 	
 	//Get提交
-	public function Get($UnionData=array()){
+	public static function Get($UnionData=[]){
 		$Url=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'url','地址');
-		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据',FALSE,array());
-		$Headers=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'header','header',FALSE,array());
+		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据',FALSE,[]);
+		$Headers=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'header','header',FALSE,[]);
 		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,15);
 
 		$Response=NULL;
@@ -66,7 +58,7 @@ Class Send{
 		else{
 			$Data='';
 		}
-		$Params=array('http'=>array('method'=>'GET'));
+		$Params=['http'=>['method'=>'GET']];
 		$Params['http']['timeout']=floatval($Timeout);
 		if(!empty($Headers)) {
 			$Params['http']['header']=$Headers;
@@ -82,11 +74,11 @@ Class Send{
 	}
 	
 	//Post含文件提交
-	public function Posts($UnionData=array()){
+	public static function Posts($UnionData=[]){
 		$Url=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'url','地址');
-		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据',FALSE,array());
-		$File=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'file','文件',FALSE,array());
-		$Headers=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'header','header',FALSE,array());
+		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据',FALSE,[]);
+		$File=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'file','文件',FALSE,[]);
+		$Headers=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'header','header',FALSE,[]);
 		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,15);
 
 		if(!function_exists('curl_init')){
@@ -94,7 +86,7 @@ Class Send{
 		}
 		
 		$Response=NULL;
-		$SendData=array();
+		$SendData=[];
 		$Handle=curl_init();
 		
 		curl_setopt($Handle,CURLOPT_URL,$Url);
@@ -114,8 +106,8 @@ Class Send{
 		}
 		
 		foreach($File as $Key=>$Val){
-			if(file_exists(AddRootPath($Val))){
-				$SendData[$Key]=new \CURLFile(AddRootPath($Val));
+			if(file_exists(DiskPath($Val))){
+				$SendData[$Key]=new \CURLFile(DiskPath($Val));
 			}
 		} 
 		

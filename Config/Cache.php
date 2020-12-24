@@ -1,9 +1,10 @@
 <?php
-$_SERVER['84PHP_CONFIG']['Cache']=array(
+$_SERVER['84PHP_CONFIG']['Cache']=[
+	'ExpTime'=>300,
 	'TPath'=>'/Source/Template',
 	'DPath'=>'/Source/Data',
 
-	'CacheMatch'=>array(
+	'CacheMatch'=>[
 					'001_Echo'=>'/\{\$([a-zA-Z_\x7f-\xff][a-zA-Z\[\]\'\'""0-9_\x7f-\xff]*)\}/',
 					'002_LoopForeach'=>'/\{(loop|foreach) \$([a-zA-Z_\x7f-\xff][a-zA-Z\[\]\'\'""0-9_\x7f-\xff]*)\}/',
 					'003_LoopForeach'=>'/\{\/(loop|foreach)}/',
@@ -13,8 +14,8 @@ $_SERVER['84PHP_CONFIG']['Cache']=array(
 					'007_IfElse'=>'/\{\/if\}/',
 					'008_Notes'=>'/\{(\#|\*)(.*?)(\#|\*)\}/',
 					'009_PHPTag'=>'/\{\?(.*?)\?\}/i'
-				),
-	'CacheReplace'=>array(
+				],
+	'CacheReplace'=>[
 					'001_Echo'=>'<?php echo $\\1; ?>',
 					'002_LoopForeach'=>'<?php foreach($\\2 as $Key => $Val) { ?>',
 					'003_LoopForeach'=>'<?php } ?>',
@@ -24,5 +25,5 @@ $_SERVER['84PHP_CONFIG']['Cache']=array(
 					'007_IfElse'=>'<?php } ?>',
 					'008_Notes'=>'',
 					'009_PHPTag'=>'<?php \\1 ?>'
-				)
-);
+				]
+];

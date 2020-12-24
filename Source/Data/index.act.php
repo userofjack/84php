@@ -3,10 +3,11 @@ exit;#
 //“exit;#”是为了防止模板代码被运行。它不会存在于生成的文件中。
 
 $Config=array(
-	'字段'=>array('testinput')
+	'字段'=>['testinput']
 );
 
-$Post=[Receive >> Post($Config)];
+
+$Post=Receive::Post($Config);
 
 /*
 	调用“Receive”模块中的“Post()”方法，并将返回值存储于“$Post”变量中。

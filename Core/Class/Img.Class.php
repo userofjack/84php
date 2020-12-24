@@ -1,19 +1,10 @@
 <?php
-/*****************************************************/
-/*****************************************************/
-/*                                                   */
-/*               84PHP-www.84php.com                 */
-/*                                                   */
-/*****************************************************/
-/*****************************************************/
-
 /*
-  本框架为免费开源、遵循Apache2开源协议的框架，但不得删除此文件的版权信息，违者必究。
-  This framework is free and open source, following the framework of Apache2 open source protocol, but the copyright information of this file is not allowed to be deleted,violators will be prosecuted to the maximum extent possible.
+  84PHP开源框架
 
-  ©2017-2020 Bux. All rights reserved.
+  ©2017-2021 84PHP.COM
 
-  框架版本号：4.0.2
+  框架版本号：5.0.0
 */
 
 require(RootPath.'/Config/Img.php');
@@ -21,16 +12,16 @@ require(RootPath.'/Config/Img.php');
 class Img{
 
 	//颜色转换
-	private function HexRGB($HexColor){
+	private static function HexRGB($HexColor){
 		$Hex=hexdec(str_replace('#','',$HexColor));
-		return array("red"=>0xFF&($Hex>>0x10),"green"=>0xFF&($Hex>>0x8),"blue"=>0xFF&$Hex);
+		return ["red"=>0xFF&($Hex>>0x10),"green"=>0xFF&($Hex>>0x8),"blue"=>0xFF&$Hex];
 	}
 	
 	//图片支持检测
-	private function MIMECheck($MIME){
+	private static function MIMECheck($MIME){
 		
 		$FileType=str_replace('image/','',$MIME);
-		$Support=array_key_exists($FileType,array('bmp'=>'','gd2'=>'','gd'=>'','gif'=>'','jpeg'=>'','png'=>'','vnd.wap.wbmp'=>'','webp'=>'','xbm'=>''));
+		$Support=array_key_exists($FileType,['bmp'=>'','gd2'=>'','gd'=>'','gif'=>'','jpeg'=>'','png'=>'','vnd.wap.wbmp'=>'','webp'=>'','xbm'=>'']);
 		
 		if($MIME=='vnd.wap.wbmp'){
 			$MIME='wbmp';
@@ -45,7 +36,7 @@ class Img{
 	}
 	
 	//打开图片
-	private function GetImage($From,$DataType){
+	private static function GetImage($From,$DataType){
 		if($DataType=='path'){
 			if(!file_exists($From)){
 				Wrong::Report(__FILE__,__LINE__,'Error#M.2.1');
@@ -58,7 +49,7 @@ class Img{
 			if(strtolower($MIME)=='jpg'){
 				$MIME='jpeg';
 			}
-			$this->MIMECheck(strtolower($MIME));
+			self::MIMECheck(strtolower($MIME));
 			if($MIME=='vnd.wap.wbmp'){
 				$MIME='wbmp';
 			}
@@ -84,7 +75,7 @@ class Img{
 	}
 	
 	//输出图片
-	private function OutputImage($ImgData,$To,$Quality,$MIME){
+	private static function OutputImage($ImgData,$To,$Quality,$MIME){
 		if(empty($To)){
 			$To=NULL;
 			header('Content-Type: image/'.$MIME);
@@ -103,16 +94,16 @@ class Img{
 				$MIME='jpeg';
 			}
 		}
-		$this->MIMECheck(strtolower($MIME));
+		self::MIMECheck(strtolower($MIME));
 		if($MIME=='png'){
 			$Quality=intval($Quality/10);
 		}
 		
-		if(array_key_exists($MIME,array('jpeg'=>'','png'=>'','webp'=>''))){
+		if(array_key_exists($MIME,['jpeg'=>'','png'=>'','webp'=>''])){
 			$OutPut=call_user_func('image'.$MIME,$ImgData,$To,$Quality);
 		}
 		
-		if(array_key_exists($MIME,array('bmp'=>'','gd2'=>'','gd'=>'','gif'=>'','vnd.wap.wbmp'=>'','xbm'=>''))){
+		if(array_key_exists($MIME,['bmp'=>'','gd2'=>'','gd'=>'','gif'=>'','vnd.wap.wbmp'=>'','xbm'=>''])){
 			if($MIME=='vnd.wap.wbmp'){
 				$MIME='wbmp';
 			}
@@ -125,7 +116,7 @@ class Img{
 	}
 	
 	//伸缩和水印
-	public function Change($UnionData=array()){
+	public static function Change($UnionData=[]){
 		$From=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'image','源图片');
 		$DataType=strtolower(QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data_type','资源类型',FALSE,'path'));
 		$To=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'to','目标路径',FALSE,NULL);
@@ -145,15 +136,15 @@ class Img{
 			$DataType='string';
 		}
 		else{
-			$From=AddRootPath($From);
+			$From=DiskPath($From);
 		}
 
 		if(!empty($To)){
-			$To=AddRootPath($To);
+			$To=DiskPath($To);
 		}
 		
-		$WordColorArray=array("red"=>80,"green"=>80,"blue"=>80);
-		$ImgInfo=$this->GetImage($From,$DataType);
+		$WordColorArray=["red"=>80,"green"=>80,"blue"=>80];
+		$ImgInfo=self::GetImage($From,$DataType);
 		
 		if(empty($Width)&&empty($Height)){
 			$NewWidth=round($ImgInfo[0]*$Scale);
@@ -183,21 +174,21 @@ class Img{
 				$WordSize=$NewHeight*0.12;
 			}
 			if($WordColor!=NULL){
-				$WordColorArray=$this->HexRGB($WordColor);
+				$WordColorArray=self::HexRGB($WordColor);
 			}
-			if(!imagettftext($NewImg,$FontSize,0,$WordMarginX,$WordMarginY,$textcolor1,AddRootPath($_SERVER['84PHP_CONFIG']['Img']['FontFile']),$Word)){
+			if(!imagettftext($NewImg,$FontSize,0,$WordMarginX,$WordMarginY,$textcolor1,DiskPath($_SERVER['84PHP_CONFIG']['Img']['FontFile']),$Word)){
 				Wrong::Report(__FILE__,__LINE__,'Error#M.2.5');
 			}
 		}
 		
-		$this->OutputImage($NewImg,$To,$Quality,$MIME);
+		self::OutputImage($NewImg,$To,$Quality,$MIME);
 		
 		imagedestroy($ImgInfo['Data']);
 		imagedestroy($NewImg);
 	}
 	
 	//合并图片
-	public function Merge($UnionData=array()){
+	public static function Merge($UnionData=[]){
 		$Background=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'background','背景');
 		$Foreground=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'foreground','前景');
 		$DataType=strtolower(QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data_type','资源类型',FALSE,'path'));
@@ -209,24 +200,24 @@ class Img{
 		$MIME=strtolower(QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'mime','图片类型',FALSE,'jpeg'));
 		
 		if(!empty($To)){
-			$To=AddRootPath($To);
+			$To=DiskPath($To);
 		}
 		
 		if($DataType!='path'){
 			$DataType='string';
 		}
 		else{
-			$Background=AddRootPath($Background);
-			$Foreground=AddRootPath($Foreground);
+			$Background=DiskPath($Background);
+			$Foreground=DiskPath($Foreground);
 		}
 
 		
-		$BgImageInfo=$this->GetImage($Background,$DataType);
-		$FgImageInfo=$this->GetImage($Foreground,$DataType);
+		$BgImageInfo=self::GetImage($Background,$DataType);
+		$FgImageInfo=self::GetImage($Foreground,$DataType);
 
 		imagecopyresampled($BgImageInfo['Data'],$FgImageInfo['Data'],$ImageX,$ImageY,0,0,intval($FgImageInfo[0]*$Scale),intval($FgImageInfo[1]*$Scale),$FgImageInfo[0],$FgImageInfo[1]);
 		
-		$this->OutputImage($BgImageInfo['Data'],$To,$Quality,$MIME);
+		self::OutputImage($BgImageInfo['Data'],$To,$Quality,$MIME);
 		
 		imagedestroy($BgImageInfo['Data']);
 		imagedestroy($FgImageInfo['Data']);

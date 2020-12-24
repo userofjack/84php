@@ -1,24 +1,15 @@
 <?php
-/*****************************************************/
-/*****************************************************/
-/*                                                   */
-/*               84PHP-www.84php.com                 */
-/*                                                   */
-/*****************************************************/
-/*****************************************************/
-
 /*
-  本框架为免费开源、遵循Apache2开源协议的框架，但不得删除此文件的版权信息，违者必究。
-  This framework is free and open source, following the framework of Apache2 open source protocol, but the copyright information of this file is not allowed to be deleted,violators will be prosecuted to the maximum extent possible.
+  84PHP开源框架
 
-  ©2017-2020 Bux. All rights reserved.
+  ©2017-2021 84PHP.COM
 
-  框架版本号：4.0.2
+  框架版本号：5.0.0
 */
 
 class Load{
 
-	private function UpCall($FileError,$FileName,$FileSize,$FileTmpName,$SaveNameInfo,$Pathinfo,$SizeInfo,$TypeInfo,$IgnoreErrorInfo){
+	private static function UpCall($FileError,$FileName,$FileSize,$FileTmpName,$SaveNameInfo,$Pathinfo,$SizeInfo,$TypeInfo,$IgnoreErrorInfo){
 		if($FileError>0){
 			switch ($FileError){
 				case 1:
@@ -90,7 +81,7 @@ class Load{
 	}
 	
 	//上传
-	public function Up($UnionData=array()){
+	public static function Up($UnionData=[]){
 		$FieldCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段');
 		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
 		$Type=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'type','类型');
@@ -99,8 +90,8 @@ class Load{
 		$Number=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'number','数量',FALSE,NULL);
 		$IgnoreError=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'ignore_error','忽略错误',FALSE,FALSE);
 		
-		$Path=AddRootPath($Path);
-		$Return=array();
+		$Path=DiskPath($Path);
+		$Return=[];
 		if(!empty($FieldCheck)&&is_array($FieldCheck)){
 			foreach ($FieldCheck as $Val){
 				$TempOp=explode(',',$Val);
@@ -151,11 +142,11 @@ class Load{
 				}
 								
 				if(empty($_FILES[$TempField])){
-					$Return[$TempField]=array();
+					$Return[$TempField]=[];
 				}
 				else{
 					if(is_string($_FILES[$TempField]['tmp_name'])){
-						$Return[$TempField][0]=$this->UpCall($_FILES[$TempField]['error'],
+						$Return[$TempField][0]=self::UpCall($_FILES[$TempField]['error'],
 															 $_FILES[$TempField]['name'],
 															 $_FILES[$TempField]['size'],
 															 $_FILES[$TempField]['tmp_name'],
@@ -182,7 +173,7 @@ class Load{
 							$TempNumber=count($_FILES[$TempField]['tmp_name']);
 						}
 						for($i=0;$i<$TempNumber;$i++){
-							$Return[$TempField][$i]=$this->UpCall($_FILES[$TempField]['error'][$i],
+							$Return[$TempField][$i]=self::UpCall($_FILES[$TempField]['error'][$i],
 																 $_FILES[$TempField]['name'][$i],
 																 $_FILES[$TempField]['size'][$i],
 																 $_FILES[$TempField]['tmp_name'][$i],
@@ -201,12 +192,12 @@ class Load{
 	}
 	
 	//下载
-	public function Down($UnionData=array()){
+	public static function Down($UnionData=[]){
 		$Url=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'url','地址');
 		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
 		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,86400);
 
-		$Path=AddRootPath($Path);
+		$Path=DiskPath($Path);
 		
 		set_time_limit($Timeout);
 		if(!file_exists($Path)){

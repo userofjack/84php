@@ -1,19 +1,10 @@
 <?php
-/*****************************************************/
-/*****************************************************/
-/*                                                   */
-/*               84PHP-www.84php.com                 */
-/*                                                   */
-/*****************************************************/
-/*****************************************************/
-
 /*
-  本框架为免费开源、遵循Apache2开源协议的框架，但不得删除此文件的版权信息，违者必究。
-  This framework is free and open source, following the framework of Apache2 open source protocol, but the copyright information of this file is not allowed to be deleted,violators will be prosecuted to the maximum extent possible.
+  84PHP开源框架
 
-  ©2017-2020 Bux. All rights reserved.
+  ©2017-2021 84PHP.COM
 
-  框架版本号：4.0.2
+  框架版本号：5.0.0
 */
 
 require(RootPath.'/Config/Tool.php');
@@ -21,7 +12,7 @@ require(RootPath.'/Config/Tool.php');
 class Tool{
 
 	//随机字符
-	public function Random($UnionData=array()){
+	public static function Random($UnionData=[]){
 		$Mode=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'mode','模式',FALSE,'AaN');
 		$StringLength=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'length','长度',FALSE,32);
 
@@ -52,9 +43,9 @@ class Tool{
 	}
 	
 	//生成UUID
-	public function Uuid($UnionData=array()){
+	public static function Uuid($UnionData=[]){
 		$MD5=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'md5','md5',FALSE,FALSE);
-		$Return=md5(memory_get_usage().$this->Random().uniqid('', true).mt_rand(1,99999).$_SERVER['REMOTE_ADDR']);
+		$Return=md5(memory_get_usage().self::Random().uniqid('', true).mt_rand(1,99999).$_SERVER['REMOTE_ADDR']);
 		
 		if(!$MD5){
 			$Return=
@@ -71,35 +62,19 @@ class Tool{
 	}
 
 	
-	//设置Token
-	public function Token($UnionData=array()){
-		if(!isset($_SESSION)){
-			session_start();
-		}
-		$Token=$this->Uuid(array('md5'=>TRUE));
-		
-		$NowTime=Runtime;
-
-		$_SESSION['Token']=array(
-								'token'=>$Token,
-								'time'=>$NowTime
-							);
-		return $Token;
-	}
-	
 	//允许事件的字符还原
-	private function ReTag($WaitReplace){
-		$Return=str_replace(array('＜','＞','＆','＃'),array('<','>','&','#'),$WaitReplace[0]);
+	private static function ReTag($WaitReplace){
+		$Return=str_replace(['＜','＞','＆','＃'],['<','>','&','#'],$WaitReplace[0]);
 		return $Return;
 	}
 	//不允许事件的字符还原
-	private function SafeReTag($WaitReplace){
-		$Return=str_replace(array('＜','＞','＆','＃',';','(',')'),array('<','>','&','#','；','（','）'),$WaitReplace[0]);
+	private static function SafeReTag($WaitReplace){
+		$Return=str_replace(['＜','＞','＆','＃',';','(',')'],['<','>','&','#','；','（','）'],$WaitReplace[0]);
 		return $Return;
 	}
 	
 	//还原HTML标记
-	public function Html($UnionData=array()){
+	public static function Html($UnionData=[]){
 		$String=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'string','字符串',FALSE,'AaN');
 		$Tag_other=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'tag_other','其它标记',FALSE,NULL);
 		$Event=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'event','事件',FALSE,FALSE);
@@ -109,7 +84,7 @@ class Tool{
 			$AllowTag.='|'.$Tag_other;
 		}
 		
-		$StringArray=array(
+		$StringArray=[
 			'（'=>'(',
 			'）'=>')',
 			'﹡'=>'*',
@@ -120,7 +95,7 @@ class Tool{
 			'；'=>';',
 			'＝'=>'=',
 			'＆＃'=>'&#'
-		);
+		];
 		foreach ($StringArray as $Key=>$Val) {
 			$String=str_replace($Key,$Val,$String);
 		}
@@ -130,8 +105,8 @@ class Tool{
 		else{
 			$TagFunction='SafeReTag';
 		}
-		$String=preg_replace_callback('/＜('.$AllowTag.')(.*?)＞/i',array($this,$TagFunction),$String);
-		$String=preg_replace_callback('/＜\/('.$AllowTag.')＞/i',array($this,$TagFunction),$String);
+		$String=preg_replace_callback('/＜('.$AllowTag.')(.*?)＞/i',[$this,$TagFunction],$String);
+		$String=preg_replace_callback('/＜\/('.$AllowTag.')＞/i',[$this,$TagFunction],$String);
 
 		return $String;
 	}

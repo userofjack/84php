@@ -1,9 +1,8 @@
 <?php
-LoadModule('Receive','Base');
 $Config=array(
-	'字段'=>array('testinput')
+	'字段'=>['testinput']
 );
-$Post=$_SERVER['84PHP_MODULE']['Receive']->Post($Config);
+$Post=Receive::Post($Config);
 if(empty($Post['testinput'])){
 	die('<script>alert("这是用POST方式传递的表单数据，由index.act.php进行处理。\r\n【您没有输入字符！】");window.location.href="/index"</script>');
 }

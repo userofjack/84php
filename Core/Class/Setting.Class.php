@@ -1,25 +1,16 @@
 <?php
-/*****************************************************/
-/*****************************************************/
-/*                                                   */
-/*               84PHP-www.84php.com                 */
-/*                                                   */
-/*****************************************************/
-/*****************************************************/
-
 /*
-  本框架为免费开源、遵循Apache2开源协议的框架，但不得删除此文件的版权信息，违者必究。
-  This framework is free and open source, following the framework of Apache2 open source protocol, but the copyright information of this file is not allowed to be deleted,violators will be prosecuted to the maximum extent possible.
+  84PHP开源框架
 
-  ©2017-2020 Bux. All rights reserved.
+  ©2017-2021 84PHP.COM
 
-  框架版本号：4.0.2
+  框架版本号：5.0.0
 */
 
 Class Setting{
 	
 	//检查配置文件
-	private function FileCheck($Module){
+	private static function FileCheck($Module){
 		$FilePath=RootPath.'/Config/'.ucfirst($Module).'.php';
 		if(file_exists($FilePath)){
 			return TRUE;
@@ -28,8 +19,8 @@ Class Setting{
 	}
 		
 	//数组转字符串
-	private function ArrayToStr($Array){
-		$TempText='array('."\r\n";
+	private static function ArrayToStr($Array){
+		$TempText='['."\r\n";
 		foreach($Array as $Key => $Val){
 			if(is_string($Key)){
 				$TempText.='\''.str_replace("'",'"',$Key).'\'=>';
@@ -49,7 +40,7 @@ Class Setting{
 				}
 			}
 			else if(is_array($Val)){
-				$TempText.=$this->ArrayToStr($Val).','."\r\n";
+				$TempText.=self::ArrayToStr($Val).','."\r\n";
 			}
 			else if(is_int($Val)||is_float($Val)){
 				$TempText.=$Val.','."\r\n";
@@ -60,13 +51,13 @@ Class Setting{
 		}
 		$TempText=str_replace("\r\n","\r\n	",$TempText);
 		$TempText=rtrim($TempText,'	'); 
-		$TempText.=')';
-		$TempText=str_replace(",\r\n)","\r\n)",$TempText);
+		$TempText.=']';
+		$TempText=str_replace(",\r\n]","\r\n]",$TempText);
 		return $TempText;
 	}
 	
 	//变量转字符串
-	private function VarToStr($ValueName,$Value){
+	private static function VarToStr($ValueName,$Value){
 		if(is_string($Value)){
 			return '\''.$ValueName.'\'=>\''.str_replace("'",'\\\'',$Value).'\','."\r\n";
 		}
@@ -79,7 +70,7 @@ Class Setting{
 			}
 		}
 		else if(is_array($Value)){
-			return '\''.$ValueName.'\'=>'.$this->ArrayToStr($Value).','."\r\n";
+			return '\''.$ValueName.'\'=>'.self::ArrayToStr($Value).','."\r\n";
 		}
 		else if(is_int($Value)||is_float($Value)){
 			return '\''.$ValueName.'\'=>'.$Value.','."\r\n";
@@ -90,11 +81,11 @@ Class Setting{
 	}
 
 	//获取配置项的值
-	public function Get($UnionData=array()){
+	public static function Get($UnionData=[]){
 		$Module=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'module','模块');
 		$Name=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'name','名称');
 		
-		$this->FileCheck($Module);
+		self::FileCheck($Module);
 		require_once(RootPath.'/Config/'.ucfirst($Module).'.php');
 		if(isset($_SERVER['84PHP_CONFIG'][$Module][$Name])){
 			return $_SERVER['84PHP_CONFIG'][$Module][$Name];
@@ -103,28 +94,28 @@ Class Setting{
 	}
 	
 	//写入配置项项
-	public function Set($UnionData=array()){
+	public static function Set($UnionData=[]){
 		$Module=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'module','模块');
 		$Name=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'name','名称');
 		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值');
 
-		$CodeText=$this->FileCheck($Module);
-		$OldValue=$this->Get($Module,$Name);
+		$CodeText=self::FileCheck($Module);
+		$OldValue=self::Get($Module,$Name);
 		require_once(RootPath.'/Config/'.ucfirst($Module).'.php');
 		if(gettype($OldValue)!=gettype($Value)){
 			Wrong::Report(__FILE__,__LINE__,'Error#M.9.3');
 		}
-		$CodeText='<?php'."\r\n".'$_SERVER['84PHP_CONFIG']['Pay']=array('."\r\n";
+		$CodeText='<?php'."\r\n".'$_SERVER[\'84PHP_CONFIG\'][\'Pay\']=['."\r\n";
 		foreach($_SERVER['84PHP_CONFIG'][$Module] as $Key => $Val){
 			$CodeText.='	';
 			if($Key!=$Name){
-				$CodeText.=$this->VarToStr($Name,$Val);
+				$CodeText.=self::VarToStr($Name,$Val);
 			}
 			else{
-				$CodeText.=$this->VarToStr($Name,$Value);
+				$CodeText.=self::VarToStr($Name,$Value);
 			}
 		}
-		$CodeText.="\r\n);";
+		$CodeText.="\r\n];";
 		$Handle=@fopen(RootPath.'/Config/'.ucfirst($Module).'.php','w');
 		if(!$Handle){
 			Wrong::Report(__FILE__,__LINE__,'Error#M.9.4');
@@ -134,7 +125,7 @@ Class Setting{
 	}
 	
 	//临时改变配置项
-	public function Change($UnionData=array()){
+	public static function Change($UnionData=[]){
 		$Module=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'module','模块');
 		$Name=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'name','名称');
 		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值');

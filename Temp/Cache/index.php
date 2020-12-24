@@ -1,5 +1,5 @@
 <?php
-$Version='4.0.2'; 
+$Version='5.0.0'; 
  ?>
 <!doctype html>
 <html>
@@ -61,7 +61,7 @@ $Version='4.0.2';
 </div>
 <div class="main-document">
 <div class="main-document-loading">文档加载中...</div>
-<iframe src="https://doc.bux.cn/84php"></iframe>
+<iframe src="https://doc.bux.cn/84php?v=<?php echo $Version; ?>"></iframe>
 </div>
 </div>
 </body>

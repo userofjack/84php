@@ -1,19 +1,10 @@
 <?php
-/*****************************************************/
-/*****************************************************/
-/*                                                   */
-/*               84PHP-www.84php.com                 */
-/*                                                   */
-/*****************************************************/
-/*****************************************************/
-
 /*
-  本框架为免费开源、遵循Apache2开源协议的框架，但不得删除此文件的版权信息，违者必究。
-  This framework is free and open source, following the framework of Apache2 open source protocol, but the copyright information of this file is not allowed to be deleted,violators will be prosecuted to the maximum extent possible.
+  84PHP开源框架
 
-  ©2017-2020 Bux. All rights reserved.
+  ©2017-2021 84PHP.COM
 
-  框架版本号：4.0.2
+  框架版本号：5.0.0
 */
 
 require(RootPath.'/Config/Log.php');
@@ -27,7 +18,7 @@ Class Log{
 	}
 	
 	//访问信息
-	private function Access(){
+	private static function Access(){
 		$_SERVER['84PHP_AccessInfo']=
 			'[access] IP:'.$_SERVER['REMOTE_ADDR'].
 			' | DOMAIN:'.$_SERVER['SERVER_NAME'].
@@ -38,7 +29,7 @@ Class Log{
 	}
 	
 	//添加记录
-	public function Add($UnionData=array(),$Return=FALSE){
+	public static function Add($UnionData=[],$Return=FALSE){
 		$Info=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'info','内容',FALSE,'');
 		$Level=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'level','等级',FALSE,'');
 		if(strtoupper($Level)=='E'){
@@ -63,12 +54,12 @@ Class Log{
 	}
 
 	//写入文件
-	private function Output($NewContent=NULL){
+	private static function Output($NewContent=NULL){
 		if(empty($NewContent)&&empty($_SERVER['84PHP_LOG'])){
 			return FALSE;
 		}
 		if(strlen(FrameworkConfig['SafeCode'])<10){
-			Wrong::Report(__FILE__,__LINE__,'Error#B.3.0');
+			Wrong::Report(__FILE__,__LINE__,'Error#M.14.0');
 		}
 		
 		if(strtoupper($_SERVER['84PHP_CONFIG']['Log']['Interval'])=='H'){
@@ -93,7 +84,7 @@ Class Log{
 			$NewContent=$_SERVER['84PHP_LOG'];
 		}
 		if($_SERVER['84PHP_CONFIG']['Log']['Access']){
-			$this->Access();
+			self::Access();
 		}
 		
 		$FilePath='/Temp/Log/'.FrameworkConfig['SafeCode'].date('/Y-m/d',Runtime);
@@ -102,18 +93,8 @@ Class Log{
 		}
 		
 		$Microtime=explode('.',strval(Runtime));
-		$RequestUri='';
-		if((FrameworkConfig['Route']=='BASE'||FrameworkConfig['Route']=='MIX')&&isset($_GET['p_a_t_h'])){
-			$RequestUri=$_GET['p_a_t_h'];
-		}
-		if(FrameworkConfig['Route']=='PATH'||(FrameworkConfig['Route']=='MIX'&&!isset($_GET['p_a_t_h']))){
-			$RequestUri=str_ireplace($_SERVER['SCRIPT_NAME'],'',$_SERVER['PHP_SELF']);
-		}
-		if($RequestUri==''||$RequestUri=='/'){
-			$RequestUri='/index';
-		}
 
-		$NewContent='###'."\r\n[path] ".$RequestUri."\r\n[time] ".date('Y-m-d H:i:s',Runtime).'.'.$Microtime[1].' <'.Runtime.">\r\n".$_SERVER['84PHP_AccessInfo'].$_SERVER['84PHP_LOG']."\r\n";
+		$NewContent='###'."\r\n[path] ".URI."\r\n[time] ".date('Y-m-d H:i:s',Runtime).'.'.$Microtime[1].' <'.Runtime.">\r\n".$_SERVER['84PHP_AccessInfo'].$_SERVER['84PHP_LOG']."\r\n";
 		$Handle=fopen(RootPath.$FilePath.'/'.$LogFileName.'.txt','a');
 		if($Handle){
 			if(flock($Handle,LOCK_EX)){
@@ -124,15 +105,15 @@ Class Log{
 	}
 	
 	//实时写入
-	public function Write($UnionData=array()){
+	public static function Write($UnionData=[]){
 		$Info=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'info','内容',FALSE,'');
 		$Level=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'level','等级',FALSE,'');
-		$Return=$this->Add(array('info'=>$Info,'level'=>$Level),TRUE);
-		$this->Output($Return);
+		$Return=self::Add(['info'=>$Info,'level'=>$Level],TRUE);
+		self::Output($Return);
 	}
 		
 	public function __destruct(){
-		$this->Output();
+		self::Output();
 	}
 	
 	//调用方法不存在

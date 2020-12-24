@@ -1,19 +1,10 @@
 <?php
-/*****************************************************/
-/*****************************************************/
-/*                                                   */
-/*               84PHP-www.84php.com                 */
-/*                                                   */
-/*****************************************************/
-/*****************************************************/
-
 /*
-  本框架为免费开源、遵循Apache2开源协议的框架，但不得删除此文件的版权信息，违者必究。
-  This framework is free and open source, following the framework of Apache2 open source protocol, but the copyright information of this file is not allowed to be deleted,violators will be prosecuted to the maximum extent possible.
+  84PHP开源框架
 
-  ©2017-2020 Bux. All rights reserved.
+  ©2017-2021 84PHP.COM
 
-  框架版本号：4.0.2
+  框架版本号：5.0.0
 */
 
 require(RootPath.'/Config/Vcode.php');
@@ -21,12 +12,12 @@ require(RootPath.'/Config/Vcode.php');
 class Vcode{
 
 	//颜色转换
-	private function HexRGB($HexColor){
+	private static function HexRGB($HexColor){
 		$Hex=hexdec(str_replace('#','',$HexColor));
-		return array("red"=>0xFF&($Hex>>0x10),"green"=>0xFF&($Hex>>0x8),"blue"=>0xFF&$Hex);
+		return ["red"=>0xFF&($Hex>>0x10),"green"=>0xFF&($Hex>>0x8),"blue"=>0xFF&$Hex];
 	}
 	//验证码
-	public function Base($UnionData=array()){
+	public static function Base($UnionData=[]){
 		$Width=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'width','宽度',FALSE,80);
 		$Height=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'height','高度',FALSE,30);
 		$Scale=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'scale','缩放',FALSE,1.0);
@@ -36,7 +27,7 @@ class Vcode{
 		$Line=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'line','文字',FALSE,2);
 		$NoiseHexColor=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'noise_color','噪点颜色',FALSE,'#ff6600');
 		
-		$Font=AddRootPath($_SERVER['84PHP_CONFIG']['Vcode']['FontFile']);
+		$Font=DiskPath($_SERVER['84PHP_CONFIG']['Vcode']['FontFile']);
 		if(!file_exists($Font)){
 			Wrong::Report(__FILE__,__LINE__,'Error#M.10.0');
 		}
@@ -59,8 +50,8 @@ class Vcode{
 		$FontSize=$Height*0.5;
 		$NewImg=imagecreate($Width, $Height);
 		$BgColor=imagecolorallocate($NewImg,250,250,250);
-		$WordRGBColor=$this->HexRGB($WordColor);
-		$NoiseRGBColor=$this->HexRGB($NoiseHexColor);
+		$WordRGBColor=self::HexRGB($WordColor);
+		$NoiseRGBColor=self::HexRGB($NoiseHexColor);
 		$TextColor=imagecolorallocate($NewImg,$WordRGBColor['red'],$WordRGBColor['green'],$WordRGBColor['blue']);
 		$NoiseColor=imagecolorallocate($NewImg, $NoiseRGBColor['red'],$NoiseRGBColor['green'],$NoiseRGBColor['blue']);
 		for($i=0;$i<$Dot;$i++){

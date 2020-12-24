@@ -1,34 +1,18 @@
 <?php
-/*****************************************************/
-/*****************************************************/
-/*                                                   */
-/*			   84PHP-www.84php.com			  */
-/*                                                   */
-/*****************************************************/
-/*****************************************************/
-
 /*
-  本框架为免费开源、遵循Apache2开源协议的框架，但不得删除此文件的版权信息，违者必究。
-  This framework is free and open source, following the framework of Apache2 open source protocol, but the copyright information of this file is not allowed to be deleted,violators will be prosecuted to the maximum extent possible.
+  84PHP开源框架
 
-  ©2017-2020 Bux. All rights reserved.
+  ©2017-2021 84PHP.COM
 
-  框架版本号：4.0.2
+  框架版本号：5.0.0
 */
 
 require(RootPath.'/Config/Pay.php');
 
 class Pay{
 	
-	public function __construct(){
-		if(!isset($_SERVER['84PHP_MODULE']['Send'])){
-			require(RootPath.'/Core/Class/Module/Send.Class.php');
-			$_SERVER['84PHP_MODULE']['Send']=new Send;
-		}
-	}
-
 	//获取客户端真实IP
-	private function GetClientIp(){
+	private static function GetClientIp(){
 		if(getenv('HTTP_CLIENT_IP')&&strcasecmp(getenv('HTTP_CLIENT_IP'),'unknown')){
 			$ClientIp=getenv('HTTP_CLIENT_IP');
 		}
@@ -48,14 +32,14 @@ class Pay{
 	}
 	
 	//支付宝支付接口
-	public function Alipay($UnionData=array()){
+	public static function Alipay($UnionData=[]){
 		$Id=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'id','编号');
 		$Title=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'title','标题');
 		$Total=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'total','金额');
 		$QR=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'qr','二维码',FALSE,FALSE);
 		$QRWidth=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'qr_width','二维码宽度',FALSE,NULL);
 		
-		$PostArray=array(
+		$PostArray=[
 				'service'=>'create_direct_pay_by_user',
 				'partner'=>$_SERVER['84PHP_CONFIG']['Pay']['AliPid'],
 				'_input_charset'=>'utf-8',
@@ -67,14 +51,14 @@ class Pay{
 				'total_fee'=>intval($Total)/100,
 				'seller_id'=>$_SERVER['84PHP_CONFIG']['Pay']['AliPid'],
 				'it_b_pay'=>'1h',
-				);
+				];
 		if($QR){
 			if(!empty($QRWidth)){
-				$QRArray=array('qr_pay_mode'=>'4','qrcode_width'=>$QRWidth);
+				$QRArray=['qr_pay_mode'=>'4','qrcode_width'=>$QRWidth];
 				$PostArray=array_merge($PostArray,$QRArray);
 			}
 			else{
-				$QRArray=array('qr_pay_mode'=>'3');
+				$QRArray=['qr_pay_mode'=>'3'];
 				$PostArray=array_merge($PostArray,$QRArray);
 			}
 		}
@@ -89,7 +73,7 @@ class Pay{
 		return 'https://mapi.alipay.com/gateway.do?'.$SortString;
 	}
 	//微信支付接口
-	public function Wxpay($UnionData=array()){
+	public static function Wxpay($UnionData=[]){
 		$Id=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'id','编号');
 		$Title=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'title','标题');
 		$Total=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'total','金额');
@@ -98,7 +82,7 @@ class Pay{
 		$OpenID=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'openid','openid',FALSE,NULL);
 
 		if(empty($Ip)){
-			$Ip=$this->GetClientIp();
+			$Ip=self::GetClientIp();
  		}
 		$String=NULL;
 		$Word='0123456789qwertyuiopasdfghjklzxcvbnm';
@@ -107,7 +91,7 @@ class Pay{
 			$String.=$Word[$Random];
 		}
 		$ExpireTime=date('YmdHis',Runtime+3600);
-		$PostArray=array(
+		$PostArray=[
 				'appid'=>$_SERVER['84PHP_CONFIG']['Pay']['WxAppid'],
 				'mch_id'=>$_SERVER['84PHP_CONFIG']['Pay']['WxMchId'],
 				'nonce_str'=>$String,
@@ -118,7 +102,7 @@ class Pay{
 				'time_expire'=>$ExpireTime,
 				'notify_url'=>$_SERVER['84PHP_CONFIG']['Pay']['WxNotifyUrl'],
 				'trade_type'=>$Mode,
-				);
+				];
 		if($Mode=='JSAPI'){
 			$PostArray['openid']=$OpenID;
 		}
@@ -154,12 +138,12 @@ class Pay{
 		'</xml>
 		';
 
-		$Send=$_SERVER['84PHP_MODULE']['Send']->Post(array(
+		$Send=Send::Post([
 			'url'=>'https://api.mch.weixin.qq.com/pay/unifiedorder',
 			'data'=>$Data,
 			'header'=>'Content-Type: text/xml; charset=UTF-8',
 			'encode'=>TRUE,
-			'timeout'=>$_SERVER['84PHP_CONFIG']['Pay']['Timeout']));
+			'timeout'=>$_SERVER['84PHP_CONFIG']['Pay']['Timeout']]);
 		
 		xml_parse_into_struct(xml_parser_create(),$Send,$ReturnArray);
 		$Return=FALSE;
@@ -188,7 +172,7 @@ class Pay{
 	}
 	
 	//支付宝支付验签
-	public function AlipayVerify($UnionData=array()){
+	public static function AlipayVerify($UnionData=[]){
 		$PostArray=$_POST;
 		if(empty($PostArray)){
 			return FALSE;
@@ -209,11 +193,11 @@ class Pay{
 		if($Sign!=$PostArray['sign']){
 			return FALSE;
 		}
-		$NotifyResult=$_SERVER['84PHP_MODULE']['Send']->Get();
+		$NotifyResult=Send::Get();
 
-		$Send=$Send->Post(array(
+		$Send=$Send->Post([
 			'url'=>'https://mapi.alipay.com/gateway.do?service=notify_verify&partner='.$_SERVER['84PHP_CONFIG']['Pay']['AliPid'].'&notify_id='.$PostArray['notify_id'],
-			'timeout'=>$_SERVER['84PHP_CONFIG']['Pay']['Timeout']));
+			'timeout'=>$_SERVER['84PHP_CONFIG']['Pay']['Timeout']]);
 
 		if(strtoupper($NotifyResult)=='TRUE'){
 			return TRUE;
@@ -223,7 +207,7 @@ class Pay{
 		}
 	}
 	//微信支付验签
-	public function WxpayVerify($UnionData=array()){
+	public static function WxpayVerify($UnionData=[]){
 		$String=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'string','字符串');
 		$XmlArray=json_decode(json_encode(simplexml_load_string($String,'SimpleXMLElement',LIBXML_NOCDATA)),TRUE);
 		if(empty($XmlArray)){

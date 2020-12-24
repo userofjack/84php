@@ -1,19 +1,10 @@
 <?php
-/*****************************************************/
-/*****************************************************/
-/*                                                   */
-/*               84PHP-www.84php.com                 */
-/*                                                   */
-/*****************************************************/
-/*****************************************************/
-
 /*
-  本框架为免费开源、遵循Apache2开源协议的框架，但不得删除此文件的版权信息，违者必究。
-  This framework is free and open source, following the framework of Apache2 open source protocol, but the copyright information of this file is not allowed to be deleted,violators will be prosecuted to the maximum extent possible.
+  84PHP开源框架
 
-  ©2017-2020 Bux. All rights reserved.
+  ©2017-2021 84PHP.COM
 
-  框架版本号：4.0.2
+  框架版本号：5.0.0
 */
 
 require(RootPath.'/Config/Mail.php');
@@ -21,7 +12,7 @@ require(RootPath.'/Config/Mail.php');
 class Mail{
 
 	//Jmail发送
-	public function Jsend($UnionData=array()){
+	public static function Jsend($UnionData=[]){
 		$Address=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'address','地址');
 		$Title=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'title','标题');
 		$Content=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'content','内容');
@@ -55,13 +46,13 @@ class Mail{
 	}
 	
 	//SocketError
-	private function SsendError($Handle){
+	private static function SsendError($Handle){
 		fclose($Handle);
 		return FALSE;
 	}
 	
 	//Socket发送
-	public function Ssend($UnionData=array()){
+	public static function Ssend($UnionData=[]){
 		$Address=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'address','地址');
 		$Title=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'title','标题');
 		$Content=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'content','内容');
@@ -71,7 +62,7 @@ class Mail{
 		$Response='';
 		$Handle=fsockopen($_SERVER['84PHP_CONFIG']['Mail']['Server'],$_SERVER['84PHP_CONFIG']['Mail']['Port'],$Errno,$ErrMsg,$Timeout);
 		if(!$Handle&&$Errno===0){
-			$this->SsendError($Handle);
+			self::SsendError($Handle);
 		}
 		stream_set_blocking($Handle,1);
 		$Response.=fgets($Handle,512);
@@ -88,33 +79,33 @@ class Mail{
 		}
 		$Send="AUTH LOGIN\r\n";
 		if(!fwrite($Handle,$Send)){
-			$this->SsendError($Handle);
+			self::SsendError($Handle);
 		}
 		$Response.=fgets($Handle,512);
 		$Send=base64_encode($_SERVER['84PHP_CONFIG']['Mail']['UserName'])."\r\n";
 		if(!fwrite($Handle,$Send)){
-			$this->SsendError($Handle);
+			self::SsendError($Handle);
 		}
 		$Response.=fgets($Handle,512);
 		$Send=base64_encode($_SERVER['84PHP_CONFIG']['Mail']['PassWord'])."\r\n";
 		if(!fwrite($Handle,$Send)){
-			$this->SsendError($Handle);
+			self::SsendError($Handle);
 		}
 		$Response.=fgets($Handle,512);
 		$Send='MAIL FROM: <'.$_SERVER['84PHP_CONFIG']['Mail']['FromAddress'].">\r\n";
 
 		if(!fwrite($Handle,$Send)){
-			$this->SsendError($Handle);
+			self::SsendError($Handle);
 		}
 		$Response.=fgets($Handle,512);
 		$Send='RCPT TO: <'.$Address."> \r\n";
 		if(!fwrite($Handle,$Send)){
-			$this->SsendError($Handle);
+			self::SsendError($Handle);
 		}
 		$Response.=fgets($Handle,512);
 		$Send="DATA\r\n";
 		if(!fwrite($Handle,$Send)){
-			$this->SsendError($Handle);
+			self::SsendError($Handle);
 		}
 		$Response.=fgets($Handle,512);
 		if(!empty($NewFromAddress)){

@@ -1,6 +1,6 @@
 <?php
-$_SERVER['84PHP_CONFIG']['Receive']=array(
-	'DangerChar'=>array(
+$_SERVER['84PHP_CONFIG']['Receive']=[
+	'DangerChar'=>[
 		'|'=>'∣',//U+2223,&#8739,
 		';'=>'；',//U+FF1B,&#65307,
 		'&'=>'＆',//U+FF06,&#65286,
@@ -19,8 +19,6 @@ $_SERVER['84PHP_CONFIG']['Receive']=array(
 		'@@'=>'@＠',//U+FF20,&#65312,
 		'\''=>'＇',//U+FF07,&#65287,
 		'='=>'＝',//U+FF1D,&#65309,
-	),
-	'BeforeDomainCheck'=>FALSE,
-	'TokenExpTime'=>600,
+	],
 	'KillEmoji'=>TRUE
-);
+];

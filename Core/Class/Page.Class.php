@@ -1,32 +1,16 @@
 <?php
-/*****************************************************/
-/*****************************************************/
-/*                                                   */
-/*               84PHP-www.84php.com                 */
-/*                                                   */
-/*****************************************************/
-/*****************************************************/
-
 /*
-  本框架为免费开源、遵循Apache2开源协议的框架，但不得删除此文件的版权信息，违者必究。
-  This framework is free and open source, following the framework of Apache2 open source protocol, but the copyright information of this file is not allowed to be deleted,violators will be prosecuted to the maximum extent possible.
+  84PHP开源框架
 
-  ©2017-2020 Bux. All rights reserved.
+  ©2017-2021 84PHP.COM
 
-  框架版本号：4.0.2
+  框架版本号：5.0.0
 */
 
 class Page{
-	
-	public function __construct(){
-		if(!isset($_SERVER['84PHP_MODULE']['Mysql'])){
-			require(RootPath.'/Core/Class/Module/Mysql.Class.php');
-			$_SERVER['84PHP_MODULE']['Mysql']=new Mysql;
-		}
-	}
 
 	//分页
-	public function Base($UnionData=array()){
+	public static function Base($UnionData=[]){
 		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
 		$Field=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
 		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值',FALSE,NULL);
@@ -41,11 +25,11 @@ class Page{
 
 		$FieldLimit=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field_limit','字段限制',FALSE,NULL);		
 		
-		$Result=array('result'=>array(),'info'=>array());
+		$Result=['result'=>[],'info'=>[]];
 		$NowPage=intval($Page);
 		$Number=intval($Number);
 		$Start=0;
-		$TotalNumber=$_SERVER['84PHP_MODULE']['Mysql']->Total(array(
+		$TotalNumber=Mysql::Total([
 			'table'=>$Table,
 			'field'=>$Field,
 			'value'=>$Value,
@@ -54,7 +38,7 @@ class Page{
 			'desc'=>$Desc,
 			'index'=>$Index,
 			'sql'=>$Sql
-		));
+		]);
 		$TotalNumber=intval($TotalNumber);
 		$TotalPage=intval(ceil($TotalNumber/$Number));
 		if($Number>0){
@@ -66,20 +50,20 @@ class Page{
 			else{
 				$End=$Number;
 			}
-			$Limit=array($Start,$Number);
+			$Limit=[$Start,$Number];
 		}
 		else{
 			$End=$TotalNumber;
-			$Limit=array(0,-1);
+			$Limit=[0,-1];
 		}
 		if($TotalPage<$NowPage){
-			$Result['info']=array(
+			$Result['info']=[
 				'now'=>$NowPage,
 				'total'=>$TotalPage,
 				'number'=>$TotalNumber,
 				'start'=>$Start+1,
 				'end'=>$End
-			);
+			];
 			return $Result;
 		}
 		if($Number==0){
@@ -89,7 +73,7 @@ class Page{
 			$End=$TotalNumber;
 		};
 		
-		$Result['result']=$_SERVER['84PHP_MODULE']['Mysql']->SelectMore(array(
+		$Result['result']=Mysql::SelectMore([
 			'table'=>$Table,
 			'field'=>$Field,
 			'value'=>$Value,
@@ -100,14 +84,14 @@ class Page{
 			'index'=>$Index,
 			'field_limit'=>$FieldLimit,
 			'sql'=>$Sql
-		));
-		$Result['info']=array(
+		]);
+		$Result['info']=[
 			'now'=>$NowPage,
 			'total'=>$TotalPage,
 			'number'=>$TotalNumber,
 			'start'=>$Start+1,
 			'end'=>$End
-		);
+		];
 		return $Result;
 	}
 	
