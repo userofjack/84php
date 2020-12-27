@@ -28,7 +28,6 @@ class Cache{
 	
 	//写入缓存
 	private static function WriteCache($Context,$FilePath){
-		$Context=str_replace('exit;#','',$Context);
 		$Context=preg_replace("/(\?>(\\s*<\?php)+)/","\r\n",$Context);
 		$Context=preg_replace("/(<\?(\\s*\r?\n)+)/","<?php\r\n",$Context);
 		$Context=preg_replace("/(\r?\n(\\s*\r?\n)+)/","\r\n",$Context);
