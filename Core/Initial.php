@@ -177,8 +177,8 @@ function DiskPath($Path,$Prefix=''){
 }
 
 //方法不存在
-function MethodNotExist($ModuleName,$MethodName){
-	$ErrorMsg='Error#C.0.6 @ '.$ModuleName.'->'.$MethodName.'()';
+function UnknownStaticMethod($ModuleName,$MethodName){
+	$ErrorMsg='Error#C.0.6 @ '.$ModuleName.' :: '.$MethodName.'()';
 	Wrong::Report(__FILE__,__LINE__,$ErrorMsg);
 }
 

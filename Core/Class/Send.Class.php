@@ -122,7 +122,7 @@ Class Send{
 	}
 	
 	//调用方法不存在
-	public function __call($Method,$Parameters){
-		MethodNotExist(__CLASS__,$Method);
+	public static function __callStatic($Method,$Parameters){
+		UnknownStaticMethod(__CLASS__,$Method);
 	}
 }

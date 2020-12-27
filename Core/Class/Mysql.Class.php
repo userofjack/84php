@@ -10,10 +10,10 @@
 require(RootPath.'/Config/Mysql.php');
 
 class Mysql{
-	private $Mysqli;
-	private $NowDb;
+	private static $Mysqli;
+	private static $NowDb;
 	
-	public function __construct(){
+	public static function ClassInitial(){
 		self::Connect();
 	}
 	
@@ -590,16 +590,10 @@ class Mysql{
 		fclose($Handle);
 		$AllTables->free();
 	}
-
-	//关闭连接
-	public function __destruct(){
-		if(!self::$Mysqli->connect_errno){
-			self::$Mysqli->close();
-		}
-	}
 	
 	//调用方法不存在
-	public function __call($Method,$Parameters){
-		MethodNotExist(__CLASS__,$Method);
+	public static function __callStatic($Method,$Parameters){
+		UnknownStaticMethod(__CLASS__,$Method);
 	}
 }
+Mysql::ClassInitial();

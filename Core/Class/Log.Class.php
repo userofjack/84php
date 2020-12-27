@@ -9,9 +9,9 @@
 
 require(RootPath.'/Config/Log.php');
 Class Log{
-	private $FilePath;
+	private static $FilePath;
 	
-	public function __construct(){
+	public static function ClassInitial(){
 		if(!isset($_SERVER['84PHP_AccessInfo'])){
 			$_SERVER['84PHP_AccessInfo']='';
 		}
@@ -80,9 +80,6 @@ Class Log{
 		else{
 			$LogFileName='applog';
 		}
-		if(empty($NewContent)){
-			$NewContent=$_SERVER['84PHP_LOG'];
-		}
 		if($_SERVER['84PHP_CONFIG']['Log']['Access']){
 			self::Access();
 		}
@@ -94,7 +91,11 @@ Class Log{
 		
 		$Microtime=explode('.',strval(Runtime));
 
-		$NewContent='###'."\r\n[path] ".URI."\r\n[time] ".date('Y-m-d H:i:s',Runtime).'.'.$Microtime[1].' <'.Runtime.">\r\n".$_SERVER['84PHP_AccessInfo'].$_SERVER['84PHP_LOG']."\r\n";
+		if(empty($NewContent)){
+			$NewContent=$_SERVER['84PHP_LOG'];
+			$_SERVER['84PHP_LOG']='';
+		}
+		$NewContent='###'."\r\n[path] ".URI."\r\n[time] ".date('Y-m-d H:i:s',Runtime).'.'.$Microtime[1].' <'.Runtime.">\r\n".$_SERVER['84PHP_AccessInfo'].$NewContent."\r\n";
 		$Handle=fopen(RootPath.$FilePath.'/'.$LogFileName.'.txt','a');
 		if($Handle){
 			if(flock($Handle,LOCK_EX)){
@@ -111,13 +112,20 @@ Class Log{
 		$Return=self::Add(['info'=>$Info,'level'=>$Level],TRUE);
 		self::Output($Return);
 	}
-		
-	public function __destruct(){
+
+	//累积写入
+	public static function Save(){
 		self::Output();
 	}
 	
+	//获取累积日志
+	public static function Get(){
+		return $_SERVER['84PHP_LOG'];
+	}
+	
 	//调用方法不存在
-	public function __call($Method,$Parameters){
-		MethodNotExist(__CLASS__,$Method);
+	public static function __callStatic($Method,$Parameters){
+		UnknownStaticMethod(__CLASS__,$Method);
 	}
 }
+Log::ClassInitial();

@@ -10,13 +10,13 @@
 require(RootPath.'/Config/Ip.php');
 
 Class Ip{
-	private $BlackListFile;
-	private $WhiteListFile;
-	private $BlackList;
-	private $WhiteList;
+	private static $BlackListFile;
+	private static $WhiteListFile;
+	private static $BlackList;
+	private static $WhiteList;
 
 
-	public function __construct(){
+	public static function ClassInitial(){
 		
 		self::$BlackListFile=RootPath.'/Temp/ip-blacklist.php';
 		self::$WhiteListFile=RootPath.'/Temp/ip-whitelist.php';
@@ -306,7 +306,8 @@ Class Ip{
 	}
 	
 	//调用方法不存在
-	public function __call($Method,$Parameters){
-		MethodNotExist(__CLASS__,$Method);
+	public static function __callStatic($Method,$Parameters){
+		UnknownStaticMethod(__CLASS__,$Method);
 	}
 }
+Ip::ClassInitial();
