@@ -27,6 +27,12 @@ class Page{
 		
 		$Result=['result'=>[],'info'=>[]];
 		$NowPage=intval($Page);
+		if($NowPage<1){
+			$NowPage=1;
+		}
+		if($Number<1){
+			$Number=0;
+		}
 		$Number=intval($Number);
 		$Start=0;
 		$TotalNumber=Mysql::Total([
@@ -42,14 +48,8 @@ class Page{
 		$TotalNumber=intval($TotalNumber);
 		$TotalPage=intval(ceil($TotalNumber/$Number));
 		if($Number>0){
-			if($NowPage>=2&&$Number!=0){
-				$Page=$NowPage-1;
-				$Start=$Page*$Number;
-				$End=$Number;
-			}
-			else{
-				$End=$Number;
-			}
+			$Start=($NowPage-1)*$Number;
+			$End=$NowPage*$Number;
 			$Limit=[$Start,$Number];
 		}
 		else{
