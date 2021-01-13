@@ -2,5 +2,6 @@
 $_SERVER['84PHP_CONFIG']['Data']=[
 	//公共参数
 	'Handler'=>'file',
-	'path'=>'/'
+	'path'=>'/',
+	'level'=>16,
 ];

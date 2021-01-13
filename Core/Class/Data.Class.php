@@ -13,13 +13,84 @@ class Data{
 
 	//设置
 	public static function Set($UnionData=[]){
-		$K=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'key','键');
-		$V=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值');
-		$Time=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'time','时间',FALSE,0);
+		$Key=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'key','键');
+		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值');
+		$Time=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'time','时间',FALSE,3600);
+		$Prefix=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'prefix','前缀',FALSE,'');
+		if($Key==''){
+			return FALSE;
+		}
+		if($Key==''){
+			return FALSE;
+		}
+		if($Value==NULL){
+			$Value='';
+		}
+		if(!is_bool($Value)&&!is_array($Value)&&!is_int($Value)&&!is_float($Value)&&!is_string($Value)&&!is_object($Value)){
+			return FALSE;
+		}
+		
+		$Time=intval($Time);
+		if($Time<1){
+			return TRUE;
+		}
 	}
 	
 	//获取
 	public static function Get($UnionData=[]){
+		$Key=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'key','键');		
+		if($Key==''){
+			return NULL;
+		}
+	}
+	
+	//变量转字符串
+	private static function VarToStr($Value){
+		return serialize($Value);
+	}
+	
+	//字符串转变量
+	private static function StrToVar($String){
+		return unserialize($String);
+	}
+	
+	//获取文件缓存路径
+	private static function GetFilePath($Key,$Prefix){
+		$MD5=md5($Key);
+		$Path='';
+		$Level=0;
+		if($_SERVER['84PHP_CONFIG']['Data']['Level']<1){
+			$Level=0;
+		}
+		if($_SERVER['84PHP_CONFIG']['Data']['Level']>15){
+			$Level=15;
+		}
+		for($i=0;$i<$Level;$i++){
+			$Path.='/'.$MD5[0].$MD5[1];
+			$MD5=substr($MD5,2);
+		}
+		$Path.='/'.$MD5.'.tmp';
+		$Path=str_replace(['\\','//'],['/','/'],$Prefix.$Path);
+		if($Path[0]=='/'){
+			$Path=substr($Path,1);
+		}
+		return $Path;
+	}
+
+	//设置文件緩存
+	private static function SetByFile($Prefix,$Key,$Value,$Time){
+		$Cache=strval($Time)."\r\n\r\n";
+		$Handle=@fopen(RootPath.'/Temp/Data/'.$Module.'.php','w');
+		if(!$Handle){
+			Wrong::Report(__FILE__,__LINE__,'Error#M.9.4');//change type
+		}
+		fwrite($Handle,$CodeText);
+		fclose($Handle);
+
+	}
+	
+	//获取文件缓存
+	private static function GetByFile($UnionData=[]){
 		$K=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'key','键');		
 	}
 

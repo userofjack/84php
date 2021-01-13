@@ -98,14 +98,15 @@ Class Setting{
 		$Module=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'module','模块');
 		$Name=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'name','名称');
 		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值');
+		$Module=ucfirst($Module);
 
 		$CodeText=self::FileCheck($Module);
 		$OldValue=self::Get($Module,$Name);
-		require_once(RootPath.'/Config/'.ucfirst($Module).'.php');
+		require_once(RootPath.'/Config/'.$Module.'.php');
 		if(gettype($OldValue)!=gettype($Value)){
 			Wrong::Report(__FILE__,__LINE__,'Error#M.9.3');
 		}
-		$CodeText='<?php'."\r\n".'$_SERVER[\'84PHP_CONFIG\'][\'Pay\']=['."\r\n";
+		$CodeText='<?php'."\r\n".'$_SERVER[\'84PHP_CONFIG\'][\''.$Module.'\']=['."\r\n";
 		foreach($_SERVER['84PHP_CONFIG'][$Module] as $Key => $Val){
 			$CodeText.='	';
 			if($Key!=$Name){
@@ -116,7 +117,7 @@ Class Setting{
 			}
 		}
 		$CodeText.="\r\n];";
-		$Handle=@fopen(RootPath.'/Config/'.ucfirst($Module).'.php','w');
+		$Handle=@fopen(RootPath.'/Config/'.$Module.'.php','w');
 		if(!$Handle){
 			Wrong::Report(__FILE__,__LINE__,'Error#M.9.4');
 		}
