@@ -44,6 +44,12 @@ class Data{
 		}
 	}
 	
+	//删除
+	public static function Delete($UnionData=[]){
+		$Key=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'key','键');		
+		
+	}
+
 	//变量转字符串
 	private static function VarToStr($Value){
 		return serialize($Value);
@@ -79,19 +85,35 @@ class Data{
 
 	//设置文件緩存
 	private static function SetByFile($Prefix,$Key,$Value,$Time){
-		$Cache=strval($Time)."\r\n\r\n";
-		$Handle=@fopen(RootPath.'/Temp/Data/'.$Module.'.php','w');
+		$Cache=strval(intval(Runtime)+$Time)."\r\n".self::VarToStr($Value);
+		$Handle=@fopen(RootPath.'/Temp/Data/'.self::GetFilePath($Key,$Prefix),'w');
 		if(!$Handle){
 			Wrong::Report(__FILE__,__LINE__,'Error#M.9.4');//change type
 		}
-		fwrite($Handle,$CodeText);
+		fwrite($Handle,$Cache);
 		fclose($Handle);
-
 	}
 	
+	//删除文件緩存
+	private static function DeleteByFile($Prefix,$Key){
+		$Result=unlink(RootPath.'/Temp/Data/'.self::GetFilePath($Key,$Prefix));
+		if(!$Result){
+			return FALSE;
+		}
+		return TRUE;
+	}
+
 	//获取文件缓存
 	private static function GetByFile($UnionData=[]){
-		$K=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'key','键');		
+		$FilePath=RootPath.'/Temp/Data/'.self::GetFilePath($Key,$Prefix);
+		if(!file_exists($FilePath)){
+			return NULL;
+		}
+		$Cache=file_get_contents($FilePath);
+		$ExpTime=intval(strtok($Cache, "\r\n"));
+		if($ExpTime==0||$ExpTime<intval(Runtime)){
+			return NULL;
+		}
 	}
 
 	//调用方法不存在
