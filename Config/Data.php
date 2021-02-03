@@ -1,7 +1,11 @@
 <?php
 $_SERVER['84PHP_CONFIG']['Data']=[
 	//公共参数
-	'Handler'=>'file',
-	'path'=>'/',
-	'level'=>16,
+	'Handle'=>'File',
+    'Connect'=>[
+        'File'=>[
+            'Level'=>3,
+            'Clean'=>1000,
+        ]
+    ]
 ];
