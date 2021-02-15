@@ -1,4 +1,4 @@
 .htaccess
-/Temp/Cache/*
-/Temp/Log/*
-/Temp/Data/*
+/Temp/Cache/*.*
+/Temp/Log/*.*
+/Temp/Data/*.*
