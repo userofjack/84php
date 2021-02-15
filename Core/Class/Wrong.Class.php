@@ -15,7 +15,9 @@ class Wrong{
 		if(!FrameworkConfig['Always200']){
 			http_response_code($StatusCode);
 		}
-		$ByAjax=isset($_SERVER["HTTP_X_REQUESTED_WITH"])&&strtolower($_SERVER["HTTP_X_REQUESTED_WITH"]=='xmlhttprequest');
+		$ByAjax=
+			(isset($_SERVER["HTTP_X_REQUESTED_WITH"])&&strtolower($_SERVER["HTTP_X_REQUESTED_WITH"]=='xmlhttprequest'))||
+			(isset($_SERVER["HTTP_ACCEPT"])&&stristr($_SERVER["HTTP_ACCEPT"],'application/json'));
 		$StyleType=strtoupper($_SERVER['84PHP_CONFIG']['Wrong']['Style']);
 		
 		if(($StyleType=='AUTO'&&$ByAjax)||$StyleType=='JSON'){

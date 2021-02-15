@@ -5,7 +5,6 @@ Cache::Compile(['path'=>URI]);
 
 if(file_exists(RootPath.'/Temp/Cache'.URI.'.php')){
 	require(RootPath.'/Temp/Cache'.URI.'.php');
-	exit;
 }
 else {
 	if(FrameworkConfig['Debug']){
@@ -18,3 +17,4 @@ else {
 		Wrong::Report('','','Error#C.0.0',FALSE,404);
 	}
 }
+LastWork();

@@ -29,7 +29,7 @@ Class Log{
 	}
 	
 	//添加记录
-	public static function Add($UnionData=[],$Return=FALSE){
+	public static function Add($UnionData=[]){
 		$Info=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'info','内容',FALSE,'');
 		$Level=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'level','等级',FALSE,'');
 		if(strtoupper($Level)=='E'){
@@ -47,17 +47,11 @@ Class Log{
 		else{
 			$Level='log';
 		}
-		if($Return){
-			return '['.$Level.'] '.$Info."\r\n";
-		}
 		$_SERVER['84PHP_LOG'].='['.$Level.'] '.$Info.' <'.strval((intval(microtime(TRUE)*1000)-intval(Runtime*1000))/1000)."s>\r\n";
 	}
 
 	//写入文件
-	private static function Output($NewContent=NULL){
-		if(empty($NewContent)&&empty($_SERVER['84PHP_LOG'])){
-			return FALSE;
-		}
+	public static function Output(){
 		if(strlen(FrameworkConfig['SafeCode'])<10){
 			Wrong::Report(__FILE__,__LINE__,'Error#M.14.0');
 		}
@@ -91,31 +85,21 @@ Class Log{
 		
 		$Microtime=explode('.',strval(Runtime));
 
-		if(empty($NewContent)){
-			$NewContent=$_SERVER['84PHP_LOG'];
-			$_SERVER['84PHP_LOG']='';
-		}
-		$NewContent='###'."\r\n[path] ".URI."\r\n[time] ".date('Y-m-d H:i:s',Runtime).'.'.$Microtime[1].' <'.Runtime.">\r\n".$_SERVER['84PHP_AccessInfo'].$NewContent."\r\n";
+		$Content=$_SERVER['84PHP_LOG'];
+		$_SERVER['84PHP_LOG']='';
+		$Content='###'."\r\n[path] ".URI."\r\n[time] ".date('Y-m-d H:i:s',Runtime).'.'.$Microtime[1].' <'.Runtime.">\r\n".$_SERVER['84PHP_AccessInfo'].$Content."\r\n";
 		$Handle=fopen(RootPath.$FilePath.'/'.$LogFileName.'.txt','a');
 		if($Handle){
 			if(flock($Handle,LOCK_EX)){
-				fwrite($Handle,$NewContent);
+				fwrite($Handle,$Content);
 			}
 			fclose($Handle);
 		}
 	}
 	
-	//实时写入
-	public static function Write($UnionData=[]){
-		$Info=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'info','内容',FALSE,'');
-		$Level=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'level','等级',FALSE,'');
-		$Return=self::Add(['info'=>$Info,'level'=>$Level],TRUE);
-		self::Output($Return);
-	}
-
-	//累积写入
-	public static function Save(){
-		self::Output();
+	//清空日志
+	public static function Clean(){
+		$_SERVER['84PHP_LOG']='';
 	}
 	
 	//获取累积日志

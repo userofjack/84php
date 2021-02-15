@@ -177,6 +177,17 @@ function DiskPath($Path,$Prefix=''){
 	return $Path;
 }
 
+
+//加载完成后调用
+$_SERVER['84PHP_LastWork']=[];
+function LastWork(){
+	foreach ($_SERVER['84PHP_LastWork'] as $Key => $Val){
+		if($Key!=''&&$Val!=''){
+			call_user_func($Key.'::'.$Val);
+		}
+	}
+}
+
 //方法不存在
 function UnknownStaticMethod($ModuleName,$MethodName){
 	$ErrorMsg='Error#C.0.6 @ '.$ModuleName.' :: '.$MethodName.'()';

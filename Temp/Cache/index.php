@@ -1,5 +1,20 @@
 <?php
-$Version='5.0.0'; 
+$Version='5.0.0';
+function GetNumbert(){
+    return mt_rand(11111,99999);
+}
+echo Data::Get([
+    'key'=>'random',
+    'callback'=>function(){
+        $Random = GetNumbert();
+        Data::Set([
+            'key'=>'random',
+            'value'=>$Random,
+            'time'=>5
+        ]);
+        return $Random;
+    }
+]);
  ?>
 <!doctype html>
 <html>
