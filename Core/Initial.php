@@ -1,41 +1,38 @@
 <?php
-/*****************************************************/
-/*****************************************************/
-/*                                                   */
-/*               84PHP-www.84php.com                 */
-/*                                                   */
-/*****************************************************/
-/*****************************************************/
-
 /*
-  本框架为免费开源、遵循Apache2开源协议的框架，但不得删除此文件的版权信息，违者必究。
-  This framework is free and open source, following the framework of Apache2 open source protocol, but the copyright information of this file is not allowed to be deleted,violators will be prosecuted to the maximum extent possible.
+  84PHP开源框架
 
-  ©2017-2020 Bux. All rights reserved.
+  ©2017-2021 84PHP.COM
 
-  框架版本号：4.0.2
+  框架版本号：5.0.0
 */
-define('RootPath',substr(str_replace(array('\\','//'),'/',dirname(__FILE__)),0,-5));
+define('RootPath',substr(str_replace(['\\','//'],'/',dirname(__FILE__)),0,-5));
+set_include_path(get_include_path().PATH_SEPARATOR.RootPath.'/Lib/');
 
 require(RootPath.'/Config/Common.php');
 
-if($_SERVER['REQUEST_METHOD']=='OPTIONS'){
+spl_autoload_register(function($ClassName){
+	if(!file_exists(RootPath.'/Core/Class/'.$ClassName.'.Class.php')){
+		Wrong::Report(__FILE__,__LINE__,'Error#C.0.7'."\r\n\r\n @ ".$ClassName);
+	}
+	else{
+		require(RootPath.'/Core/Class/'.$ClassName.'.Class.php');
+	}
+});
+
+if(isset($_SERVER['REQUEST_METHOD'])&&$_SERVER['REQUEST_METHOD']=='OPTIONS'){
 	die('OPTIONS request blocked by framework.');
 }
 
 date_default_timezone_set(FrameworkConfig['TimeZone']);
 define('Runtime',microtime(TRUE));
 
-$_SERVER['84PHP_MODULE']=array();
-$_SERVER['84PHP_CONFIG']=array();
+$_SERVER['84PHP_CONFIG']=[];
 $_SERVER['84PHP_LOG']='';
 
 if(FrameworkConfig['RunTimeLimit']!==FALSE){
 	set_time_limit(FrameworkConfig['RunTimeLimit']);
 }
-
-require(RootPath.'/Core/Class/Base/Wrong.Class.php');
-$_SERVER['84PHP_MODULE']['Wrong']=new Wrong;
 
 if(FrameworkConfig['Https']){
 	if(isset($_SERVER['HTTPS'])){
@@ -50,9 +47,8 @@ if(FrameworkConfig['Route']!='BASE'&&FrameworkConfig['Route']!='PATH'&&Framework
 	Wrong::Report(__FILE__,__LINE__,'Error#C.1.1');
 }
 
-if(FrameworkConfig['SessionStart']&&!isset($_SESSION)){
-	require(RootPath.'/Core/Class/Base/Session.Class.php');
-	$_SERVER['84PHP_MODULE']['Session']=new Session;
+if(FrameworkConfig['SessionStart']){
+	Session::Start();
 }
 
 header('X-Powered-By: '.FrameworkConfig['XPoweredBy']);
@@ -111,6 +107,25 @@ function SystemErrorHandler($ErrorNo,$ErrorMsg,$ErrorFile,$ErrorLine) {
 	return TRUE;
 }
 
+//路由
+$_SERVER['84PHP_URI']='';
+$_SERVER['84PHP_OptionArray']=getopt('',['path:']);
+if(empty($_SERVER['84PHP_OptionArray']['path'])){
+	if((FrameworkConfig['Route']=='BASE'||FrameworkConfig['Route']=='MIX')&&isset($_GET['p_a_t_h'])){
+		$_SERVER['84PHP_URI']=$_GET['p_a_t_h'];
+	}
+	if(FrameworkConfig['Route']=='PATH'||(FrameworkConfig['Route']=='MIX'&&!isset($_GET['p_a_t_h']))){
+		$_SERVER['84PHP_URI']=str_ireplace($_SERVER['SCRIPT_NAME'],'',$_SERVER['PHP_SELF']);
+	}
+}
+else{
+	$_SERVER['84PHP_URI']=$_SERVER['84PHP_OptionArray']['path'];
+}
+if($_SERVER['84PHP_URI']==''||$_SERVER['84PHP_URI']=='/'){
+	$_SERVER['84PHP_URI']='/index';
+}
+define('URI',$_SERVER['84PHP_URI']);
+
 //快捷传参
 function QuickParamet($UnionData,$File,$Line,$ModuleName,$MethodName,$Name,$Dialect,$Must=TRUE,$Default=NULL){
 	if(isset($UnionData[$Name])){
@@ -140,9 +155,9 @@ function QuickParamet($UnionData,$File,$Line,$ModuleName,$MethodName,$Name,$Dial
 	}
 }
 
-//获取绝对路径
-function AddRootPath($Path,$Prefix=''){
-	$Path=str_replace(array('\\','//'),array('/','/'),$Path);
+//获取磁盘路径
+function DiskPath($Path,$Prefix=''){
+	$Path=str_replace(['\\','//'],['/','/'],$Path);
 	if(substr($Path,0,1)=='/'){
 		$Path=substr($Path,1);
 	}
@@ -161,18 +176,21 @@ function AddRootPath($Path,$Prefix=''){
 	return $Path;
 }
 
-//方法不存在
-function MethodNotExist($ModuleName,$MethodName){
-	$ErrorMsg='Error#C.0.6 @ '.$ModuleName.'->'.$MethodName.'()';
-	Wrong::Report(__FILE__,__LINE__,$ErrorMsg);
+
+//加载完成后调用
+$_SERVER['84PHP_LastWork']=[];
+function LastWork(){
+	foreach ($_SERVER['84PHP_LastWork'] as $Key => $Val){
+		if($Key!=''&&$Val!=''){
+			call_user_func($Key.'::'.$Val);
+		}
+	}
 }
 
-//自动载入文件并实例化
-function LoadModule($Module,$Type){
-	if(!isset($_SERVER['84PHP_MODULE'][$Module])){
-		require(RootPath.'/Core/Class/'.$Type.'/'.$Module.'.Class.php');
-		$_SERVER['84PHP_MODULE'][$Module]=new $Module;
-	}
+//方法不存在
+function UnknownStaticMethod($ModuleName,$MethodName){
+	$ErrorMsg='Error#C.0.6 @ '.$ModuleName.' :: '.$MethodName.'()';
+	Wrong::Report(__FILE__,__LINE__,$ErrorMsg);
 }
 
 //缓冲区控制开启

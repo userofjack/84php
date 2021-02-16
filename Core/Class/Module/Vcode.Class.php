@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：4.0.2
+  框架版本号：4.0.0
 */
 
 require(RootPath.'/Config/Vcode.php');
@@ -22,25 +22,25 @@ class Vcode{
 
 	//颜色转换
 	private function HexRGB($HexColor){
-		$Hex=hexdec(str_replace('#','',$HexColor));
+		$Hex=hexdec($HexColor);
 		return array("red"=>0xFF&($Hex>>0x10),"green"=>0xFF&($Hex>>0x8),"blue"=>0xFF&$Hex);
 	}
 	//验证码
-	public function Base($UnionData=array()){
-		$Width=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'width','宽度',FALSE,80);
-		$Height=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'height','高度',FALSE,30);
+	public function Base($Width=120,$Height=50,$Word=NULL,$Dot=27,$Line=15,$WordColor="#333333"){
+		$Width=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'width','宽度',FALSE,NULL);
+		$Height=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'height','高度',FALSE,NULL);
 		$Scale=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'scale','缩放',FALSE,1.0);
 		$Word=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'word','文字',FALSE,NULL);
-		$WordColor=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'word_color','文字颜色',FALSE,'#000000');
-		$Dot=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'dot','文字',FALSE,15);
-		$Line=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'line','文字',FALSE,2);
-		$NoiseHexColor=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'noise_color','噪点颜色',FALSE,'#ff6600');
+		$WordColor=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'word_color','文字颜色',FALSE,'#333333');
+		$Dot=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'dot','文字',FALSE,27);
+		$Line=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'line','文字',FALSE,15);
 		
 		$Font=AddRootPath($_SERVER['84PHP_CONFIG']['Vcode']['FontFile']);
 		if(!file_exists($Font)){
 			Wrong::Report(__FILE__,__LINE__,'Error#M.10.0');
 		}
 		$PossibleLetters='0123456789bcdfghjkmnpqrstvwxyz';
+		$NoiseHexColor=$WordColor;
 		$Vcode=NULL;
 		if(!empty($Word)){
 			$Vcode=$Word;

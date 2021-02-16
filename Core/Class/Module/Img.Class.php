@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：4.0.2
+  框架版本号：4.0.0
 */
 
 require(RootPath.'/Config/Img.php');
@@ -22,7 +22,7 @@ class Img{
 
 	//颜色转换
 	private function HexRGB($HexColor){
-		$Hex=hexdec(str_replace('#','',$HexColor));
+		$Hex=hexdec($HexColor);
 		return array("red"=>0xFF&($Hex>>0x10),"green"=>0xFF&($Hex>>0x8),"blue"=>0xFF&$Hex);
 	}
 	

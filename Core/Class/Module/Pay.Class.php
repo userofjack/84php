@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：4.0.2
+  框架版本号：4.0.0
 */
 
 require(RootPath.'/Config/Pay.php');
@@ -172,7 +172,7 @@ class Pay{
 				$ReturnResult=FALSE;
 			}
 			if(!$ReturnResult&&$Val['tag']=='RETURN_MSG'){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.7.1'."\r\n\r\n @ ".$Val['value']);
+				Wrong::Report(__FILE__,__LINE__,'Error#M.7.1 @ '.$Val['value']);
 			}
 			if($Val['tag']=='PREPAY_ID'&&$Mode=='JSAPI'){
 				$Return=$Val['value'];

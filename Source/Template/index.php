@@ -58,7 +58,7 @@
 		</div>
 		<div class="main-document">
 			<div class="main-document-loading">文档加载中...</div>
-			<iframe src="https://doc.bux.cn/84php"></iframe>
+			<iframe src="https://doc.bux.cn/84php?v={$Version}"></iframe>
 		</div>
 	</div>
 </body>

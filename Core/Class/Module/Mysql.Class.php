@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：4.0.2
+  框架版本号：4.0.0
 */
 
 require(RootPath.'/Config/Mysql.php');
@@ -26,25 +26,28 @@ class Mysql{
 		if($_SERVER['84PHP_CONFIG']['Mysql']['Log']){
 			LoadModule('Log','Base');
 		}
+
+		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']){
+			$this->NowDb=$this->RandomDb();
+		}
 		$this->Connect();
 	}
 	
 	//读写分离随机选择数据库
 	private function RandomDb(){
-		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']){
-			$AllSql=array();
-			foreach($_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'] as $Key => $Val){
-				$AllSql[]=$Key;
-			}
-			$this->Mysqli->close();
-			$this->NowDb=$AllSql[mt_rand(1,(count($AllSql)-1))];
-			$this->Connect();
+		$AllSql=array();
+		foreach($_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'] as $Key => $Val){
+			$AllSql[]=$Key;
 		}
+		return $AllSql[mt_rand(1,(count($AllSql)-1))];
 	}
 	
 	//选择数据库
 	public function Choose($ChooseDb){
 		$this->Mysqli->close();
+		if(empty($_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$ChooseDb])){
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.0');
+		}
 		$this->NowDb=$ChooseDb;
 		$this->Connect();
 	}
@@ -54,12 +57,9 @@ class Mysql{
 		if(empty($this->NowDb)){
 			$this->NowDb='default';
 		}
-		if(empty($_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb])){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.0');
-		}
 		$this->Mysqli=@new mysqli($_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb]['address'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb]['username'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb]['password'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb]['dbname'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][$this->NowDb]['port']);
 		if($this->Mysqli->connect_errno){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.1'."\r\n\r\n @ ".'Detail: '.$this->Mysqli->connect_error);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.1 @ Detail: '.$this->Mysqli->connect_error);
 		}
 	}
 	
@@ -199,10 +199,9 @@ class Mysql{
 			}
 		}
 		else if(is_array($Order)){
-			$OrderSql=' ORDER BY ';
 			foreach($Order as $Key => $Val){
 				if(!empty($Val)){
-					$OrderSql.='`'.$this->SplitField($Val).'`';
+					$OrderSql.=' ORDER BY `'.$this->SplitField($Val).'`';
 					if($Desc||(isset($Desc[$Key])&&$Desc[$Key])){
 						$OrderSql.=' DESC';
 					}
@@ -256,7 +255,11 @@ class Mysql{
 		$FieldLimit=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field_limit','字段限制',FALSE,NULL);		
 		$QueryString=$this->QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,array(1),$Index,NULL);
 
-		$this->RandomDb();
+		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']&&$this->NowDb=='default'){
+			$this->Mysqli->close();
+			$this->NowDb=$this->RandomDb();
+			$this->Connect();
+		}
 		
 		$QueryString='SELECT '.$this->GetFieldList($FieldLimit,'*').' FROM'.$this->GetTableList($Table).$QueryString;
 
@@ -264,7 +267,7 @@ class Mysql{
 		$Result=$this->Mysqli->query($QueryString);
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2 @ Detail: '.$ModuleError);
 		}
 		$Return=$Result->fetch_assoc();
 		$Result->free();
@@ -291,7 +294,11 @@ class Mysql{
 		$GroupBy=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'group_by','分组',FALSE,NULL);
 		$QueryString=$this->QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,$GroupBy);
 		
-		$this->RandomDb();
+		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']&&$this->NowDb=='default'){
+			$this->Mysqli->close();
+			$this->NowDb=$this->RandomDb();
+			$this->Connect();
+		}
 
 		$QueryString='SELECT '.$this->GetFieldList($FieldLimit,'*').' FROM'.$this->GetTableList($Table).$QueryString;
 
@@ -300,7 +307,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2 @ Detail: '.$ModuleError);
 		}
 		
 		$Return=$Result->fetch_all(MYSQLI_ASSOC);
@@ -326,7 +333,11 @@ class Mysql{
 		$GroupBy=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'group_by','分组',FALSE,NULL);
 		$QueryString=$this->QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,$GroupBy);
 						
-		$this->RandomDb();
+		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']&&$this->NowDb=='default'){
+			$this->Mysqli->close();
+			$this->NowDb=$this->RandomDb();
+			$this->Connect();
+		}
 		
 		$FieldLimit='';
 		if(!empty($GroupBy)){
@@ -340,7 +351,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2 @ Detail: '.$ModuleError);
 		}
 		
 		$Return=$Result->fetch_all(MYSQLI_ASSOC);
@@ -385,7 +396,11 @@ class Mysql{
 
 		$QueryString=$this->QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
 		
-		$this->RandomDb();
+		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']&&$this->NowDb=='default'){
+			$this->Mysqli->close();
+			$this->NowDb=$this->RandomDb();
+			$this->Connect();
+		}
 
 		$QueryString='SELECT'.$SumSql.' FROM'.$this->GetTableList($Table).$QueryString;
 
@@ -394,7 +409,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2 @ Detail: '.$ModuleError);
 		}
 		
 		$Return=$Result->fetch_assoc();
@@ -441,7 +456,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.3'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.3 @ Detail: '.$ModuleError);
 		}
 
 		$Result=$this->Mysqli->insert_id;
@@ -474,7 +489,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2 @ Detail: '.$ModuleError);
 		}
 	}
 	
@@ -524,7 +539,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.4'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.4 @ Detail: '.$ModuleError);
 		}
 	}
 	
@@ -533,12 +548,18 @@ class Mysql{
 		$Sql=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'sql','sql',FALSE,NULL);
 		$Fetch=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'fetch_result','取回结果',FALSE,FALSE);
 
-		$this->SqlLog($Sql);
+		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']&&$this->NowDb=='default'){
+			$this->Mysqli->close();
+			$this->NowDb=$this->RandomDb();
+			$this->Connect();
+		}
+
+		$this->SqlLog($QueryString);
 		$Result=$this->Mysqli->query($Sql,MYSQLI_USE_RESULT);
 
 		if(!$Result){
 			$ModuleError='Detail: '.$this->Mysqli->error.' | SQL String: '.$Sql.' | errno:'.$this->Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.5'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.6.5 @ Detail: '.$ModuleError);
 		}
 		
 		if($Fetch){

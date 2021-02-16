@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：4.0.2
+  框架版本号：4.0.0
 */
 
 Class Send{
@@ -124,7 +124,7 @@ Class Send{
 		$CurlErrno=curl_errno($Handle);
 		curl_close($Handle);
 		if($Response===FALSE&&$CurlErrno>0){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.8.0'."\r\n\r\n @ ".$CurlErrno);
+			Wrong::Report(__FILE__,__LINE__,'Error#M.8.0 @ '.$CurlErrno);
 		}
 		return $Response;
 	}

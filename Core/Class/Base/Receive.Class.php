@@ -13,7 +13,7 @@
 
   ©2017-2020 Bux. All rights reserved.
 
-  框架版本号：4.0.2
+  框架版本号：4.0.0
 */
 
 require(RootPath.'/Config/Receive.php');
@@ -66,26 +66,6 @@ class Receive{
 		return $Return;
 	}
 	
-	private function B_1_5_Check($OpArray,$Value){
-		if(isset($OpArray[1])&&strtoupper($OpArray[1])=='TRUE'&&(empty($Value)&&$Value!='0')){
-			return FALSE;
-		}
-		return TRUE;
-	}
-
-	private function B_1_6_Check($OpArray,$Value){
-		if(isset($OpArray[1])&&strtoupper($OpArray[1])=='TRUE')
-		{
-			$StrLen=mb_strlen($Value);
-			if(
-			(isset($OpArray[2])&&$StrLen<intval($OpArray[2]))||
-			(isset($OpArray[3])&&$StrLen>intval($OpArray[3])))
-			{
-				Wrong::Report(__FILE__,__LINE__,'Error#B.1.6'."\r\n\r\n @ ".$TempOp[0],FALSE,400);
-			}
-		}
-	}
-
 	//Post接收
 	public function Post($UnionData=array()){
 		$TokenCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'token_check','token检查',FALSE,FALSE);
@@ -97,10 +77,12 @@ class Receive{
 		if(!empty($FieldCheck)&&is_array($FieldCheck)){
 			foreach ($FieldCheck as $Val){
 				$TempOp=explode(',',$Val);
-				if(!isset($_POST[$TempOp[0]])||!$this->B_1_5_Check($TempOp,$_POST[$TempOp[0]])){
-					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5'."\r\n\r\n @ ".$TempOp[0],FALSE,400);
+				if((!isset($_POST[$TempOp[0]]))||(isset($TempOp[1])&&strtoupper($TempOp[1])=='TRUE'&&empty($_POST[$TempOp[0]]))){
+					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5 @ '.$TempOp[0],FALSE,400);
 				}
-				$this->B_1_6_Check($TempOp,$_POST[$TempOp[0]]);
+				if((isset($TempOp[2])&&mb_strlen($_POST[$TempOp[0]])<intval($TempOp[2]))||(isset($TempOp[3])&&mb_strlen($_POST[$TempOp[0]])>intval($TempOp[3]))){
+					Wrong::Report(__FILE__,__LINE__,'Error#B.1.6 @ '.$TempOp[0],FALSE,400);
+				}
 			}
 		}
 		if($FromCheck==TRUE){
@@ -134,10 +116,12 @@ class Receive{
 		if(!empty($FieldCheck)&&is_array($FieldCheck)){
 			foreach ($FieldCheck as $Val){
 				$TempOp=explode(',',$Val);
-				if(!isset($_GET[$TempOp[0]])||!$this->B_1_5_Check($TempOp,$_GET[$TempOp[0]])){
-					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5'."\r\n\r\n @ ".$TempOp[0],FALSE,400);
+				if((!isset($_GET[$TempOp[0]]))||(isset($TempOp[1])&&strtoupper($TempOp[1])=='TRUE'&&empty($_GET[$TempOp[0]]))){
+					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5 @ '.$TempOp[0],FALSE,400);
 				}
-				$this->B_1_6_Check($TempOp,$_GET[$TempOp[0]]);				
+				if((isset($TempOp[2])&&mb_strlen($_GET[$TempOp[0]])<intval($TempOp[2]))||(isset($TempOp[3])&&mb_strlen($_GET[$TempOp[0]])>intval($TempOp[3]))){
+					Wrong::Report(__FILE__,__LINE__,'Error#B.1.6 @ '.$TempOp[0],FALSE,400);
+				}
 			}
 		}
 		if($FromCheck==TRUE){
@@ -169,18 +153,15 @@ class Receive{
 		if(!empty($FieldCheck)&&is_array($FieldCheck)){
 			foreach ($FieldCheck as $Val){
 				$TempOp=explode(',',$Val);
-				$KeyName='HTTP_'.str_replace('-','_',strtoupper($TempOp[0]));
-				
-				if(!isset($_SERVER[$KeyName])||!$this->B_1_5_Check($TempOp,$_SERVER[$KeyName])){
-					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5'."\r\n\r\n @ ".$KeyName,FALSE,400);
+				if((!isset($_SERVER['HTTP_'.str_replace('-','_',strtoupper($TempOp[0]))]))||(isset($TempOp[1])&&strtoupper($TempOp[1])=='TRUE'&&empty($_SERVER['HTTP_'.str_replace('-','_',strtoupper($TempOp[0]))]))){
+					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5 @ '.$TempOp[0],FALSE,400);
 				}
-				$this->B_1_6_Check($TempOp,$_SERVER[$KeyName]);
-				
+				$ReturnValue=$_SERVER['HTTP_'.str_replace('-','_',strtoupper($TempOp[0]))];
 				if($SafeCheck){
-					$Return[$TempOp[0]]=$this->SafeCheck(array('string'=>$_SERVER[$KeyName]));
+					$Return[$TempOp[0]]=$this->SafeCheck(array('string'=>$ReturnValue));
 				}
 				else{
-					$Return[$TempOp[0]]=$_SERVER[$KeyName];
+					$Return=$ReturnValue;
 				}
 			}
 		}
@@ -196,11 +177,9 @@ class Receive{
 		if(!empty($FieldCheck)&&is_array($FieldCheck)){
 			foreach ($FieldCheck as $Val){
 				$TempOp=explode(',',$Val);
-				
-				if(!isset($_COOKIE[$TempOp[0]])||!$this->B_1_5_Check($TempOp,$_COOKIE[$TempOp[0]])){
-					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5'."\r\n\r\n @ ".$TempOp[0],FALSE,400);
+				if((!isset($_COOKIE[$TempOp[0]]))||(isset($TempOp[1])&&strtoupper($TempOp[1])=='TRUE'&&empty($_COOKIE[$TempOp[0]]))){
+					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5 @ '.$TempOp[0],FALSE,400);
 				}
-				$this->B_1_6_Check($TempOp,$_COOKIE[$TempOp[0]]);
 			}
 		}
 		if($SafeCheck){
@@ -227,11 +206,9 @@ class Receive{
 		if(!empty($FieldCheck)&&is_array($FieldCheck)){
 			foreach ($FieldCheck as $Val){
 				$TempOp=explode(',',$Val);
-				
-				if(!isset($TempArray[$TempOp[0]])||!$this->B_1_5_Check($TempOp,$TempArray[$TempOp[0]])){
-					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5'."\r\n\r\n @ ".$TempOp[0],FALSE,400);
+				if((!isset($TempArray[$TempOp[0]]))||(isset($TempOp[1])&&strtoupper($TempOp[1])=='TRUE'&&empty($TempArray[$TempOp[0]]))){
+					Wrong::Report(__FILE__,__LINE__,'Error#B.1.5 @ '.$TempOp[0],FALSE,400);
 				}
-				$this->B_1_6_Check($TempOp,$TempArray[$TempOp[0]]);
 			}
 		}
 		$Return=array();
