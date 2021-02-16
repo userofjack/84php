@@ -88,9 +88,7 @@ class Session{
 					ini_set('session.'.$Key,$Val);
 				}
 			}
-			if(! @session_start()){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.15.1',FALSE,401);
-			};
+			session_start();
 		}
 	}
 }
