@@ -21,10 +21,10 @@ class Wrong{
 		$StyleType=strtoupper($_SERVER['84PHP_CONFIG']['Wrong']['Style']);
 		
 		if(($StyleType=='AUTO'&&$ByAjax)||$StyleType=='JSON'){
-			$Style=file_get_contents(RootPath.'/Core/Errors/Json-style.php');
+			$Style=file_get_contents(RootPath.'/Config/ErrorJsonStyle.php');
 		}
 		else{
-			$Style=file_get_contents(RootPath.'/Core/Errors/Html-style.php');
+			$Style=file_get_contents(RootPath.'/Config/ErrorHtmlStyle.php');
 		}
 		if($Style==FALSE){
 			die('Error#M.13.0');
