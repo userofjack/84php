@@ -66,7 +66,7 @@ class Cache{
 			$Data=self::DataCheck($From['DPath']);
 		}
 		if($CacheChanged['T']||$CacheChanged['D']){
-			if(!empty($Template)){
+			if(!empty($Template)&&!empty($Data)){
 				$Template="\r\n?>\r\n".$Template;
 			}
 			$Cache=$Data.$Template;
