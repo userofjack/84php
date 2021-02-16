@@ -48,8 +48,7 @@ if(FrameworkConfig['Route']!='BASE'&&FrameworkConfig['Route']!='PATH'&&Framework
 }
 
 if(FrameworkConfig['SessionStart']){
-	require(RootPath.'/Core/Class/Session.Class.php');
-	Session::SessionStart();
+	Session::Start();
 }
 
 header('X-Powered-By: '.FrameworkConfig['XPoweredBy']);

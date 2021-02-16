@@ -43,10 +43,9 @@ class Vcode{
 				$i++;
 			}
 		}
-		if(!isset($_SESSION)){
-			session_start();
+		if(isset($_SESSION)){
+			$_SESSION['Vcode']=$Vcode;
 		}
-		$_SESSION['Vcode']=$Vcode;
 		$FontSize=$Height*0.5;
 		$NewImg=imagecreate($Width, $Height);
 		$BgColor=imagecolorallocate($NewImg,250,250,250);
@@ -73,7 +72,7 @@ class Vcode{
 		header('Last-Modified: '.gmdate('D, d M Y 00:00:00',Runtime).' GMT');
 		imagejpeg($NewImg);
 		imagedestroy($NewImg);
-		return TRUE;
+		return $Vcode;
 	}
 	
 	//调用方法不存在

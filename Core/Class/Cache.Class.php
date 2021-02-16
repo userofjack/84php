@@ -21,7 +21,7 @@ class Cache{
 			}
 			$Return=str_replace([';;'],[';'],$Return);
 			$Return=preg_replace(['/(?:^|\n|\s+)\/\/.*/',"/\/\*(.|\r\n)*\*\//"],['',"\r\n"],$Return);
-			$Return=preg_replace(['/(?:^|\n|\s+)#.*/','/\?>(\s\r\n)*/'],'',$Return)."?>\r\n";
+			$Return=preg_replace(['/(?:^|\n|\s+)#.*/','/\?>(\s\r\n)*/'],'',$Return);
 		}
 		return $Return;
 	}
@@ -66,7 +66,10 @@ class Cache{
 			$Data=self::DataCheck($From['DPath']);
 		}
 		if($CacheChanged['T']||$CacheChanged['D']){
-			$Cache=$Data."\r\n".$Template;
+			if(!empty($Template)){
+				$Template="\r\n?>\r\n".$Template;
+			}
+			$Cache=$Data.$Template;
 			
 		}
 				

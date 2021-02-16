@@ -45,7 +45,7 @@ class Receive{
 			(isset($OpArray[2])&&$StrLen<intval($OpArray[2]))||
 			(isset($OpArray[3])&&$StrLen>intval($OpArray[3])))
 			{
-				Wrong::Report(__FILE__,__LINE__,'Error#M.12.1'."\r\n\r\n @ ".$TempOp[0],FALSE,400);
+				Wrong::Report(__FILE__,__LINE__,'Error#M.12.1'."\r\n\r\n @ ".$OpArray[0],FALSE,400);
 			}
 		}
 	}
