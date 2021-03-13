@@ -10,7 +10,7 @@
 class Dir{
 	//目录文件属性
 	public static function State($UnionData=[]){
-		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
+		$Path=QuickParamet($UnionData,'path','路径');
 		
 		if(!is_array($Path)){
 			$PathArray=[$Path];
@@ -73,14 +73,14 @@ class Dir{
 			return $DirSize;
 		}
 		else{
-			Wrong::Report(__FILE__,__LINE__,'Error#M.0.0');
+			Wrong::Report(['detail'=>'Error#M.0.0','code'=>'M.0.0']);
 		}
 	}
 	
 	//目录大小
 	public static function Size($UnionData=[]){
-		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
-		$Unit=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'unit','单位',FALSE,NULL);
+		$Path=QuickParamet($UnionData,'path','路径');
+		$Unit=QuickParamet($UnionData,'unit','单位',FALSE,NULL);
 
 		$DirSize=self::SizeCall(DiskPath($Path));
 		
@@ -120,14 +120,14 @@ class Dir{
 				rmdir($Dir);
 			}
 			else{
-				Wrong::Report(__FILE__,__LINE__,'Error#M.0.1');
+				Wrong::Report(['detail'=>'Error#M.0.1','code'=>'M.0.1']);
 			}
 		}
 	}
 	
 	//删除目录
 	public static function Delete($UnionData=[]){
-		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
+		$Path=QuickParamet($UnionData,'path','路径');
 
 		if(!is_array($Path)){
 			self::DeleteCall(DiskPath($Path));
@@ -142,7 +142,7 @@ class Dir{
 	//复制目录调用
 	private static function CopyCall($From,$To){
 		if(!file_exists($From)){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.0.0');
+			Wrong::Report(['detail'=>'Error#M.0.0','code'=>'M.0.0']);
 		}
 		if(is_file($To)){
 			exit;
@@ -166,14 +166,14 @@ class Dir{
 			closedir($DirHandle);
 		}
 		else{
-			Wrong::Report(__FILE__,__LINE__,'Error#M.0.1');
+			Wrong::Report(['detail'=>'Error#M.0.1','code'=>'M.0.1']);
 		}
 	}
 	
 	//复制目录
 	public static function Copy($UnionData=[]){
-		$From=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'from','源路径');
-		$To=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'to','目标路径');
+		$From=QuickParamet($UnionData,'from','源路径');
+		$To=QuickParamet($UnionData,'to','目标路径');
 
 		self::CopyCall(DiskPath($Path), DiskPath($Path));
 	}

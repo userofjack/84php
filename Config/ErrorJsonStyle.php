@@ -1,1 +1,1 @@
-{"code":{$StatusCode},"status":"error","message":"{$ErrorInfo}","data":{}}
+{"code":{$Code},"status":"error","message":"{$ErrorInfo}","data":{}}

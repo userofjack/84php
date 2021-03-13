@@ -10,11 +10,13 @@
 require(RootPath.'/Config/Wrong.php');
 class Wrong{
 
-	public static function Report($File,$Line,$ErrorDetail,$Anytime=FALSE,$StatusCode=500){
+	public static function Report($UnionData){
+		$Detail=QuickParamet($UnionData,'detail','详情');
+		$Hide=QuickParamet($UnionData,'hide','隐藏',FALSE,TRUE);
+		$Code=QuickParamet($UnionData,'code','状态码',FALSE,500);
+		$Log=QuickParamet($UnionData,'log','日志',FALSE,TRUE);
+
 		ob_clean();
-		if(!FrameworkConfig['Always200']){
-			http_response_code($StatusCode);
-		}
 		$ByAjax=
 			(isset($_SERVER["HTTP_X_REQUESTED_WITH"])&&strtolower($_SERVER["HTTP_X_REQUESTED_WITH"]=='xmlhttprequest'))||
 			(isset($_SERVER["HTTP_ACCEPT"])&&stristr($_SERVER["HTTP_ACCEPT"],'application/json'));
@@ -29,24 +31,33 @@ class Wrong{
 		if($Style==FALSE){
 			die('Error#M.13.0');
 		}
-		if(!strstr($Style,'{$ErrorInfo}')){
-			$Style='{$ErrorInfo}';
-		}
-		if(!FrameworkConfig['Debug']&&!$Anytime){
+		if(!FrameworkConfig['Debug']&&$Hide){
 			$Style=str_replace('{$ErrorInfo}','Error#C.0.4',$Style);
+			$Code='C.0.4';
 		}
-		if(FrameworkConfig['Debug']&&!empty($File)){
-			$ErrorDetail.="\r\n\r\n".' @ Debug#the error in [ '.$File.' ] on [ '.$Line.' ].';
+		if(FrameworkConfig['Debug']){
+			$StackArray=debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+			$Stack='';
+			foreach($StackArray as $Key => $Val){
+				$Stack.='#'.$Key.' ';
+				if(isset($Val['class'])){
+					$Stack.=$Val['class'].$Val['type'].$Val['function'].'() at ';
+				}
+				$Stack.='['.$Val['file'].':'.$Val['line'].'].'."\r\n";
+			}
+			
+			$Detail.="\r\n\r\n".' *** Stack ***'."\r\n\r\n".$Stack;
 		}
-		$ErrorDetail=str_replace('\\','/',$ErrorDetail);
-		if($_SERVER['84PHP_CONFIG']['Wrong']['Log']){
-			$_SERVER['84PHP_LOG'].='[error] '.$ErrorDetail.' @ Debug#the error in [ '.$File.' ] on [ '.$Line.' ].'.' <'.strval((intval(microtime(TRUE)*1000)-intval(Runtime*1000))/1000)."s>\r\n";
+		$Detail=str_replace('\\','/',$Detail);
+		if($_SERVER['84PHP_CONFIG']['Wrong']['Log']&&$Log){
+			Log::Add();
+			Log::Output();
 		}
 		if($ByAjax){
-			$ErrorDetail=substr(substr(json_encode(['*'=>$ErrorDetail],320),6),0,-2);
+			$Detail=substr(substr(json_encode(['*'=>$Detail],320),6),0,-2);
 		}
-		$Style=str_replace('{$ErrorInfo}',$ErrorDetail,$Style);
-		$Style=str_replace('{$StatusCode}',$StatusCode,$Style);
+		$Style=str_replace('{$ErrorInfo}',$Detail,$Style);
+		$Style=str_replace('{$Code}',$Code,$Style);
 		
 		die($Style);
 	}

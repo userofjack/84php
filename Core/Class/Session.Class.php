@@ -13,8 +13,8 @@ class Session{
 
 	//设置Token
 	public static function Token($UnionData=[]){
-		$Token=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'token','token',FALSE,NULL);
-		$SessionId=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'id','id',FALSE,NULL);
+		$Token=QuickParamet($UnionData,'token','token',FALSE,NULL);
+		$SessionId=QuickParamet($UnionData,'id','id',FALSE,NULL);
 
 		self::Start(['id'=>$SessionId]);
 
@@ -40,9 +40,9 @@ class Session{
 
 	//来源检测
 	public static function Csrf($UnionData=[]){
- 		$Token=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'token','token',FALSE,NULL);
-		$SessionId=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'id','id',FALSE,NULL);
-		$UnsetToken=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'unset_token','清除token',FALSE,TRUE);
+ 		$Token=QuickParamet($UnionData,'token','token',FALSE,NULL);
+		$SessionId=QuickParamet($UnionData,'id','id',FALSE,NULL);
+		$UnsetToken=QuickParamet($UnionData,'unset_token','清除token',FALSE,TRUE);
 
 		self::Start(['id'=>$SessionId]);
 		
@@ -61,24 +61,25 @@ class Session{
 			}
 		}
 		
-		$CkeckState=FALSE;
+		$CheckState=FALSE;
 		if(!empty($_SESSION['84PHP_TOKEN'])&&!empty($Token)){
 			foreach($_SESSION['84PHP_TOKEN'] as $Key => $Val){
 				if($Val['token']==$Token&&$Val['time']+$_SERVER['84PHP_CONFIG']['Session']['TokenExpTime']>Runtime){
-					$CkeckState=TRUE;
+					$CheckState=TRUE;
 					if($UnsetToken){
 						unset($_SESSION['84PHP_TOKEN'][$Key]);
 					}
 				}
 			}
 		}
-		if(!$CkeckState){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.15.0',FALSE,401);
+		if(!$CheckState){
+			return FALSE;
 		}
+		return TRUE;
 	}
 
 	public static function Start($UnionData=[]){
-		$SessionId=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'id','id',FALSE,NULL);
+		$SessionId=QuickParamet($UnionData,'id','id',FALSE,NULL);
 		if(session_status()!==PHP_SESSION_ACTIVE){
 			if(!empty($SessionId)){
 				session_id(md5($SessionId));
@@ -88,8 +89,8 @@ class Session{
 					ini_set('session.'.$Key,$Val);
 				}
 			}
-			if(! @session_start()){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.15.1',FALSE,401);
+			if(!@session_start()){
+				Wrong::Report(['detail'=>'Error#M.15.1','code'=>'M.15.1']);
 			};
 		}
 	}

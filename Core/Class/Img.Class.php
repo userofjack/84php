@@ -30,7 +30,7 @@ class Img{
 		$FunExists=function_exists('imagecreatefrom'.$FileType);
 		
 		if(!$Support||!$FunExists){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.2.0');
+			Wrong::Report(['detail'=>'Error#M.2.0','code'=>'M.2.0']);
 		}
 		
 	}
@@ -39,7 +39,7 @@ class Img{
 	private static function GetImage($From,$DataType){
 		if($DataType=='path'){
 			if(!file_exists($From)){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.2.1');
+				Wrong::Report(['detail'=>'Error#M.2.1','code'=>'M.2.1']);
 			}
 			$Exp=explode('.',$From);
 			$MIME=end($Exp);
@@ -64,7 +64,7 @@ class Img{
 		}
 
 		if(!$ImgInfo||$ImgData===FALSE){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.2.2');
+			Wrong::Report(['detail'=>'Error#M.2.2','code'=>'M.2.2']);
 		}
 		
 		$Return=$ImgInfo;
@@ -111,26 +111,26 @@ class Img{
 		}
 		
 		if(!$OutPut){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.2.3');
+			Wrong::Report(['detail'=>'Error#M.2.3','code'=>'M.2.3']);
 		}
 	}
 	
 	//伸缩和水印
 	public static function Change($UnionData=[]){
-		$From=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'image','源图片');
-		$DataType=strtolower(QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data_type','资源类型',FALSE,'path'));
-		$To=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'to','目标路径',FALSE,NULL);
-		$Width=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'width','宽度',FALSE,NULL);
-		$Height=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'height','高度',FALSE,NULL);
-		$Scale=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'scale','缩放',FALSE,1.0);
-		$Word=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'word','文字',FALSE,NULL);
-		$WordSize=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'word_size','文字大小',FALSE,NULL);
-		$WordColor=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'word_color','文字颜色',FALSE,'#333333');
-		$WordMarginX=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'word_margin_x','文字左边距',FALSE,0);
-		$WordMarginY=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'word_margin_y','文字顶边距',FALSE,0);
-		$Quality=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'quality','质量',FALSE,75);
-		$DataType=strtolower(QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data_type','资源类型',FALSE,'path'));
-		$MIME=strtolower(QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'mime','图片格式',FALSE,'jpeg'));
+		$From=QuickParamet($UnionData,'image','源图片');
+		$DataType=strtolower(QuickParamet($UnionData,'data_type','资源类型',FALSE,'path'));
+		$To=QuickParamet($UnionData,'to','目标路径',FALSE,NULL);
+		$Width=QuickParamet($UnionData,'width','宽度',FALSE,NULL);
+		$Height=QuickParamet($UnionData,'height','高度',FALSE,NULL);
+		$Scale=QuickParamet($UnionData,'scale','缩放',FALSE,1.0);
+		$Word=QuickParamet($UnionData,'word','文字',FALSE,NULL);
+		$WordSize=QuickParamet($UnionData,'word_size','文字大小',FALSE,NULL);
+		$WordColor=QuickParamet($UnionData,'word_color','文字颜色',FALSE,'#333333');
+		$WordMarginX=QuickParamet($UnionData,'word_margin_x','文字左边距',FALSE,0);
+		$WordMarginY=QuickParamet($UnionData,'word_margin_y','文字顶边距',FALSE,0);
+		$Quality=QuickParamet($UnionData,'quality','质量',FALSE,75);
+		$DataType=strtolower(QuickParamet($UnionData,'data_type','资源类型',FALSE,'path'));
+		$MIME=strtolower(QuickParamet($UnionData,'mime','图片格式',FALSE,'jpeg'));
 		
 		if($DataType!='path'){
 			$DataType='string';
@@ -166,7 +166,7 @@ class Img{
 		}
 		$NewImg=imagecreatetruecolor($NewWidth,$NewHeight);
 		if(!$NewImg){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.2.4');
+			Wrong::Report(['detail'=>'Error#M.2.4','code'=>'M.2.4']);
 		}
 		imagecopyresampled($NewImg,$ImgInfo['Data'],0,0,0,0,$NewWidth,$NewHeight,$ImgInfo[0],$ImgInfo[1]);
 		if(!empty($Word)){
@@ -177,7 +177,7 @@ class Img{
 				$WordColorArray=self::HexRGB($WordColor);
 			}
 			if(!imagettftext($NewImg,$FontSize,0,$WordMarginX,$WordMarginY,$textcolor1,DiskPath($_SERVER['84PHP_CONFIG']['Img']['FontFile']),$Word)){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.2.5');
+				Wrong::Report(['detail'=>'Error#M.2.5','code'=>'M.2.5']);
 			}
 		}
 		
@@ -189,15 +189,15 @@ class Img{
 	
 	//合并图片
 	public static function Merge($UnionData=[]){
-		$Background=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'background','背景');
-		$Foreground=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'foreground','前景');
-		$DataType=strtolower(QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data_type','资源类型',FALSE,'path'));
-		$To=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'to','目标路径',FALSE,NULL);
-		$ImageX=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'image_x','起始X',FALSE,0);
-		$ImageY=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'image_y','起始Y',FALSE,0);
-		$Scale=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'scale','缩放',FALSE,1.0);
-		$Quality=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'quality','质量',FALSE,75);
-		$MIME=strtolower(QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'mime','图片类型',FALSE,'jpeg'));
+		$Background=QuickParamet($UnionData,'background','背景');
+		$Foreground=QuickParamet($UnionData,'foreground','前景');
+		$DataType=strtolower(QuickParamet($UnionData,'data_type','资源类型',FALSE,'path'));
+		$To=QuickParamet($UnionData,'to','目标路径',FALSE,NULL);
+		$ImageX=QuickParamet($UnionData,'image_x','起始X',FALSE,0);
+		$ImageY=QuickParamet($UnionData,'image_y','起始Y',FALSE,0);
+		$Scale=QuickParamet($UnionData,'scale','缩放',FALSE,1.0);
+		$Quality=QuickParamet($UnionData,'quality','质量',FALSE,75);
+		$MIME=strtolower(QuickParamet($UnionData,'mime','图片类型',FALSE,'jpeg'));
 		
 		if(!empty($To)){
 			$To=DiskPath($To);

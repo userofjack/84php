@@ -13,7 +13,7 @@ require(RootPath.'/Config/Common.php');
 
 spl_autoload_register(function($ClassName){
 	if(!file_exists(RootPath.'/Core/Class/'.$ClassName.'.Class.php')){
-		Wrong::Report(__FILE__,__LINE__,'Error#C.0.7'."\r\n\r\n @ ".$ClassName);
+		Wrong::Report(['detail'=>'Error#C.0.7'."\r\n\r\n @ ".$ClassName,'code'=>'C.0.7']);
 	}
 	else{
 		require(RootPath.'/Core/Class/'.$ClassName.'.Class.php');
@@ -36,7 +36,7 @@ if(FrameworkConfig['RunTimeLimit']!==FALSE){
 
 if(FrameworkConfig['Https']){
 	if(isset($_SERVER['HTTPS'])){
-		Wrong::Report(__FILE__,__LINE__,'Error#C.1.0');
+		Wrong::Report(['detail'=>'Error#C.1.0','code'=>'C.1.0']);
 	}
 	if($_SERVER['HTTPS']==''||$_SERVER['HTTPS']=='off'){
 		header('Location: https://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
@@ -44,7 +44,7 @@ if(FrameworkConfig['Https']){
 }
 
 if(FrameworkConfig['Route']!='BASE'&&FrameworkConfig['Route']!='PATH'&&FrameworkConfig['Route']!='MIX'){
-	Wrong::Report(__FILE__,__LINE__,'Error#C.1.1');
+	Wrong::Report(['detail'=>'Error#C.1.1','code'=>'C.1.1']);
 }
 
 if(FrameworkConfig['SessionStart']){
@@ -69,41 +69,39 @@ set_error_handler('SystemErrorHandler', E_ALL | E_STRICT);
 function SystemErrorHandler($ErrorNo,$ErrorMsg,$ErrorFile,$ErrorLine) {
 	if(error_reporting()==0){
 		return TRUE;
-	}
-	$PHPSystemError='Error#C.0.2 @ ';
-	
+	}	
 	switch ($ErrorNo) {
 		case E_WARNING:
-			$PHPSystemError.='PHP Warning: ';
+			$PHPSystemError='PHP Warning: ';
 			break;
 		case E_NOTICE:
-			$PHPSystemError.='PHP Notice: ';
+			$PHPSystemError='PHP Notice: ';
 			break;
 		case E_DEPRECATED:
-			$PHPSystemError.='PHP Deprecated: ';
+			$PHPSystemError='PHP Deprecated: ';
 			break;
 		case E_USER_ERROR:
-			$PHPSystemError.='User Error: ';
+			$PHPSystemError='User Error: ';
 			break;
 		case E_USER_WARNING:
-			$PHPSystemError.='User Warning: ';
+			$PHPSystemError='User Warning: ';
 			break;
 		case E_USER_NOTICE:
-			$PHPSystemError.='User Notice: ';
+			$PHPSystemError='User Notice: ';
 			break;
 		case E_USER_DEPRECATED:
-			$PHPSystemError.='User Deprecated: ';
+			$PHPSystemError='User Deprecated: ';
 			break;
 		case E_STRICT:
-			$PHPSystemError.='PHP Strict: ';
+			$PHPSystemError='PHP Strict: ';
 			break;
 		default:
-			$PHPSystemError.='Unkonw Type Error: ';
+			$PHPSystemError='Unkonw error: ';
 			break;
 	}
  
 	$PHPSystemError.=$ErrorMsg.' in '.$ErrorFile.' on '.$ErrorLine;
-	Wrong::Report('','',$PHPSystemError);
+	Wrong::Report(['detail'=>'Error#C.0.2 @ '.$PHPSystemError,'code'=>'C.0.2']);
 	return TRUE;
 }
 
@@ -127,7 +125,7 @@ if($_SERVER['84PHP_URI']==''||$_SERVER['84PHP_URI']=='/'){
 define('URI',$_SERVER['84PHP_URI']);
 
 //快捷传参
-function QuickParamet($UnionData,$File,$Line,$ModuleName,$MethodName,$Name,$Dialect,$Must=TRUE,$Default=NULL){
+function QuickParamet($UnionData,$Name,$Dialect,$Must=TRUE,$Default=NULL){
 	if(isset($UnionData[$Name])){
 		return $UnionData[$Name];
 	}
@@ -147,8 +145,12 @@ function QuickParamet($UnionData,$File,$Line,$ModuleName,$MethodName,$Name,$Dial
 		return $UnionData[mb_convert_case($Dialect,MB_CASE_UPPER,'UTF-8')];
 	}
 	else if($Must){
-		$ErrorMsg='Error#C.0.5 @ '.$ModuleName.'->'.$MethodName.'() @ '.$Name.'（'.$Dialect.'）';
-		Wrong::Report($File,$Line,$ErrorMsg);
+		$Stack=debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,2);
+		$ErrorMsg='';
+		if(isset($Stack[1]['class'])){
+			$ErrorMsg=' @ '.$Stack[1]['class'].$Stack[1]['type'].$Stack[1]['function'].'() @ '.$Name.'（'.$Dialect.'）';
+		}
+		Wrong::Report(['detail'=>'Error#C.0.5'.$ErrorMsg,'code'=>'C.0.5']);
 	}
 	else{
 		return $Default;
@@ -189,8 +191,7 @@ function LastWork(){
 
 //方法不存在
 function UnknownStaticMethod($ModuleName,$MethodName){
-	$ErrorMsg='Error#C.0.6 @ '.$ModuleName.' :: '.$MethodName.'()';
-	Wrong::Report(__FILE__,__LINE__,$ErrorMsg);
+	Wrong::Report(['detail'=>'Error#C.0.6 @ '.$ModuleName.' :: '.$MethodName.'()','code'=>'C.0.6']);
 }
 
 //缓冲区控制开启

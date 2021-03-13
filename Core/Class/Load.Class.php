@@ -29,7 +29,7 @@ class Load{
 					break;
 			}
 			if(!$IgnoreErrorInfo){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.4.'.$ModuleError);
+				Wrong::Report(['detail'=>'Error#M.4.'.$ModuleError,'code'=>'M.4.'.$ModuleError]);
 			}
 			else{
 				return NULL;
@@ -44,7 +44,7 @@ class Load{
 		}
 		if(!in_array(strtoupper($Suffix),$TypeInfo)){
 			if(!$IgnoreErrorInfo){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.4.8');
+				Wrong::Report(['detail'=>'Error#M.4.8','code'=>'M.4.8']);
 			}
 			else{
 				return NULL;
@@ -53,7 +53,7 @@ class Load{
 			
 		if($FileSize>$SizeInfo){
 			if(!$IgnoreErrorInfo){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.4.9');
+				Wrong::Report(['detail'=>'Error#M.4.9','code'=>'M.4.9']);
 			}
 			else{
 				return NULL;
@@ -70,7 +70,7 @@ class Load{
 		}
 		if(!move_uploaded_file($FileTmpName,$Pathinfo.'/'.$FileName)){
 			if(!$IgnoreErrorInfo){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.4.10');
+				Wrong::Report(['detail'=>'Error#M.4.10','code'=>'M.4.10']);
 			}
 			else{
 				return NULL;
@@ -82,13 +82,13 @@ class Load{
 	
 	//上传
 	public static function Up($UnionData=[]){
-		$FieldCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段');
-		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
-		$Type=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'type','类型');
-		$SaveName=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'save_name','保存名称',FALSE,NULL);
-		$Size=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'size','大小',FALSE,NULL);
-		$Number=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'number','数量',FALSE,NULL);
-		$IgnoreError=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'ignore_error','忽略错误',FALSE,FALSE);
+		$FieldCheck=QuickParamet($UnionData,'field','字段');
+		$Path=QuickParamet($UnionData,'path','路径');
+		$Type=QuickParamet($UnionData,'type','类型');
+		$SaveName=QuickParamet($UnionData,'save_name','保存名称',FALSE,NULL);
+		$Size=QuickParamet($UnionData,'size','大小',FALSE,NULL);
+		$Number=QuickParamet($UnionData,'number','数量',FALSE,NULL);
+		$IgnoreError=QuickParamet($UnionData,'ignore_error','忽略错误',FALSE,FALSE);
 		
 		$Path=DiskPath($Path);
 		$Return=[];
@@ -97,11 +97,11 @@ class Load{
 				$TempOp=explode(',',$Val);
 				$TempField=str_replace('[]','',$TempOp[0]);
 				if((!isset($_FILES[$TempField]))||(isset($TempOp[1])&&strtoupper($TempOp[1])=='TRUE'&&empty($_FILES[$TempField]['tmp_name']))){
-					Wrong::Report(__FILE__,__LINE__,'Error#M.4.0'."\r\n\r\n @ ".$TempField,FALSE,400);
+					Wrong::Report(['detail'=>'Error#M.4.0'."\r\n\r\n @ ".$TempField,'code'=>'M.4.0']);
 				}
 				if(is_array($Path)){
 					if(empty($Path[$TempField])){
-						Wrong::Report(__FILE__,__LINE__,'Error#M.4.1'."\r\n\r\n @ ".$TempField,FALSE,400);
+						Wrong::Report(['detail'=>'Error#M.4.1'."\r\n\r\n @ ".$TempField,'code'=>'M.4.1']);
 					}
 					else{
 						$TempPath=$Path[$TempField];
@@ -112,7 +112,7 @@ class Load{
 				}
 				if(is_array($Type)){
 					if(empty($Type[$TempField])){
-						Wrong::Report(__FILE__,__LINE__,'Error#M.4.2'."\r\n\r\n @ ".$TempField,FALSE,400);
+						Wrong::Report(['detail'=>'Error#M.4.2'."\r\n\r\n @ ".$TempField,'code'=>'M.4.2']);
 					}
 					else{
 						$TempType=$Type[$TempField];
@@ -193,9 +193,9 @@ class Load{
 	
 	//下载
 	public static function Down($UnionData=[]){
-		$Url=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'url','地址');
-		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
-		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,86400);
+		$Url=QuickParamet($UnionData,'url','地址');
+		$Path=QuickParamet($UnionData,'path','路径');
+		$Timeout=QuickParamet($UnionData,'timeout','超时时间',FALSE,86400);
 
 		$Path=DiskPath($Path);
 		
@@ -208,12 +208,12 @@ class Load{
 		if($Handle){
 			$NewHandle=@fopen($NewName,"wb");
 			if(!$NewHandle){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.4.11');
+				Wrong::Report(['detail'=>'Error#M.4.11','code'=>'M.4.11']);
 			}
 			if($NewHandle){
 				while(!feof($Handle)){
 					if(!fwrite($NewHandle,@fread($Handle,1024*8),1024*8)){
-						Wrong::Report(__FILE__,__LINE__,'Error#M.4.12');
+						Wrong::Report(['detail'=>'Error#M.4.12','code'=>'M.4.12']);
 					};
 				}
 				fclose($NewHandle);
@@ -221,7 +221,7 @@ class Load{
 			fclose($Handle);
 		}
 		else{
-			Wrong::Report(__FILE__,__LINE__,'Error#M.4.13');
+			Wrong::Report(['detail'=>'Error#M.4.13','code'=>'M.4.13']);
 		}
 		return $NewName;
 	}

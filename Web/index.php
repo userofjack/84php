@@ -14,7 +14,8 @@ else {
 		require(RootPath.'/Temp/Cache'.URI.'/index.php');
 	}
 	else{
-		Wrong::Report('','','Error#C.0.0',FALSE,404);
+		http_response_code(404);
+		Wrong::Report(['detail'=>'Error#M.0.0','code'=>'M.0.0','hide'=>FALSE]);
 	}
 }
 LastWork();

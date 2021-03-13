@@ -11,19 +11,19 @@ class Page{
 
 	//分页
 	public static function Base($UnionData=[]){
-		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
-		$Field=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
-		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值',FALSE,NULL);
-		$Condition=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'condition','条件',FALSE,'=');
-		$Order=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'order','顺序',FALSE,NULL);
-		$Desc=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'desc','降序',FALSE,FALSE);
-		$Index=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'index','索引',FALSE,NULL);		
-		$Sql=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'sql','sql',FALSE,NULL);
+		$Table=QuickParamet($UnionData,'table','表');
+		$Field=QuickParamet($UnionData,'field','字段',FALSE,NULL);
+		$Value=QuickParamet($UnionData,'value','值',FALSE,NULL);
+		$Condition=QuickParamet($UnionData,'condition','条件',FALSE,'=');
+		$Order=QuickParamet($UnionData,'order','顺序',FALSE,NULL);
+		$Desc=QuickParamet($UnionData,'desc','降序',FALSE,FALSE);
+		$Index=QuickParamet($UnionData,'index','索引',FALSE,NULL);		
+		$Sql=QuickParamet($UnionData,'sql','sql',FALSE,NULL);
 
-		$Page=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'page','页码');		
-		$Number=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'number','数量');		
+		$Page=QuickParamet($UnionData,'page','页码');		
+		$Number=QuickParamet($UnionData,'number','数量');		
 
-		$FieldLimit=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field_limit','字段限制',FALSE,NULL);		
+		$FieldLimit=QuickParamet($UnionData,'field_limit','字段限制',FALSE,NULL);		
 		
 		$Result=['result'=>[],'info'=>[]];
 		$NowPage=intval($Page);
