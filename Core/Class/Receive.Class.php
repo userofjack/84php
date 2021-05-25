@@ -4,31 +4,12 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 require(RootPath.'/Config/Receive.php');
 
 class Receive{
-
-	//安全检测模块
-	public static function SafeCheck($UnionData=[]) {
-		$WillCheck=QuickParamet($UnionData,'string','字符串');
-
-		$Return=$WillCheck;
-		foreach ($_SERVER['84PHP_CONFIG']['Receive']['DangerChar'] as $Key=>$Val) {
-			$Return=str_replace($Key,$Val,$Return);
-		}
-		if($_SERVER['84PHP_CONFIG']['Receive']['KillEmoji']){
-			$Return=preg_replace_callback('/./u',function($TempArray){
-				if(strlen($TempArray[0])>=4){
-					return NULL;
-				}
-				return $TempArray[0];
-			},$Return);
-		}
-		return $Return;
-	}
 	
 	private static function M_12_0_Check($OpArray,$Value){
 		if(isset($OpArray[1])&&strtoupper($OpArray[1])=='TRUE'&&(empty($Value)&&$Value!='0')){
@@ -53,7 +34,6 @@ class Receive{
 	//Post接收
 	public static function Post($UnionData=[]){
 		$FieldCheck=QuickParamet($UnionData,'field','字段',FALSE,NULL);
-		$SafeCheck=QuickParamet($UnionData,'safe_check','安全检查',FALSE,TRUE);
 		$Decode=QuickParamet($UnionData,'decode','解码',FALSE,TRUE);
 		
 		if(!empty($FieldCheck)&&is_array($FieldCheck)){
@@ -65,28 +45,12 @@ class Receive{
 				self::M_12_1_Check($TempOp,$_POST[$TempOp[0]]);
 			}
 		}
-		
-		$Return=[];
-		if($SafeCheck){
-			foreach ($_POST as $Key=>$Val) {
-				if($Decode){
-					$Return[$Key]=self::SafeCheck(['string'=>urldecode($Val)]);
-				}
-				else{
-					$Return[$Key]=self::SafeCheck(['string'=>$Val]);
-				}
-			}
-		}
-		else{
-			$Return=$_POST;
-		}
-		return $Return;
+		return $_POST;
 	}
 	
 	//Get接收
 	public static function Get($UnionData=[]){
 		$FieldCheck=QuickParamet($UnionData,'field','字段',FALSE,NULL);
-		$SafeCheck=QuickParamet($UnionData,'safe_check','安全检查',FALSE,TRUE);
 		$Decode=QuickParamet($UnionData,'decode','解码',FALSE,TRUE);
 		if(!empty($FieldCheck)&&is_array($FieldCheck)){
 			foreach ($FieldCheck as $Val){
@@ -97,27 +61,12 @@ class Receive{
 				self::M_12_1_Check($TempOp,$_GET[$TempOp[0]]);				
 			}
 		}
-		$Return=[];
-		if($SafeCheck){
-			foreach ($_GET as $Key=>$Val) {
-				if($Decode){
-					$Return[$Key]=self::SafeCheck(['string'=>urldecode($Val)]);
-				}
-				else{
-					$Return[$Key]=self::SafeCheck(['string'=>$Val]);
-				}
-			}
-		}
-		else{
-			$Return=$_GET;
-		}
-		return $Return;
+		return $_GET;
 	}
 	
 	//Header接收过滤
 	public static function Header($UnionData=[]){
 		$FieldCheck=QuickParamet($UnionData,'field','字段',FALSE,NULL);
-		$SafeCheck=QuickParamet($UnionData,'safe_check','安全检查',FALSE,TRUE);
 
 		$Return=[];
 		if(!empty($FieldCheck)&&is_array($FieldCheck)){
@@ -130,12 +79,7 @@ class Receive{
 				}
 				self::M_12_1_Check($TempOp,$_SERVER[$KeyName]);
 				
-				if($SafeCheck){
-					$Return[$TempOp[0]]=self::SafeCheck(['string'=>$_SERVER[$KeyName]]);
-				}
-				else{
-					$Return[$TempOp[0]]=$_SERVER[$KeyName];
-				}
+				$Return[$TempOp[0]]=$_SERVER[$KeyName];
 			}
 		}
 		return $Return;
@@ -144,9 +88,7 @@ class Receive{
 	//Cookie过滤接收
 	public static function Cookie($UnionData=[]){
 		$FieldCheck=QuickParamet($UnionData,'field','字段',FALSE,NULL);
-		$SafeCheck=QuickParamet($UnionData,'safe_check','安全检查',FALSE,TRUE);
 
-		$Return=[];
 		if(!empty($FieldCheck)&&is_array($FieldCheck)){
 			foreach ($FieldCheck as $Val){
 				$TempOp=explode(',',$Val);
@@ -157,46 +99,29 @@ class Receive{
 				self::M_12_1_Check($TempOp,$_COOKIE[$TempOp[0]]);
 			}
 		}
-		if($SafeCheck){
-			foreach ($_COOKIE as $Key=>$Val) {
-				$Return[$Key]=self::SafeCheck(['string'=>$Val]);
-			}
-		}
-		else{
-			$Return=$_COOKIE;
-		}
-		return $Return;
+		return $_COOKIE;
 	}
 
 	//Json过滤
 	public static function Json($UnionData=[]){
 		$JsonString=QuickParamet($UnionData,'srting','字符串');
 		$FieldCheck=QuickParamet($UnionData,'field','字段',FALSE,NULL);
-		$SafeCheck=QuickParamet($UnionData,'safe_check','安全检查',FALSE,TRUE);
 		
-		$TempArray=@json_decode($JsonString,TRUE);
-		if($TempArray==NULL){
+		$Return=@json_decode($JsonString,TRUE);
+		if($Return==NULL){
 			return FALSE;
 		}
 		if(!empty($FieldCheck)&&is_array($FieldCheck)){
 			foreach ($FieldCheck as $Val){
 				$TempOp=explode(',',$Val);
 				
-				if(!isset($TempArray[$TempOp[0]])||!self::M_12_0_Check($TempOp,$TempArray[$TempOp[0]])){
+				if(!isset($Return[$TempOp[0]])||!self::M_12_0_Check($TempOp,$Return[$TempOp[0]])){
 					Wrong::Report(['detail'=>'Error#M.12.0'."\r\n\r\n @ ".$TempOp[0],'code'=>'M.12.0']);
 				}
-				self::M_12_1_Check($TempOp,$TempArray[$TempOp[0]]);
+				self::M_12_1_Check($TempOp,$Return[$TempOp[0]]);
 			}
 		}
-		$Return=[];
-		if($SafeCheck){
-			foreach ($TempArray as $Key=>$Val) {
-				$Return[$Key]=self::SafeCheck(['string'=>$Val]);
-			}
-		}
-		else{
-			$Return=$TempArray;
-		}
+
 		return $Return;
 	}
 

@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 define('RootPath',substr(str_replace(['\\','//'],'/',dirname(__FILE__)),0,-5));
 set_include_path(get_include_path().PATH_SEPARATOR.RootPath.'/Lib/');
@@ -26,6 +26,7 @@ if(isset($_SERVER['REQUEST_METHOD'])&&$_SERVER['REQUEST_METHOD']=='OPTIONS'){
 
 date_default_timezone_set(FrameworkConfig['TimeZone']);
 define('Runtime',microtime(TRUE));
+define('IntRuntime',intval(Runtime));
 
 $_SERVER['84PHP_CONFIG']=[];
 $_SERVER['84PHP_LOG']='';
@@ -50,9 +51,6 @@ if(FrameworkConfig['Route']!='BASE'&&FrameworkConfig['Route']!='PATH'&&Framework
 if(FrameworkConfig['SessionStart']){
 	Session::Start();
 }
-
-header('X-Powered-By: '.FrameworkConfig['XPoweredBy']);
-
 
 if(!FrameworkConfig['Debug']){
 	error_reporting(0);
@@ -148,7 +146,7 @@ function QuickParamet($UnionData,$Name,$Dialect,$Must=TRUE,$Default=NULL){
 		$Stack=debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,2);
 		$ErrorMsg='';
 		if(isset($Stack[1]['class'])){
-			$ErrorMsg=' @ '.$Stack[1]['class'].$Stack[1]['type'].$Stack[1]['function'].'() @ '.$Name.'（'.$Dialect.'）';
+			$ErrorMsg="\r\n\r\n @ ".$Stack[1]['class'].$Stack[1]['type'].$Stack[1]['function'].'() @ '.$Name.'（'.$Dialect.'）';
 		}
 		Wrong::Report(['detail'=>'Error#C.0.5'.$ErrorMsg,'code'=>'C.0.5']);
 	}

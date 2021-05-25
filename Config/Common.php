@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 //框架配置项
@@ -25,8 +25,6 @@ define('FrameworkConfig',[
 	'SessionStart'=>FALSE,
 	//时区
 	'TimeZone'=>'Asia/Shanghai',
-	//X-Powered-By隐藏
-	'XPoweredBy'=>'ASP.NET',
 	//始终返回200状态码
 	'Always200'=>TRUE
 ]);

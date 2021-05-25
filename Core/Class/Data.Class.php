@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 require(RootPath.'/Config/Data.php');
@@ -122,7 +122,7 @@ class Data{
 		}
 		fwrite($FileHandle,$Cache);
 		fclose($FileHandle);
-        return TRUE;
+		return TRUE;
 	}
 	
 	//删除文件緩存
@@ -153,7 +153,7 @@ class Data{
 			}
 			return NULL;
 		}
-        return self::StrToVar(strtok("\r\n"));
+		return self::StrToVar(strtok("\r\n"));
 	}
 	
 	//连接Redis
@@ -192,7 +192,7 @@ class Data{
 		$Cache=self::VarToStr($Value);
 		self::$Connect->set($Prefix.$MD5,$Cache);
 		self::$Connect->expire($Prefix.$MD5,$Time);
-        return TRUE;
+		return TRUE;
 	}
 	
 	//获取Redis缓存
@@ -206,7 +206,7 @@ class Data{
 		if($Cache==FALSE){
 			return NULL;
 		}
-        return self::StrToVar($Cache);
+		return self::StrToVar($Cache);
 	}
 
 	//调用方法不存在

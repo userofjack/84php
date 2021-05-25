@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 class Page{
@@ -12,8 +12,8 @@ class Page{
 	//分页
 	public static function Base($UnionData=[]){
 		$Table=QuickParamet($UnionData,'table','表');
-		$Field=QuickParamet($UnionData,'field','字段',FALSE,NULL);
-		$Value=QuickParamet($UnionData,'value','值',FALSE,NULL);
+		$Field=QuickParamet($UnionData,'field','字段',FALSE,[]);
+		$Value=QuickParamet($UnionData,'value','值',FALSE,[]);
 		$Condition=QuickParamet($UnionData,'condition','条件',FALSE,'=');
 		$Order=QuickParamet($UnionData,'order','顺序',FALSE,NULL);
 		$Desc=QuickParamet($UnionData,'desc','降序',FALSE,FALSE);
@@ -35,7 +35,7 @@ class Page{
 		}
 		$Number=intval($Number);
 		$Start=0;
-		$TotalNumber=Mysql::Total([
+		$TotalNumber=Db::Total([
 			'table'=>$Table,
 			'field'=>$Field,
 			'value'=>$Value,
@@ -73,7 +73,7 @@ class Page{
 			$End=$TotalNumber;
 		};
 		
-		$Result['result']=Mysql::SelectMore([
+		$Result['result']=Db::SelectMore([
 			'table'=>$Table,
 			'field'=>$Field,
 			'value'=>$Value,

@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 require(RootPath.'/Config/Wrong.php');
@@ -12,8 +12,8 @@ class Wrong{
 
 	public static function Report($UnionData){
 		$Detail=QuickParamet($UnionData,'detail','详情');
-		$Hide=QuickParamet($UnionData,'hide','隐藏',FALSE,TRUE);
 		$Code=QuickParamet($UnionData,'code','状态码',FALSE,500);
+		$Hide=QuickParamet($UnionData,'hide','隐藏',FALSE,TRUE);
 		$Log=QuickParamet($UnionData,'log','日志',FALSE,TRUE);
 
 		ob_clean();
@@ -50,7 +50,7 @@ class Wrong{
 		}
 		$Detail=str_replace('\\','/',$Detail);
 		if($_SERVER['84PHP_CONFIG']['Wrong']['Log']&&$Log){
-			Log::Add();
+			Log::Add(['level'=>'e','info'=>$Detail]);
 			Log::Output();
 		}
 		if($ByAjax){

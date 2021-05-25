@@ -2,17 +2,17 @@
 $_SERVER['84PHP_CONFIG']['Data']=[
 	//公共参数
 	'Handle'=>'redis',
-    'Connect'=>[
-        'file'=>[
-            'level'=>3,
-            'clean'=>1000,
-        ],
-        'redis'=>[
+	'Connect'=>[
+		'file'=>[
+			'level'=>3,
+			'clean'=>1000,
+		],
+		'redis'=>[
 			'address'=>'localhost',
 			'password'=>'',
 			'dbnumber'=>0,
 			'port'=>6379,
 			'timeout'=>15
-        ]
-    ]
+		]
+	]
 ];

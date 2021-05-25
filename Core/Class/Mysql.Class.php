@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 require(RootPath.'/Config/Mysql.php');
@@ -55,7 +55,7 @@ class Mysql{
 	//写入日志
 	private static function SqlLog($SqL){
 		if($_SERVER['84PHP_CONFIG']['Mysql']['Log']){
-			$_SERVER['84PHP_LOG'].='[sql] '.$SqL.' <'.strval((intval(microtime(TRUE)*1000)-intval(Runtime*1000))/1000)."s>\r\n";
+			Log::Add(['level'=>'S','info'=>$SqL]);
 		}
 	}
 
@@ -359,18 +359,10 @@ class Mysql{
 		$QueryString=self::QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
 		
 		$SumSql='';
-		if(empty($SumField)){
-			return [];
+		foreach($SumField as $Key => $Val){
+			$SumSql.=' SUM(`'.self::SplitField($Key).'`)'.' AS `'.$Val.'`,';
 		}
-		if(is_string($SumField)){
-			$SumSql=' SUM(`'.self::SplitField($SumField).'`) AS `'.$SumResult.'`';
-		}
-		else if(is_array($SumField)){
-			foreach($SumField as $Key => $Val){
-				$SumSql.=' SUM(`'.self::SplitField($Val).'`)'.' AS `'.$Val.'`,';
-			}
-			$SumSql=substr($SumSql,0,-1);
-		}
+		$SumSql=substr($SumSql,0,-1);
 
 		$QueryString=self::QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
 		

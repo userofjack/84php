@@ -8,8 +8,6 @@ $Post=Receive::Post($Config);
 
 /*
 	调用“Receive”模块中的“Post()”方法，并将返回值存储于“$Post”变量中。
-	
-	请注意，“$Post”是经过安全处理的“$_POST”变量，即“$Post”是安全的，而“$_POST”可能包含恶意数据。因此，尽量不要直接使用“$_POST”变量。
 */
 
 if(empty($Post['testinput'])){
