@@ -50,8 +50,8 @@ class Receive{
 
 	//按模式检查
 	public static function ByMode($UnionData=[]){
-		$Field=QuickParamet($UnionData,'field','字段',FALSE,NULL);
-		$Must=QuickParamet($UnionData,'must','必须');
+		$Field=QuickParamet($UnionData,'field','字段');
+		$Must=QuickParamet($UnionData,'must','必须',FALSE,[]);
 		$Mode=QuickParamet($UnionData,'mode','模式');
 		$Mode=strtolower($Mode);
 		if($Mode!='get'&&$Mode!='post'&&$Mode!='cookie'&&$Mode!='header'){
@@ -77,19 +77,27 @@ class Receive{
 			}
 			
 			if($TempData===FALSE&&in_array($Key,$Must)){
-				Wrong::Report(['detail'=>'Error#M.18.1'."\r\n\r\n @ ".$Key,'code'=>'M.18.1']);
+				return FALSE;
 			}
 			if(!self::EmptyCheck($TempOp,$TempData)||!self::LengthCheck($TempOp,$TempData)||!self::RuleCheck($TempOp,$TempData)){
 				return FALSE;
 			}
 
 		}
+		return TRUE;
 	}
 
 	//从数据检查
 	public static function ByData($UnionData=[]){
-		$Field=QuickParamet($UnionData,'field','字段',FALSE,NULL);
+		$Data=QuickParamet($UnionData,'data','数据');
+		$Check=QuickParamet($UnionData,'check','校验');
 		
+		$Operate=explode(',',$Data);
+
+		if(!self::EmptyCheck($Check,$Data)||!self::LengthCheck($Check,$Data)||!self::RuleCheck($Check,$Data)){
+			return FALSE;
+		}
+		return TRUE;
 	}
 
 	//调用方法不存在
