@@ -15,6 +15,10 @@ class Wrong{
 		$Code=QuickParamet($UnionData,'code','状态码',FALSE,500);
 		$Hide=QuickParamet($UnionData,'hide','隐藏',FALSE,TRUE);
 		$Log=QuickParamet($UnionData,'log','日志',FALSE,TRUE);
+		
+		if(isset($_SERVER['84PHP_CONFIG']['Wrong']['CodeReplace'][$Code])){
+			$Code=$_SERVER['84PHP_CONFIG']['Wrong']['CodeReplace'][$Code];
+		}
 
 		ob_clean();
 		$ByAjax=
@@ -41,9 +45,20 @@ class Wrong{
 			foreach($StackArray as $Key => $Val){
 				$Stack.='#'.$Key.' ';
 				if(isset($Val['class'])){
-					$Stack.=$Val['class'].$Val['type'].$Val['function'].'() at ';
+					$Stack.=$Val['class'].$Val['type'];
 				}
-				$Stack.='['.$Val['file'].':'.$Val['line'].'].'."\r\n";
+				if(isset($Val['function'])){
+					if($Val['function']=='{closure}'){
+						$Stack.='{closure}';
+					}
+					else{
+						$Stack.=$Val['function'].'()';
+					}
+				}
+				if(isset($Val['file'])&&isset($Val['line'])){
+					$Stack.=' at ['.$Val['file'].':'.$Val['line'].'].';
+				}
+				$Stack.="\r\n";
 			}
 			
 			$Detail.="\r\n\r\n".' *** Stack ***'."\r\n\r\n".$Stack;

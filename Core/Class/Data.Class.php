@@ -171,7 +171,6 @@ class Data{
 			self::$Connect->auth($_SERVER['84PHP_CONFIG']['Data']['Connect']['redis']['password']) ?:Wrong::Report(['detail'=>'Error#M.16.2','code'=>'M.16.2']);
 		}
 		self::$Connect->select($_SERVER['84PHP_CONFIG']['Data']['Connect']['redis']['dbnumber'])?:Wrong::Report(['detail'=>'Error#M.16.3','code'=>'M.16.3']);
-		$_SERVER['84PHP_LastWork']['Data']='CloseRedisConnect';
 	}
 
 	//关闭Redis缓存

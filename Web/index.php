@@ -18,4 +18,3 @@ else {
 		Wrong::Report(['detail'=>'Error#M.0.0','code'=>'M.0.0','hide'=>FALSE]);
 	}
 }
-LastWork();

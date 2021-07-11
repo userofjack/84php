@@ -96,10 +96,12 @@ class Db{
 	private static function ExecBind($StmtKey,$PreSql,$Action=''){
 		self::SqlLog($PreSql);
 
-		if(!self::$Stmts[$StmtKey]->execute()){
-			$ErrorInfo=self::$Stmts[$StmtKey]->errorInfo();
-			$ModuleError='Detail: '.$ErrorInfo[2].' | SQL String: '.$PreSql.' | errno:'.$ErrorInfo[0].' / '.$ErrorInfo[1];
-			Wrong::Report(['detail'=>'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError,'code'=>'M.6.2']);
+		try{
+			self::$Stmts[$StmtKey]->execute();
+		}
+		catch(PDOException $Error){
+			$ModuleError='Detail: '.$Error->getMessage().' | SQL String: '.$PreSql.' | errno:'.$Error->getCode();
+			Wrong::Report(['detail'=>'Error#M.17.2'."\r\n\r\n @ ".$ModuleError,'code'=>'M.17.2']);
 		}
 		
 		if($Action=='Fetch'){
@@ -448,8 +450,7 @@ class Db{
 		$QueryString='INSERT INTO'.self::GetTableList($Table).' ( '.$InsertField.' ) VALUES ( '.$InsertValue.' )'.' '.$Sql;
 
 		$StmtKey=self::CreateBind($QueryString);
-		self::BindData($StmtKey,$Field,$Value,$Tag='_Where_');
-		self::BindData($StmtKey,[],$Data,$Tag='_Insert_');
+		self::BindData($StmtKey,[],$Data,$Tag='_Insert_',TRUE);
 		self::BindData($StmtKey,[],$Bind,$Tag='',TRUE);
 
 		return self::ExecBind($StmtKey,$QueryString,'InsertId');
@@ -531,7 +532,7 @@ class Db{
 
 		$StmtKey=self::CreateBind($QueryString);
 		self::BindData($StmtKey,$Field,$Value,$Tag='_Where_');
-		self::BindData($StmtKey,[],$Data,$Tag='_Update_');
+		self::BindData($StmtKey,[],$Data,$Tag='_Update_',TRUE);
 		self::BindData($StmtKey,[],$Bind,$Tag='',TRUE);
 
 		return self::ExecBind($StmtKey,$QueryString,$RowCount?'RowCount':'');
@@ -559,8 +560,7 @@ class Db{
 				self::$DbHandle->beginTransaction();
 				return TRUE;				
 			} catch (Exception $Error) {
-				self::$DbHandle->rollBack();
-				Wrong::Report(['detail'=>'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$Error->getMessage(),'code'=>'M.6.2']);
+				Wrong::Report(['detail'=>'Error#M.17.3'."\r\n\r\n @ ".'Detail: '.$Error->getMessage(),'code'=>'M.17.3']);
 			}
 		}
 		else if($Option=='commit'){

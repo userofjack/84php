@@ -15,7 +15,6 @@ class Mysql{
 	
 	public static function ClassInitial(){
 		self::Connect();
-		$_SERVER['84PHP_LastWork']['Mysql']='CloseConnect';
 	}
 	
 	//读写分离随机选择数据库

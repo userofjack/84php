@@ -7,8 +7,6 @@
   框架版本号：5.1.0
 */
 
-require(RootPath.'/Config/Receive.php');
-
 class Receive{
 	
 	private static function M_12_0_Check($OpArray,$Value){
