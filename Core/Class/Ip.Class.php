@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 require(RootPath.'/Config/Ip.php');
@@ -22,18 +22,18 @@ Class Ip{
 		self::$WhiteListFile=RootPath.'/Temp/ip-whitelist.php';
 		if(!file_exists(self::$BlackListFile)){
 			if(!file_put_contents(self::$BlackListFile,'<?php exit; ?>')){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.3.0');
+				Wrong::Report(['detail'=>'Error#M.3.0','code'=>'M.3.0']);
 			}
 		}
 		if(!file_exists(self::$WhiteListFile)){
 			if(!file_put_contents(self::$WhiteListFile,'<?php exit; ?>')){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.3.0');
+				Wrong::Report(['detail'=>'Error#M.3.0','code'=>'M.3.0']);
 			}
 		}
 		$BlackListText=file_get_contents(self::$BlackListFile);
 		$WhiteListText=file_get_contents(self::$WhiteListFile);
 		if($BlackListText===FALSE||$WhiteListText===FALSE){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.3.1');
+			Wrong::Report(['detail'=>'Error#M.3.1','code'=>'M.3.1']);
 		}
 		
 		self::$BlackList=self::TextToArray($BlackListText);
@@ -134,19 +134,19 @@ Class Ip{
 	
 	//写入文件
 	private static function Save($UnionData=[]){
-		$Type=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'type','类型',FALSE,'b');
+		$Type=QuickParamet($UnionData,'type','类型',FALSE,'b');
 		if(strtolower($Type)=='b'){
 			$ListText=self::ArrayToText(self::$BlackList);
 			$Handle=@fopen(self::$BlackListFile,'w');
 			if(!$Handle){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.3.2');
+				Wrong::Report(['detail'=>'Error#M.3.2','code'=>'M.3.2']);
 			}
 		}
 		else{
 			$ListText=self::ArrayToText(self::$WhiteList);
 			$Handle=@fopen(self::$WhiteListFile,'w');
 			if(!$Handle){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.3.2');
+				Wrong::Report(['detail'=>'Error#M.3.2','code'=>'M.3.2']);
 			}
 		}
 		fwrite($Handle,'<?php exit; ?>'.$ListText);
@@ -155,10 +155,10 @@ Class Ip{
 	
 	//添加
 	public static function Add($UnionData=[]){
-		$Type=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'type','类型');
-		$StartIP=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'ip_start','起始ip');
-		$EndIP=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'ip_end','结束ip',FALSE,NULL);
-		$ExpTime=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'exp_time','过期时间',FALSE,NULL);
+		$Type=QuickParamet($UnionData,'type','类型');
+		$StartIP=QuickParamet($UnionData,'ip_start','起始ip');
+		$EndIP=QuickParamet($UnionData,'ip_end','结束ip',FALSE,NULL);
+		$ExpTime=QuickParamet($UnionData,'exp_time','过期时间',FALSE,NULL);
 		if(empty($StartIP)){
 			return FALSE;
 		}
@@ -189,9 +189,9 @@ Class Ip{
 	
 	//移除
 	public static function Delete($UnionData=[]){
-		$StartIP=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'ip_start','起始ip');
-		$EndIP=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'ip_end','结束ip',FALSE,NULL);
-		$Type=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'type','类型');
+		$StartIP=QuickParamet($UnionData,'ip_start','起始ip');
+		$EndIP=QuickParamet($UnionData,'ip_end','结束ip',FALSE,NULL);
+		$Type=QuickParamet($UnionData,'type','类型');
 		if(empty($StartIP)){
 			return FALSE;
 		}
@@ -215,7 +215,7 @@ Class Ip{
 	public static function Check($UnionData=[]){
 		if(!self::Find(2,$_SERVER['REMOTE_ADDR'])&&self::Find(1,$_SERVER['REMOTE_ADDR'])){
 			if($_SERVER['84PHP_CONFIG']['Ip']['ExitProgream']){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.3.3');
+				Wrong::Report(['detail'=>'Error#M.3.3','code'=>'M.3.3']);
 			}
 			else{
 				return FALSE;
@@ -226,7 +226,7 @@ Class Ip{
 	
 	//导出全部记录
 	public static function GetAll($UnionData=[]){
-		$Type=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'type','类型');
+		$Type=QuickParamet($UnionData,'type','类型');
 		$Return=[];
 		if(strtolower($Type)=='b'){
 			$ListArray=self::$BlackList;
@@ -246,8 +246,8 @@ Class Ip{
 	
 	//查找
 	public static function Find($UnionData=[]){
-		$Type=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'type','类型');
-		$IP=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'ip','ip地址');
+		$Type=QuickParamet($UnionData,'type','类型');
+		$IP=QuickParamet($UnionData,'ip','ip地址');
 		if(empty($IP)){
 			return FALSE;
 		}
@@ -271,8 +271,8 @@ Class Ip{
 	
 	//清理
 	public static function Clean($UnionData=[]){
-		$Reset=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'reset','重置',FALSE,FALSE);
-		$Type=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'type','类型');
+		$Reset=QuickParamet($UnionData,'reset','重置',FALSE,FALSE);
+		$Type=QuickParamet($UnionData,'type','类型');
 		if($Reset){
 			if(strtolower($Type)=='b'||empty($Type)){
 				self::$BlackList=[];

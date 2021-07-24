@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 require(RootPath.'/Config/Log.php');
@@ -30,8 +30,8 @@ Class Log{
 	
 	//添加记录
 	public static function Add($UnionData=[]){
-		$Info=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'info','内容',FALSE,'');
-		$Level=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'level','等级',FALSE,'');
+		$Info=QuickParamet($UnionData,'info','内容',FALSE,'');
+		$Level=QuickParamet($UnionData,'level','等级',FALSE,'');
 		if(strtoupper($Level)=='E'){
 			$Level='error';
 		}
@@ -53,7 +53,7 @@ Class Log{
 	//写入文件
 	public static function Output(){
 		if(strlen(FrameworkConfig['SafeCode'])<10){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.14.0');
+			Wrong::Report(['detail'=>'Error#M.14.0','code'=>'M.14.0','log'=>FALSE]);
 		}
 		
 		if(strtoupper($_SERVER['84PHP_CONFIG']['Log']['Interval'])=='H'){

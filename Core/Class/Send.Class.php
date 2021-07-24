@@ -4,17 +4,17 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 Class Send{
 
 	//Post提交
 	public static function Post($UnionData=[]){
-		$Url=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'url','地址');
-		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据',FALSE,[]);
-		$Headers=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'header','header',FALSE,[]);
-		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,15);
+		$Url=QuickParamet($UnionData,'url','地址');
+		$Data=QuickParamet($UnionData,'data','数据',FALSE,[]);
+		$Headers=QuickParamet($UnionData,'header','header',FALSE,[]);
+		$Timeout=QuickParamet($UnionData,'timeout','超时时间',FALSE,15);
 
 		$Response=NULL;
 		if(is_array($Data)){
@@ -32,7 +32,7 @@ Class Send{
 		$Context=stream_context_create($Params);
 		$Handle=@fopen($Url,'rb',FALSE,$Context);
 		if(!$Handle){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.8.0');
+			Wrong::Report(['detail'=>'Error#M.8.0','code'=>'M.8.0']);
 		}
 		$Response=@stream_get_contents($Handle);
 		fclose($Handle);
@@ -41,10 +41,10 @@ Class Send{
 	
 	//Get提交
 	public static function Get($UnionData=[]){
-		$Url=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'url','地址');
-		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据',FALSE,[]);
-		$Headers=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'header','header',FALSE,[]);
-		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,15);
+		$Url=QuickParamet($UnionData,'url','地址');
+		$Data=QuickParamet($UnionData,'data','数据',FALSE,[]);
+		$Headers=QuickParamet($UnionData,'header','header',FALSE,[]);
+		$Timeout=QuickParamet($UnionData,'timeout','超时时间',FALSE,15);
 
 		$Response=NULL;
 		if(!empty($Data)){
@@ -66,7 +66,7 @@ Class Send{
 		$Context=stream_context_create($Params);
 		$Handle=@fopen($Url.$Data,'rb',FALSE,$Context);
 		if(!$Handle){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.8.0');
+			Wrong::Report(['detail'=>'Error#M.8.0','code'=>'M.8.0']);
 		}
 		$Response=@stream_get_contents($Handle);
 		fclose($Handle);
@@ -75,14 +75,14 @@ Class Send{
 	
 	//Post含文件提交
 	public static function Posts($UnionData=[]){
-		$Url=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'url','地址');
-		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据',FALSE,[]);
-		$File=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'file','文件',FALSE,[]);
-		$Headers=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'header','header',FALSE,[]);
-		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,15);
+		$Url=QuickParamet($UnionData,'url','地址');
+		$Data=QuickParamet($UnionData,'data','数据',FALSE,[]);
+		$File=QuickParamet($UnionData,'file','文件',FALSE,[]);
+		$Headers=QuickParamet($UnionData,'header','header',FALSE,[]);
+		$Timeout=QuickParamet($UnionData,'timeout','超时时间',FALSE,15);
 
 		if(!function_exists('curl_init')){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.8.1');
+			Wrong::Report(['detail'=>'Error#M.8.1','code'=>'M.8.1']);
 		}
 		
 		$Response=NULL;
@@ -116,7 +116,7 @@ Class Send{
 		$CurlErrno=curl_errno($Handle);
 		curl_close($Handle);
 		if($Response===FALSE&&$CurlErrno>0){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.8.0'."\r\n\r\n @ ".$CurlErrno);
+			Wrong::Report(['detail'=>'Error#M.8.0'."\r\n\r\n @ ".$CurlErrno,'code'=>'M.8.0']);
 		}
 		return $Response;
 	}

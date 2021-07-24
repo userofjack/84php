@@ -1,3 +1,4 @@
 <?php
 require(dirname(__FILE__).'/../Initial.php');
-Wrong::Report('','','Error#C.0.3',FALSE,599);
+http_response_code(599);
+Wrong::Report(['detail'=>'Error#M.0.3','code'=>'M.0.3','hide'=>FALSE]);

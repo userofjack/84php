@@ -1,3 +1,3 @@
 <?php
-$Version='5.0.0';
+$Version=FrameworkVersion;
 ?> 

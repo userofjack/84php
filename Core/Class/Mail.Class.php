@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 require(RootPath.'/Config/Mail.php');
@@ -13,15 +13,15 @@ class Mail{
 
 	//Jmail发送
 	public static function Jsend($UnionData=[]){
-		$Address=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'address','地址');
-		$Title=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'title','标题');
-		$Content=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'content','内容');
-		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,15);
+		$Address=QuickParamet($UnionData,'address','地址');
+		$Title=QuickParamet($UnionData,'title','标题');
+		$Content=QuickParamet($UnionData,'content','内容');
+		$Timeout=QuickParamet($UnionData,'timeout','超时时间',FALSE,15);
 
 		set_time_limit($Timeout);
 		$JmailCOM=new COM("Jmail.Message");
 		if(!$JmailCOM){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.5.0');
+			Wrong::Report(['detail'=>'Error#M.5.0','code'=>'M.5.0']);
 		}
 		$JmailCOM->Silent=TRUE;
 		$JmailCOM->Logging=TRUE;
@@ -53,10 +53,10 @@ class Mail{
 	
 	//Socket发送
 	public static function Ssend($UnionData=[]){
-		$Address=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'address','地址');
-		$Title=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'title','标题');
-		$Content=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'content','内容');
-		$Timeout=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'timeout','超时时间',FALSE,15);
+		$Address=QuickParamet($UnionData,'address','地址');
+		$Title=QuickParamet($UnionData,'title','标题');
+		$Content=QuickParamet($UnionData,'content','内容');
+		$Timeout=QuickParamet($UnionData,'timeout','超时时间',FALSE,15);
 
 		$Send=NULL;
 		$Response='';

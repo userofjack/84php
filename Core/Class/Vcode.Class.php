@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 require(RootPath.'/Config/Vcode.php');
@@ -18,18 +18,17 @@ class Vcode{
 	}
 	//验证码
 	public static function Base($UnionData=[]){
-		$Width=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'width','宽度',FALSE,80);
-		$Height=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'height','高度',FALSE,30);
-		$Scale=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'scale','缩放',FALSE,1.0);
-		$Word=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'word','文字',FALSE,NULL);
-		$WordColor=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'word_color','文字颜色',FALSE,'#000000');
-		$Dot=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'dot','文字',FALSE,15);
-		$Line=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'line','文字',FALSE,2);
-		$NoiseHexColor=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'noise_color','噪点颜色',FALSE,'#ff6600');
+		$Width=QuickParamet($UnionData,'width','宽度',FALSE,80);
+		$Height=QuickParamet($UnionData,'height','高度',FALSE,30);
+		$Word=QuickParamet($UnionData,'word','文字',FALSE,NULL);
+		$WordColor=QuickParamet($UnionData,'word_color','文字颜色',FALSE,'#000000');
+		$Dot=QuickParamet($UnionData,'dot','点',FALSE,15);
+		$Line=QuickParamet($UnionData,'line','线',FALSE,2);
+		$NoiseHexColor=QuickParamet($UnionData,'noise_color','噪点颜色',FALSE,'#ff6600');
 		
 		$Font=DiskPath($_SERVER['84PHP_CONFIG']['Vcode']['FontFile']);
 		if(!file_exists($Font)){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.10.0');
+			Wrong::Report(['detail'=>'Error#M.10.0','code'=>'M.10.0']);
 		}
 		$PossibleLetters='0123456789bcdfghjkmnpqrstvwxyz';
 		$Vcode=NULL;

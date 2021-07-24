@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 Class Setting{
@@ -15,7 +15,7 @@ Class Setting{
 		if(file_exists($FilePath)){
 			return TRUE;
 		}
-		Wrong::Report(__FILE__,__LINE__,'Error#M.9.1');
+		Wrong::Report(['detail'=>'Error#M.9.1','code'=>'M.9.1']);
 	}
 		
 	//数组转字符串
@@ -82,29 +82,29 @@ Class Setting{
 
 	//获取配置项的值
 	public static function Get($UnionData=[]){
-		$Module=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'module','模块');
-		$Name=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'name','名称');
+		$Module=QuickParamet($UnionData,'module','模块');
+		$Name=QuickParamet($UnionData,'name','名称');
 		
 		self::FileCheck($Module);
 		require_once(RootPath.'/Config/'.ucfirst($Module).'.php');
 		if(isset($_SERVER['84PHP_CONFIG'][$Module][$Name])){
 			return $_SERVER['84PHP_CONFIG'][$Module][$Name];
 		}
-		Wrong::Report(__FILE__,__LINE__,'Error#M.9.2');
+		Wrong::Report(['detail'=>'Error#M.9.2','code'=>'M.9.2']);
 	}
 	
 	//写入配置项项
 	public static function Set($UnionData=[]){
-		$Module=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'module','模块');
-		$Name=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'name','名称');
-		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值');
+		$Module=QuickParamet($UnionData,'module','模块');
+		$Name=QuickParamet($UnionData,'name','名称');
+		$Value=QuickParamet($UnionData,'value','值');
 		$Module=ucfirst($Module);
 
 		$CodeText=self::FileCheck($Module);
 		$OldValue=self::Get($Module,$Name);
 		require_once(RootPath.'/Config/'.$Module.'.php');
 		if(gettype($OldValue)!=gettype($Value)){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.9.3');
+			Wrong::Report(['detail'=>'Error#M.9.3','code'=>'M.9.3']);
 		}
 		$CodeText='<?php'."\r\n".'$_SERVER[\'84PHP_CONFIG\'][\''.$Module.'\']=['."\r\n";
 		foreach($_SERVER['84PHP_CONFIG'][$Module] as $Key => $Val){
@@ -119,7 +119,7 @@ Class Setting{
 		$CodeText.="\r\n];";
 		$Handle=@fopen(RootPath.'/Config/'.$Module.'.php','w');
 		if(!$Handle){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.9.4');
+			Wrong::Report(['detail'=>'Error#M.9.4','code'=>'M.9.4']);
 		}
 		fwrite($Handle,$CodeText);
 		fclose($Handle);
@@ -127,18 +127,18 @@ Class Setting{
 	
 	//临时改变配置项
 	public static function Change($UnionData=[]){
-		$Module=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'module','模块');
-		$Name=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'name','名称');
-		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值');
+		$Module=QuickParamet($UnionData,'module','模块');
+		$Name=QuickParamet($UnionData,'name','名称');
+		$Value=QuickParamet($UnionData,'value','值');
 				
 		if(!isset($_SERVER['84PHP_CONFIG'][$Module])){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.9.4');
+			Wrong::Report(['detail'=>'Error#M.9.4','code'=>'M.9.4']);
 		}
 		if(!isset($_SERVER['84PHP_CONFIG'][$Module][$Name])){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.9.2');
+			Wrong::Report(['detail'=>'Error#M.9.2','code'=>'M.9.2']);
 		}
 		if(gettype($_SERVER['84PHP_CONFIG'][$Module][$Name])!=gettype($Value)){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.9.3');
+			Wrong::Report(['detail'=>'Error#M.9.3','code'=>'M.9.3']);
 		}
 		$_SERVER['84PHP_CONFIG'][$Module][$Name]=$Value;
 	}

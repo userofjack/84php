@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 require(RootPath.'/Config/Cache.php');
@@ -17,7 +17,7 @@ class Cache{
 		if(filesize($FilePath)>0){
 			$Return=file_get_contents($FilePath);
 			if($Return===FALSE){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.11.0');
+				Wrong::Report(['detail'=>'Error#M.11.0','code'=>'M.11.0']);
 			}
 			$Return=str_replace([';;'],[';'],$Return);
 			$Return=preg_replace(['/(?:^|\n|\s+)\/\/.*/',"/\/\*(.|\r\n)*\*\//"],['',"\r\n"],$Return);
@@ -34,10 +34,10 @@ class Cache{
 
 		$Handle=@fopen($FilePath,'w');
 		if(!$Handle){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.11.2');
+			Wrong::Report(['detail'=>'Error#M.11.2','code'=>'M.11.2']);
 		}
 		if(!fwrite($Handle,$Context)){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.11.3');
+			Wrong::Report(['detail'=>'Error#M.11.3','code'=>'M.11.3']);
 		};
 		fclose($Handle);
 	}
@@ -54,7 +54,7 @@ class Cache{
 			if(filesize($From['TPath'])>0){
 				$Temp=file_get_contents($From['TPath']);
 				if($Temp===FALSE){
-					Wrong::Report(__FILE__,__LINE__,'Error#M.11.4');
+					Wrong::Report(['detail'=>'Error#M.11.4','code'=>'M.11.4']);
 				}
 				$Template=preg_replace($_SERVER['84PHP_CONFIG']['Cache']['CacheMatch'],$_SERVER['84PHP_CONFIG']['Cache']['CacheReplace'],$Temp);
 				$Template=str_replace(["	",'	'],'',$Template);
@@ -97,8 +97,8 @@ class Cache{
 	
 	//编译
 	public static function Compile($UnionData=[]){
-		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
-		$Force=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'force','强制编译',FALSE,FALSE);
+		$Path=QuickParamet($UnionData,'path','路径');
+		$Force=QuickParamet($UnionData,'force','强制编译',FALSE,FALSE);
 		
 		if(FrameworkConfig['Debug']){
 			$Force=TRUE;
@@ -117,7 +117,7 @@ class Cache{
 		$DSource=self::FileInfo(RootPath.$_SERVER['84PHP_CONFIG']['Cache']['DPath'].$Path.'.php');
 
 		if(!is_dir($CacheDir)&&!@mkdir($CacheDir,0777,TRUE)){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.11.5'."\r\n\r\n @ ".$CacheDir);
+			Wrong::Report(['detail'=>'Error#M.11.5'."\r\n\r\n @ ".$CacheDir,'code'=>'M.11.5']);
 		};
 
 
@@ -178,7 +178,7 @@ class Cache{
 
 		if(!is_dir(dirname($CacheFile['path']))&&($CacheChanged['T']||$CacheChanged['D'])){
 			if(!mkdir(dirname($CacheFile['path']),0777,TRUE)){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.11.5'."\r\n\r\n @ ".dirname($CacheFile['path']));
+				Wrong::Report(['detail'=>'Error#M.11.5'."\r\n\r\n @ ".dirname($CacheFile['path']),'code'=>'M.11.5']);
 			}
 		}
 

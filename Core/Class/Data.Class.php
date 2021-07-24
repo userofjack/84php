@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 require(RootPath.'/Config/Data.php');
@@ -23,10 +23,10 @@ class Data{
 
 	//设置
 	public static function Set($UnionData=[]){
-		$Key=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'key','键');
-		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值');
-		$Time=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'time','时间',FALSE,3600);
-		$Prefix=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'prefix','前缀',FALSE,'');
+		$Key=QuickParamet($UnionData,'key','键');
+		$Value=QuickParamet($UnionData,'value','值');
+		$Time=QuickParamet($UnionData,'time','时间',FALSE,3600);
+		$Prefix=QuickParamet($UnionData,'prefix','前缀',FALSE,'');
 		if($Key==''){
 			return FALSE;
 		}
@@ -51,9 +51,9 @@ class Data{
 	
 	//获取
 	public static function Get($UnionData=[]){
-		$Key=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'key','键');		
-		$Prefix=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'prefix','前缀',FALSE,'');
-		$Callback=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'callback','回调',FALSE,NULL);
+		$Key=QuickParamet($UnionData,'key','键');		
+		$Prefix=QuickParamet($UnionData,'prefix','前缀',FALSE,'');
+		$Callback=QuickParamet($UnionData,'callback','回调',FALSE,NULL);
 		if($Key==''){
 			return NULL;
 		}
@@ -118,11 +118,11 @@ class Data{
 		$Cache=strval(intval(Runtime)+$Time)."\r\n".self::VarToStr($Value);
 		$FileHandle=fopen(self::GetFilePath($Prefix,$Key,TRUE),'w');
 		if(!$FileHandle){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.16.0');
+			Wrong::Report(['detail'=>'Error#M.16.0','code'=>'M.16.0']);
 		}
 		fwrite($FileHandle,$Cache);
 		fclose($FileHandle);
-        return TRUE;
+		return TRUE;
 	}
 	
 	//删除文件緩存
@@ -153,7 +153,7 @@ class Data{
 			}
 			return NULL;
 		}
-        return self::StrToVar(strtok("\r\n"));
+		return self::StrToVar(strtok("\r\n"));
 	}
 	
 	//连接Redis
@@ -165,13 +165,12 @@ class Data{
 		}
 		catch (Throwable $t)
 		{
-			Wrong::Report(__FILE__,__LINE__,'Error#M.16.1');
+			Wrong::Report(['detail'=>'Error#M.16.1','code'=>'M.16.1']);
 		}
 		if($_SERVER['84PHP_CONFIG']['Data']['Connect']['redis']['password']!=''){
-			self::$Connect->auth($_SERVER['84PHP_CONFIG']['Data']['Connect']['redis']['password']) ?:Wrong::Report(__FILE__,__LINE__,'Error#M.16.2');
+			self::$Connect->auth($_SERVER['84PHP_CONFIG']['Data']['Connect']['redis']['password']) ?:Wrong::Report(['detail'=>'Error#M.16.2','code'=>'M.16.2']);
 		}
-		self::$Connect->select($_SERVER['84PHP_CONFIG']['Data']['Connect']['redis']['dbnumber'])?:Wrong::Report(__FILE__,__LINE__,'Error#M.16.3');
-		$_SERVER['84PHP_LastWork']['Data']='CloseRedisConnect';
+		self::$Connect->select($_SERVER['84PHP_CONFIG']['Data']['Connect']['redis']['dbnumber'])?:Wrong::Report(['detail'=>'Error#M.16.3','code'=>'M.16.3']);
 	}
 
 	//关闭Redis缓存
@@ -192,7 +191,7 @@ class Data{
 		$Cache=self::VarToStr($Value);
 		self::$Connect->set($Prefix.$MD5,$Cache);
 		self::$Connect->expire($Prefix.$MD5,$Time);
-        return TRUE;
+		return TRUE;
 	}
 	
 	//获取Redis缓存
@@ -206,7 +205,7 @@ class Data{
 		if($Cache==FALSE){
 			return NULL;
 		}
-        return self::StrToVar($Cache);
+		return self::StrToVar($Cache);
 	}
 
 	//调用方法不存在

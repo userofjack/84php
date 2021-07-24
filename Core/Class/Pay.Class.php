@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 require(RootPath.'/Config/Pay.php');
@@ -33,11 +33,11 @@ class Pay{
 	
 	//支付宝支付接口
 	public static function Alipay($UnionData=[]){
-		$Id=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'id','编号');
-		$Title=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'title','标题');
-		$Total=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'total','金额');
-		$QR=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'qr','二维码',FALSE,FALSE);
-		$QRWidth=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'qr_width','二维码宽度',FALSE,NULL);
+		$Id=QuickParamet($UnionData,'id','编号');
+		$Title=QuickParamet($UnionData,'title','标题');
+		$Total=QuickParamet($UnionData,'total','金额');
+		$QR=QuickParamet($UnionData,'qr','二维码',FALSE,FALSE);
+		$QRWidth=QuickParamet($UnionData,'qr_width','二维码宽度',FALSE,NULL);
 		
 		$PostArray=[
 				'service'=>'create_direct_pay_by_user',
@@ -74,12 +74,12 @@ class Pay{
 	}
 	//微信支付接口
 	public static function Wxpay($UnionData=[]){
-		$Id=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'id','编号');
-		$Title=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'title','标题');
-		$Total=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'total','金额');
-		$Mode=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'mode','模式',FALSE,'NATIVE');
-		$Ip=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'ip','ip地址',FALSE,NULL);
-		$OpenID=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'openid','openid',FALSE,NULL);
+		$Id=QuickParamet($UnionData,'id','编号');
+		$Title=QuickParamet($UnionData,'title','标题');
+		$Total=QuickParamet($UnionData,'total','金额');
+		$Mode=QuickParamet($UnionData,'mode','模式',FALSE,'NATIVE');
+		$Ip=QuickParamet($UnionData,'ip','ip地址',FALSE,NULL);
+		$OpenID=QuickParamet($UnionData,'openid','openid',FALSE,NULL);
 
 		if(empty($Ip)){
 			$Ip=self::GetClientIp();
@@ -148,7 +148,7 @@ class Pay{
 		xml_parse_into_struct(xml_parser_create(),$Send,$ReturnArray);
 		$Return=FALSE;
 		if(empty($ReturnArray)){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.7.0');
+			Wrong::Report(['detail'=>'Error#M.7.0','code'=>'M.7.0']);
 		}
 		$ReturnResult=TRUE;
 		foreach($ReturnArray as $Val){
@@ -156,7 +156,7 @@ class Pay{
 				$ReturnResult=FALSE;
 			}
 			if(!$ReturnResult&&$Val['tag']=='RETURN_MSG'){
-				Wrong::Report(__FILE__,__LINE__,'Error#M.7.1'."\r\n\r\n @ ".$Val['value']);
+				Wrong::Report(['detail'=>'Error#M.7.1'."\r\n\r\n @ ".$Val['value'],'code'=>'M.7.1']);
 			}
 			if($Val['tag']=='PREPAY_ID'&&$Mode=='JSAPI'){
 				$Return=$Val['value'];
@@ -208,7 +208,7 @@ class Pay{
 	}
 	//微信支付验签
 	public static function WxpayVerify($UnionData=[]){
-		$String=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'string','字符串');
+		$String=QuickParamet($UnionData,'string','字符串');
 		$XmlArray=json_decode(json_encode(simplexml_load_string($String,'SimpleXMLElement',LIBXML_NOCDATA)),TRUE);
 		if(empty($XmlArray)){
 			return FALSE;

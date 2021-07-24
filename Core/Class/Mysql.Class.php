@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 require(RootPath.'/Config/Mysql.php');
@@ -15,7 +15,6 @@ class Mysql{
 	
 	public static function ClassInitial(){
 		self::Connect();
-		$_SERVER['84PHP_LastWork']['Mysql']='CloseConnect';
 	}
 	
 	//读写分离随机选择数据库
@@ -44,18 +43,18 @@ class Mysql{
 			self::$NowDb='default';
 		}
 		if(empty($_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][self::$NowDb])){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.0');
+			Wrong::Report(['detail'=>'Error#M.6.0','code'=>'M.6.0']);
 		}
 		self::$Mysqli=@new mysqli($_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][self::$NowDb]['address'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][self::$NowDb]['username'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][self::$NowDb]['password'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][self::$NowDb]['dbname'],$_SERVER['84PHP_CONFIG']['Mysql']['DbInfo'][self::$NowDb]['port']);
 		if(self::$Mysqli->connect_errno){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.1'."\r\n\r\n @ ".'Detail: '.self::$Mysqli->connect_error);
+			Wrong::Report(['detail'=>'Error#M.6.1'."\r\n\r\n @ ".'Detail: '.self::$Mysqli->connect_error,'code'=>'M.6.1']);
 		}
 	}
 	
 	//写入日志
 	private static function SqlLog($SqL){
 		if($_SERVER['84PHP_CONFIG']['Mysql']['Log']){
-			$_SERVER['84PHP_LOG'].='[sql] '.$SqL.' <'.strval((intval(microtime(TRUE)*1000)-intval(Runtime*1000))/1000)."s>\r\n";
+			Log::Add(['level'=>'S','info'=>$SqL]);
 		}
 	}
 
@@ -64,7 +63,7 @@ class Mysql{
 		$FieldName=str_replace(' ','',$FieldName);
 		$Return=explode('*',$FieldName);
 		if(!empty($Return[2])){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.6');
+			Wrong::Report(['detail'=>'Error#M.6.6','code'=>'M.6.6']);
 		}
 		if(empty($Return[1])){
 			return $Return[0];
@@ -233,16 +232,16 @@ class Mysql{
 	
 	//查询一条数据
 	public static function Select($UnionData=[]){
-		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
-		$Field=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
-		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值',FALSE,NULL);
-		$Condition=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'condition','条件',FALSE,'=');
-		$Order=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'order','顺序',FALSE,NULL);
-		$Desc=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'desc','降序',FALSE,FALSE);
-		$Index=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'index','索引',FALSE,NULL);		
-		$Sql=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'sql','sql',FALSE,NULL);
+		$Table=QuickParamet($UnionData,'table','表');
+		$Field=QuickParamet($UnionData,'field','字段',FALSE,NULL);
+		$Value=QuickParamet($UnionData,'value','值',FALSE,NULL);
+		$Condition=QuickParamet($UnionData,'condition','条件',FALSE,'=');
+		$Order=QuickParamet($UnionData,'order','顺序',FALSE,NULL);
+		$Desc=QuickParamet($UnionData,'desc','降序',FALSE,FALSE);
+		$Index=QuickParamet($UnionData,'index','索引',FALSE,NULL);		
+		$Sql=QuickParamet($UnionData,'sql','sql',FALSE,NULL);
 
-		$FieldLimit=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field_limit','字段限制',FALSE,NULL);		
+		$FieldLimit=QuickParamet($UnionData,'field_limit','字段限制',FALSE,NULL);		
 		$QueryString=self::QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,[1],$Index,NULL);
 
 		self::RandomDb();
@@ -253,7 +252,7 @@ class Mysql{
 		$Result=self::$Mysqli->query($QueryString);
 		if(!$Result){
 			$ModuleError='Detail: '.self::$Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.self::$Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(['detail'=>'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError,'code'=>'M.6.2']);
 		}
 		$Return=$Result->fetch_assoc();
 		$Result->free();
@@ -266,18 +265,18 @@ class Mysql{
 	
 	//查询多条数据
 	public static function SelectMore($UnionData=[]){
-		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
-		$Field=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
-		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值',FALSE,NULL);
-		$Condition=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'condition','条件',FALSE,'=');
-		$Order=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'order','顺序',FALSE,NULL);
-		$Desc=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'desc','降序',FALSE,FALSE);
-		$Limit=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'limit','限制',FALSE,NULL);
-		$Index=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'index','索引',FALSE,NULL);		
-		$Sql=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'sql','sql',FALSE,NULL);
+		$Table=QuickParamet($UnionData,'table','表');
+		$Field=QuickParamet($UnionData,'field','字段',FALSE,NULL);
+		$Value=QuickParamet($UnionData,'value','值',FALSE,NULL);
+		$Condition=QuickParamet($UnionData,'condition','条件',FALSE,'=');
+		$Order=QuickParamet($UnionData,'order','顺序',FALSE,NULL);
+		$Desc=QuickParamet($UnionData,'desc','降序',FALSE,FALSE);
+		$Limit=QuickParamet($UnionData,'limit','限制',FALSE,NULL);
+		$Index=QuickParamet($UnionData,'index','索引',FALSE,NULL);		
+		$Sql=QuickParamet($UnionData,'sql','sql',FALSE,NULL);
 
-		$FieldLimit=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field_limit','字段限制',FALSE,NULL);		
-		$GroupBy=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'group_by','分组',FALSE,NULL);
+		$FieldLimit=QuickParamet($UnionData,'field_limit','字段限制',FALSE,NULL);		
+		$GroupBy=QuickParamet($UnionData,'group_by','分组',FALSE,NULL);
 		$QueryString=self::QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,$GroupBy);
 		
 		self::RandomDb();
@@ -289,7 +288,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.self::$Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.self::$Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(['detail'=>'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError,'code'=>'M.6.2']);
 		}
 		
 		$Return=$Result->fetch_all(MYSQLI_ASSOC);
@@ -302,17 +301,17 @@ class Mysql{
 		
 	//记录总数
 	public static function Total($UnionData=[]){
-		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
-		$Field=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
-		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值',FALSE,NULL);
-		$Condition=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'condition','条件',FALSE,'=');
-		$Order=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'order','顺序',FALSE,'Total');
-		$Desc=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'desc','降序',FALSE,FALSE);
-		$Limit=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'limit','限制',FALSE,NULL);
-		$Index=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'index','索引',FALSE,NULL);		
-		$Sql=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'sql','sql',FALSE,NULL);
+		$Table=QuickParamet($UnionData,'table','表');
+		$Field=QuickParamet($UnionData,'field','字段',FALSE,NULL);
+		$Value=QuickParamet($UnionData,'value','值',FALSE,NULL);
+		$Condition=QuickParamet($UnionData,'condition','条件',FALSE,'=');
+		$Order=QuickParamet($UnionData,'order','顺序',FALSE,'Total');
+		$Desc=QuickParamet($UnionData,'desc','降序',FALSE,FALSE);
+		$Limit=QuickParamet($UnionData,'limit','限制',FALSE,NULL);
+		$Index=QuickParamet($UnionData,'index','索引',FALSE,NULL);		
+		$Sql=QuickParamet($UnionData,'sql','sql',FALSE,NULL);
 
-		$GroupBy=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'group_by','分组',FALSE,NULL);
+		$GroupBy=QuickParamet($UnionData,'group_by','分组',FALSE,NULL);
 		$QueryString=self::QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,$GroupBy);
 						
 		self::RandomDb();
@@ -329,7 +328,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.self::$Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.self::$Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(['detail'=>'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError,'code'=>'M.6.2']);
 		}
 		
 		$Return=$Result->fetch_all(MYSQLI_ASSOC);
@@ -345,32 +344,24 @@ class Mysql{
 	
 	//求和
 	public static function Sum($UnionData=[]){
-		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
-		$Field=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
-		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值',FALSE,NULL);
-		$Condition=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'condition','条件',FALSE,'=');
-		$Order=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'order','顺序',FALSE,NULL);
-		$Desc=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'desc','降序',FALSE,FALSE);
-		$Limit=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'limit','限制',FALSE,NULL);
-		$Index=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'index','索引',FALSE,NULL);		
-		$Sql=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'sql','sql',FALSE,NULL);
+		$Table=QuickParamet($UnionData,'table','表');
+		$Field=QuickParamet($UnionData,'field','字段',FALSE,NULL);
+		$Value=QuickParamet($UnionData,'value','值',FALSE,NULL);
+		$Condition=QuickParamet($UnionData,'condition','条件',FALSE,'=');
+		$Order=QuickParamet($UnionData,'order','顺序',FALSE,NULL);
+		$Desc=QuickParamet($UnionData,'desc','降序',FALSE,FALSE);
+		$Limit=QuickParamet($UnionData,'limit','限制',FALSE,NULL);
+		$Index=QuickParamet($UnionData,'index','索引',FALSE,NULL);		
+		$Sql=QuickParamet($UnionData,'sql','sql',FALSE,NULL);
 		
-		$SumField=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'sum','合计');		
+		$SumField=QuickParamet($UnionData,'sum','合计');		
 		$QueryString=self::QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
 		
 		$SumSql='';
-		if(empty($SumField)){
-			return [];
+		foreach($SumField as $Key => $Val){
+			$SumSql.=' SUM(`'.self::SplitField($Key).'`)'.' AS `'.$Val.'`,';
 		}
-		if(is_string($SumField)){
-			$SumSql=' SUM(`'.self::SplitField($SumField).'`) AS `'.$SumResult.'`';
-		}
-		else if(is_array($SumField)){
-			foreach($SumField as $Key => $Val){
-				$SumSql.=' SUM(`'.self::SplitField($Val).'`)'.' AS `'.$Val.'`,';
-			}
-			$SumSql=substr($SumSql,0,-1);
-		}
+		$SumSql=substr($SumSql,0,-1);
 
 		$QueryString=self::QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
 		
@@ -383,7 +374,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.self::$Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.self::$Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(['detail'=>'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError,'code'=>'M.6.2']);
 		}
 		
 		$Return=$Result->fetch_assoc();
@@ -403,9 +394,9 @@ class Mysql{
 	
 	//插入数据
 	public static function Insert($UnionData=[]){
-		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
-		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据');
-		$Sql=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'sql','sql',FALSE,NULL);
+		$Table=QuickParamet($UnionData,'table','表');
+		$Data=QuickParamet($UnionData,'data','数据');
+		$Sql=QuickParamet($UnionData,'sql','sql',FALSE,NULL);
 
 		$InsertField=NULL;
 		$InsertValue=NULL;
@@ -430,7 +421,7 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.self::$Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.self::$Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.3'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(['detail'=>'Error#M.6.3'."\r\n\r\n @ ".'Detail: '.$ModuleError,'code'=>'M.6.3']);
 		}
 
 		$Result=self::$Mysqli->insert_id;
@@ -439,15 +430,15 @@ class Mysql{
 	
 	//删除数据
 	public static function Delete($UnionData=[]){
-		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
-		$Field=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
-		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值',FALSE,NULL);
-		$Condition=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'condition','条件',FALSE,'=');
-		$Order=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'order','顺序',FALSE,NULL);
-		$Desc=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'desc','降序',FALSE,FALSE);
-		$Limit=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'limit','限制',FALSE,NULL);
-		$Index=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'index','索引',FALSE,NULL);		
-		$Sql=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'sql','sql',FALSE,NULL);
+		$Table=QuickParamet($UnionData,'table','表');
+		$Field=QuickParamet($UnionData,'field','字段',FALSE,NULL);
+		$Value=QuickParamet($UnionData,'value','值',FALSE,NULL);
+		$Condition=QuickParamet($UnionData,'condition','条件',FALSE,'=');
+		$Order=QuickParamet($UnionData,'order','顺序',FALSE,NULL);
+		$Desc=QuickParamet($UnionData,'desc','降序',FALSE,FALSE);
+		$Limit=QuickParamet($UnionData,'limit','限制',FALSE,NULL);
+		$Index=QuickParamet($UnionData,'index','索引',FALSE,NULL);		
+		$Sql=QuickParamet($UnionData,'sql','sql',FALSE,NULL);
 		$QueryString=self::QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
 		
 		if($_SERVER['84PHP_CONFIG']['Mysql']['RW_Splitting']&&self::$NowDb!='default'){
@@ -463,24 +454,24 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.self::$Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.self::$Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(['detail'=>'Error#M.6.2'."\r\n\r\n @ ".'Detail: '.$ModuleError,'code'=>'M.6.2']);
 		}
 	}
 	
 	//更新数据
 	public static function Update($UnionData=[]){
-		$Table=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'table','表');
-		$Field=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
-		$Value=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'value','值',FALSE,NULL);
-		$Condition=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'condition','条件',FALSE,'=');
-		$Order=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'order','顺序',FALSE,NULL);
-		$Desc=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'desc','降序',FALSE,FALSE);
-		$Limit=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'limit','限制',FALSE,NULL);
-		$Index=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'index','索引',FALSE,NULL);		
-		$Sql=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'sql','sql',FALSE,NULL);
+		$Table=QuickParamet($UnionData,'table','表');
+		$Field=QuickParamet($UnionData,'field','字段',FALSE,NULL);
+		$Value=QuickParamet($UnionData,'value','值',FALSE,NULL);
+		$Condition=QuickParamet($UnionData,'condition','条件',FALSE,'=');
+		$Order=QuickParamet($UnionData,'order','顺序',FALSE,NULL);
+		$Desc=QuickParamet($UnionData,'desc','降序',FALSE,FALSE);
+		$Limit=QuickParamet($UnionData,'limit','限制',FALSE,NULL);
+		$Index=QuickParamet($UnionData,'index','索引',FALSE,NULL);		
+		$Sql=QuickParamet($UnionData,'sql','sql',FALSE,NULL);
 
-		$Data=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'data','数据');
-		$AutoOP=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'auto_operate','自动操作',FALSE,NULL);
+		$Data=QuickParamet($UnionData,'data','数据');
+		$AutoOP=QuickParamet($UnionData,'auto_operate','自动操作',FALSE,NULL);
 
 		$QueryString=self::QueryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
 
@@ -513,21 +504,21 @@ class Mysql{
 
 		if(!$Result){
 			$ModuleError='Detail: '.self::$Mysqli->error.' | SQL String: '.$QueryString.' | errno:'.self::$Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.4'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(['detail'=>'Error#M.6.4'."\r\n\r\n @ ".'Detail: '.$ModuleError,'code'=>'M.6.4']);
 		}
 	}
 	
 	//查询自定义语句
 	public static function Other($UnionData=[]){
-		$Sql=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'sql','sql',FALSE,NULL);
-		$Fetch=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'fetch_result','取回结果',FALSE,FALSE);
+		$Sql=QuickParamet($UnionData,'sql','sql',FALSE,NULL);
+		$Fetch=QuickParamet($UnionData,'fetch_result','取回结果',FALSE,FALSE);
 
 		self::SqlLog($Sql);
 		$Result=self::$Mysqli->query($Sql,MYSQLI_USE_RESULT);
 
 		if(!$Result){
 			$ModuleError='Detail: '.self::$Mysqli->error.' | SQL String: '.$Sql.' | errno:'.self::$Mysqli->errno;
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.5'."\r\n\r\n @ ".'Detail: '.$ModuleError);
+			Wrong::Report(['detail'=>'Error#M.6.5'."\r\n\r\n @ ".'Detail: '.$ModuleError,'code'=>'M.6.5']);
 		}
 		
 		if($Fetch){
@@ -545,7 +536,7 @@ class Mysql{
 	
 	//备份
 	public static function BackUp($UnionData=[]){
-		$Path=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'path','路径');
+		$Path=QuickParamet($UnionData,'path','路径');
 
 		$Path=DiskPath($Path);
 		
@@ -557,7 +548,7 @@ class Mysql{
 		
 		$Handle=@fopen($FilePath,'w');
 		if(!$Handle){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.7');
+			Wrong::Report(['detail'=>'Error#M.6.7','code'=>'M.6.7']);
 		}
 		
 		self::$Mysqli->query('set names \'utf8\'');
@@ -565,11 +556,11 @@ class Mysql{
 		$AllTables=self::$Mysqli->query('show tables');
 		while ($Result=$AllTables->fetch_array()){
 			$Table=$Result[0];
-			$TableField=self::$Mysqli->query("show create table `$Table`");
+			$TableField=self::$Mysqli->query('show create table `'.$Table.'`');
 			$Sql=$TableField->fetch_array();
 			$SQLContext.=$Sql['Create Table'].';'."\r\n";
 			$TableField->free();
-			$TableData=self::$Mysqli->query("select * from `$Table`");
+			$TableData=self::$Mysqli->query('select * from `'.$Table.'`');
 			
 			while ($Data=$TableData->fetch_assoc()){
 				$Key=array_keys($Data);
@@ -586,7 +577,7 @@ class Mysql{
 		}
 		
 		if(!fwrite($Handle,$SQLContext)){
-			Wrong::Report(__FILE__,__LINE__,'Error#M.6.8');
+			Wrong::Report(['detail'=>'Error#M.6.8','code'=>'M.6.8']);
 		};
 		fclose($Handle);
 		$AllTables->free();

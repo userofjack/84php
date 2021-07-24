@@ -4,7 +4,7 @@
 
   ©2017-2021 84PHP.COM
 
-  框架版本号：5.0.0
+  框架版本号：5.1.0
 */
 
 require(RootPath.'/Config/Tool.php');
@@ -13,8 +13,8 @@ class Tool{
 
 	//随机字符
 	public static function Random($UnionData=[]){
-		$Mode=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'mode','模式',FALSE,'AaN');
-		$StringLength=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'length','长度',FALSE,32);
+		$Mode=QuickParamet($UnionData,'mode','模式',FALSE,'AaN');
+		$StringLength=QuickParamet($UnionData,'length','长度',FALSE,32);
 
 		$String=NULL;
 		$NWord='0123456789';
@@ -44,7 +44,7 @@ class Tool{
 	
 	//生成UUID
 	public static function Uuid($UnionData=[]){
-		$MD5=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'md5','md5',FALSE,FALSE);
+		$MD5=QuickParamet($UnionData,'md5','md5',FALSE,FALSE);
 		$Return=md5(memory_get_usage().self::Random().uniqid('', true).mt_rand(1,99999).$_SERVER['REMOTE_ADDR']);
 		
 		if(!$MD5){
@@ -60,7 +60,20 @@ class Tool{
 		
 		return $Return;
 	}
+	
+	//获取Header指定字段的
+	public static function GetHeader($UnionData=[]){
+		$Field=QuickParamet($UnionData,'field','字段');
+		$ReturnArray=[];
+		foreach($Field as $Val){
+			$FieldName='HTTP_'.str_replace('-','_',strtoupper($Val));
 
+			if(isset($_SERVER[$FieldName])){
+				$ReturnArray[$Val]=$_SERVER[$FieldName];
+			}
+		}
+		return $ReturnArray;
+	}
 	
 	//允许事件的字符还原
 	private static function ReTag($WaitReplace){
@@ -75,9 +88,9 @@ class Tool{
 	
 	//还原HTML标记
 	public static function Html($UnionData=[]){
-		$String=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'string','字符串',FALSE,'AaN');
-		$Tag_other=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'tag_other','其它标记',FALSE,NULL);
-		$Event=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'event','事件',FALSE,FALSE);
+		$String=QuickParamet($UnionData,'string','字符串',FALSE,'AaN');
+		$Tag_other=QuickParamet($UnionData,'tag_other','其它标记',FALSE,NULL);
+		$Event=QuickParamet($UnionData,'event','事件',FALSE,FALSE);
 
 		$AllowTag=$_SERVER['84PHP_CONFIG']['Tool']['HtmlTag'];
 		if(!empty($Tag_other)){
