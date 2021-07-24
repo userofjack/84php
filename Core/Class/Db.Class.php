@@ -411,11 +411,11 @@ class Db{
 		$QueryString='SELECT'.$SumSql.' FROM'.self::GetTableList($Table).$QueryString;
 
 		$StmtKey=self::CreateBind($QueryString);
+				
 		self::BindData($StmtKey,$Field,$Value,$Tag='_Where_');
 		self::BindData($StmtKey,[],$Bind,$Tag='',TRUE);
 		
-		$Return=self::ExecBind($StmtKey,$QueryString,'FetchAll');
-
+		$Return=self::ExecBind($StmtKey,$QueryString,'Fetch');
 		foreach($Return as $Key => $Val){
 			if(empty($Val)){
 				$Return[$Key]=0;
@@ -547,7 +547,7 @@ class Db{
 		$StmtKey=self::CreateBind($Sql);
 		self::BindData($StmtKey,[],$Bind,$Tag='',TRUE);
 
-		$Return=self::ExecBind($StmtKey,$QueryString,$Fetch?'FetchAll':'');
+		$Return=self::ExecBind($StmtKey,$Sql,$Fetch?'FetchAll':'');
 		
 		return $Return;
 	}

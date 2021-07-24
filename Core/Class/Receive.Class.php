@@ -13,7 +13,7 @@ class Receive{
 
 	//安全检测模块
 	public static function SafeCheck($UnionData=[]) {
-		$WillCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'string','字符串');
+		$WillCheck=QuickParamet($UnionData,'string','字符串');
 
 		$Return=$WillCheck;
 		foreach ($_SERVER['84PHP_CONFIG']['Receive']['DangerChar'] as $Key=>$Val) {
@@ -45,22 +45,22 @@ class Receive{
 			(isset($OpArray[2])&&$StrLen<intval($OpArray[2]))||
 			(isset($OpArray[3])&&$StrLen>intval($OpArray[3])))
 			{
-				Wrong::Report(__FILE__,__LINE__,'Error#M.12.1'."\r\n\r\n @ ".$OpArray[0],FALSE,400);
+				Wrong::Report(['detail'=>'Error#M.12.1'."\r\n\r\n @ ".$OpArray[0],'code'=>'M.12.1']);
 			}
 		}
 	}
 
 	//Post接收
 	public static function Post($UnionData=[]){
-		$FieldCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
-		$SafeCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'safe_check','安全检查',FALSE,TRUE);
-		$Decode=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'decode','解码',FALSE,TRUE);
+		$FieldCheck=QuickParamet($UnionData,'field','字段',FALSE,NULL);
+		$SafeCheck=QuickParamet($UnionData,'safe_check','安全检查',FALSE,TRUE);
+		$Decode=QuickParamet($UnionData,'decode','解码',FALSE,TRUE);
 		
 		if(!empty($FieldCheck)&&is_array($FieldCheck)){
 			foreach ($FieldCheck as $Val){
 				$TempOp=explode(',',$Val);
 				if(!isset($_POST[$TempOp[0]])||!self::M_12_0_Check($TempOp,$_POST[$TempOp[0]])){
-					Wrong::Report(__FILE__,__LINE__,'Error#M.12.0'."\r\n\r\n @ ".$TempOp[0],FALSE,400);
+					Wrong::Report(['detail'=>'Error#M.12.0'."\r\n\r\n @ ".$TempOp[0],'code'=>'M.12.0']);
 				}
 				self::M_12_1_Check($TempOp,$_POST[$TempOp[0]]);
 			}
@@ -85,14 +85,14 @@ class Receive{
 	
 	//Get接收
 	public static function Get($UnionData=[]){
-		$FieldCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
-		$SafeCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'safe_check','安全检查',FALSE,TRUE);
-		$Decode=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'decode','解码',FALSE,TRUE);
+		$FieldCheck=QuickParamet($UnionData,'field','字段',FALSE,NULL);
+		$SafeCheck=QuickParamet($UnionData,'safe_check','安全检查',FALSE,TRUE);
+		$Decode=QuickParamet($UnionData,'decode','解码',FALSE,TRUE);
 		if(!empty($FieldCheck)&&is_array($FieldCheck)){
 			foreach ($FieldCheck as $Val){
 				$TempOp=explode(',',$Val);
 				if(!isset($_GET[$TempOp[0]])||!self::M_12_0_Check($TempOp,$_GET[$TempOp[0]])){
-					Wrong::Report(__FILE__,__LINE__,'Error#M.12.0'."\r\n\r\n @ ".$TempOp[0],FALSE,400);
+					Wrong::Report(['detail'=>'Error#M.12.0'."\r\n\r\n @ ".$TempOp[0],'code'=>'M.12.0']);
 				}
 				self::M_12_1_Check($TempOp,$_GET[$TempOp[0]]);				
 			}
@@ -116,8 +116,8 @@ class Receive{
 	
 	//Header接收过滤
 	public static function Header($UnionData=[]){
-		$FieldCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
-		$SafeCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'safe_check','安全检查',FALSE,TRUE);
+		$FieldCheck=QuickParamet($UnionData,'field','字段',FALSE,NULL);
+		$SafeCheck=QuickParamet($UnionData,'safe_check','安全检查',FALSE,TRUE);
 
 		$Return=[];
 		if(!empty($FieldCheck)&&is_array($FieldCheck)){
@@ -126,7 +126,7 @@ class Receive{
 				$KeyName='HTTP_'.str_replace('-','_',strtoupper($TempOp[0]));
 				
 				if(!isset($_SERVER[$KeyName])||!self::M_12_0_Check($TempOp,$_SERVER[$KeyName])){
-					Wrong::Report(__FILE__,__LINE__,'Error#M.12.0'."\r\n\r\n @ ".$KeyName,FALSE,400);
+					Wrong::Report(['detail'=>'Error#M.12.0'."\r\n\r\n @ ".$TempOp[0],'code'=>'M.12.0']);
 				}
 				self::M_12_1_Check($TempOp,$_SERVER[$KeyName]);
 				
@@ -143,8 +143,8 @@ class Receive{
 	
 	//Cookie过滤接收
 	public static function Cookie($UnionData=[]){
-		$FieldCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
-		$SafeCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'safe_check','安全检查',FALSE,TRUE);
+		$FieldCheck=QuickParamet($UnionData,'field','字段',FALSE,NULL);
+		$SafeCheck=QuickParamet($UnionData,'safe_check','安全检查',FALSE,TRUE);
 
 		$Return=[];
 		if(!empty($FieldCheck)&&is_array($FieldCheck)){
@@ -152,7 +152,7 @@ class Receive{
 				$TempOp=explode(',',$Val);
 				
 				if(!isset($_COOKIE[$TempOp[0]])||!self::M_12_0_Check($TempOp,$_COOKIE[$TempOp[0]])){
-					Wrong::Report(__FILE__,__LINE__,'Error#M.12.0'."\r\n\r\n @ ".$TempOp[0],FALSE,400);
+					Wrong::Report(['detail'=>'Error#M.12.0'."\r\n\r\n @ ".$TempOp[0],'code'=>'M.12.0']);
 				}
 				self::M_12_1_Check($TempOp,$_COOKIE[$TempOp[0]]);
 			}
@@ -170,9 +170,9 @@ class Receive{
 
 	//Json过滤
 	public static function Json($UnionData=[]){
-		$JsonString=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'srting','字符串');
-		$FieldCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'field','字段',FALSE,NULL);
-		$SafeCheck=QuickParamet($UnionData,__FILE__,__LINE__,__CLASS__,__FUNCTION__,'safe_check','安全检查',FALSE,TRUE);
+		$JsonString=QuickParamet($UnionData,'srting','字符串');
+		$FieldCheck=QuickParamet($UnionData,'field','字段',FALSE,NULL);
+		$SafeCheck=QuickParamet($UnionData,'safe_check','安全检查',FALSE,TRUE);
 		
 		$TempArray=@json_decode($JsonString,TRUE);
 		if($TempArray==NULL){
@@ -183,7 +183,7 @@ class Receive{
 				$TempOp=explode(',',$Val);
 				
 				if(!isset($TempArray[$TempOp[0]])||!self::M_12_0_Check($TempOp,$TempArray[$TempOp[0]])){
-					Wrong::Report(__FILE__,__LINE__,'Error#M.12.0'."\r\n\r\n @ ".$TempOp[0],FALSE,400);
+					Wrong::Report(['detail'=>'Error#M.12.0'."\r\n\r\n @ ".$TempOp[0],'code'=>'M.12.0']);
 				}
 				self::M_12_1_Check($TempOp,$TempArray[$TempOp[0]]);
 			}

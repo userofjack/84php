@@ -6,6 +6,8 @@
 
   框架版本号：5.1.0
 */
+define('FrameworkVersion','5.1.0');
+
 define('RootPath',substr(str_replace(['\\','//'],'/',dirname(__FILE__)),0,-5));
 set_include_path(get_include_path().PATH_SEPARATOR.RootPath.'/Lib/');
 

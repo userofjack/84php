@@ -313,7 +313,7 @@
 		<div class="main-notice">此页面出现错误，请稍后重试（{$Code}）</div>
 		<div class="main-title">
 			<div class="main-title-box">
-				<div class="main-title-box-text">错误详情
+				<div class="main-title-box-text">错误详情（框架版本号：{$Version}）
 					<div class="main-title-box-text-line"></div>
 				</div>
 			</div>

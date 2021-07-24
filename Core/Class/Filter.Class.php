@@ -9,7 +9,7 @@
 
 require(RootPath.'/Config/Filter.php');
 
-class Receive{
+class Filter{
 	
 	//非空检查
 	private static function EmptyCheck($OpArray,$Value){
@@ -21,23 +21,27 @@ class Receive{
 	
 	//长度检查
 	private static function LengthCheck($OpArray,$Value){
-		if(is_string($Value)&&$Value!=='')
+		$Value=strval($Value);
+		$StrLen=mb_strlen($Value);
+		if(
+		(isset($OpArray[1])&&$StrLen<intval($OpArray[1]))||
+		(isset($OpArray[2])&&intval($OpArray[2])>0&&$StrLen>intval($OpArray[2])))
 		{
-			$StrLen=mb_strlen($Value);
-			if(
-			(isset($OpArray[1])&&$StrLen<intval($OpArray[1]))||
-			(isset($OpArray[2])&&$StrLen>intval($OpArray[2])))
-			{
-				return FALSE;
-			}
-			return TRUE;
+			return FALSE;
 		}
+		return TRUE;
 	}
 	
 	//指定规则检查
 	private static function RuleCheck($OpArray,$Value){
-		if(empty($OpArray[3])){
+		if(empty($OpArray[3])||empty($Value)){
 			return TRUE;
+		}
+		if($OpArray[3]=='email'){
+			return filter_var($Value, FILTER_VALIDATE_EMAIL);
+		}
+		if($OpArray[3]=='ip'){
+			return filter_var($Value, FILTER_VALIDATE_IP);
 		}
 		$RuleName=$OpArray[3];
 		if(!empty($_SERVER['84PHP_CONFIG']['Filter']['Rule'][$RuleName])){
@@ -51,7 +55,7 @@ class Receive{
 	//按模式检查
 	public static function ByMode($UnionData=[]){
 		$Field=QuickParamet($UnionData,'field','字段');
-		$Must=QuickParamet($UnionData,'must','必须',FALSE,[]);
+		$Optional=QuickParamet($UnionData,'optional','可选',FALSE,[]);
 		$Mode=QuickParamet($UnionData,'mode','模式');
 		$Mode=strtolower($Mode);
 		if($Mode!='get'&&$Mode!='post'&&$Mode!='cookie'&&$Mode!='header'){
@@ -63,20 +67,20 @@ class Receive{
 			if($Mode=='post'&&isset($_POST[$Key])){
 				$TempData=$_POST[$Key];
 			}
-			else if($Mode=='get'&&isset($_POST[$Key])){
+			else if($Mode=='get'&&isset($_GET[$Key])){
 				$TempData=$_GET[$Key];
 			}
-			else if($Mode=='cookie'&&isset($_POST[$Key])){
+			else if($Mode=='cookie'&&isset($_COOKIE[$Key])){
 				$TempData=$_COOKIE[$Key];
 			}
 			else if($Mode=='header'){
-				$KeyName='HTTP_'.str_replace('-','_',strtoupper($TempOp[0]));
+				$KeyName='HTTP_'.str_replace('-','_',strtoupper($Key));
 				if(isset($_SERVER[$KeyName])){
 					$TempData=$_SERVER[$KeyName];
 				}
 			}
-			
-			if($TempData===FALSE&&in_array($Key,$Must)){
+
+			if($TempData===FALSE&&!in_array($Key,$Optional)){
 				return FALSE;
 			}
 			if(!self::EmptyCheck($TempOp,$TempData)||!self::LengthCheck($TempOp,$TempData)||!self::RuleCheck($TempOp,$TempData)){

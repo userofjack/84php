@@ -22,19 +22,19 @@ class Session{
 			session_start();
 		}
 		if(!empty($Token)){
-			$Token=Tool::Uuid(array('md5'=>TRUE));
+			$Token=Tool::Uuid(['md5'=>TRUE]);
 		}
 		if(!isset($_SESSION['84PHP_TOKEN'])){
-			$_SESSION['84PHP_TOKEN']=array();
+			$_SESSION['84PHP_TOKEN']=[];
 		}
 		$ArrayLength=count($_SESSION['84PHP_TOKEN']);
 		if($ArrayLength>=$_SERVER['84PHP_CONFIG']['Session']['TokenLimit']){
 			$_SESSION['84PHP_TOKEN']=array_slice($_SESSION['84PHP_TOKEN'],$ArrayLength+1-$_SERVER['84PHP_CONFIG']['Session']['TokenLimit']);
 		}
-		$_SESSION['84PHP_TOKEN'][]=array(
+		$_SESSION['84PHP_TOKEN'][]=[
 								'token'=>$Token,
 								'time'=>Runtime
-							);
+							];
 		return $Token;
 	}
 

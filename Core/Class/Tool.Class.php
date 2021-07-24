@@ -60,7 +60,20 @@ class Tool{
 		
 		return $Return;
 	}
+	
+	//获取Header指定字段的
+	public static function GetHeader($UnionData=[]){
+		$Field=QuickParamet($UnionData,'field','字段');
+		$ReturnArray=[];
+		foreach($Field as $Val){
+			$FieldName='HTTP_'.str_replace('-','_',strtoupper($Val));
 
+			if(isset($_SERVER[$FieldName])){
+				$ReturnArray[$Val]=$_SERVER[$FieldName];
+			}
+		}
+		return $ReturnArray;
+	}
 	
 	//允许事件的字符还原
 	private static function ReTag($WaitReplace){

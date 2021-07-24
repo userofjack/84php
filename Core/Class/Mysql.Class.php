@@ -556,11 +556,11 @@ class Mysql{
 		$AllTables=self::$Mysqli->query('show tables');
 		while ($Result=$AllTables->fetch_array()){
 			$Table=$Result[0];
-			$TableField=self::$Mysqli->query("show create table `$Table`");
+			$TableField=self::$Mysqli->query('show create table `'.$Table.'`');
 			$Sql=$TableField->fetch_array();
 			$SQLContext.=$Sql['Create Table'].';'."\r\n";
 			$TableField->free();
-			$TableData=self::$Mysqli->query("select * from `$Table`");
+			$TableData=self::$Mysqli->query('select * from `'.$Table.'`');
 			
 			while ($Data=$TableData->fetch_assoc()){
 				$Key=array_keys($Data);

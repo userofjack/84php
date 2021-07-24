@@ -22,7 +22,7 @@ class Wrong{
 
 		ob_clean();
 		$ByAjax=
-			(isset($_SERVER["HTTP_X_REQUESTED_WITH"])&&strtolower($_SERVER["HTTP_X_REQUESTED_WITH"]=='xmlhttprequest'))||
+			(isset($_SERVER["HTTP_X_REQUESTED_WITH"])&&strtolower($_SERVER["HTTP_X_REQUESTED_WITH"])=='xmlhttprequest')||
 			(isset($_SERVER["HTTP_ACCEPT"])&&stristr($_SERVER["HTTP_ACCEPT"],'application/json'));
 		$StyleType=strtoupper($_SERVER['84PHP_CONFIG']['Wrong']['Style']);
 		
@@ -73,6 +73,7 @@ class Wrong{
 		}
 		$Style=str_replace('{$ErrorInfo}',$Detail,$Style);
 		$Style=str_replace('{$Code}',$Code,$Style);
+		$Style=str_replace('{$Version}',FrameworkVersion,$Style);
 		
 		die($Style);
 	}
