@@ -1,4 +1,4 @@
 <?php
-$_SERVER['84PHP_CONFIG']['Ip']=[
+$_SERVER['84PHP']['Config']['Ip']=[
 	'ExitProgream'=>TRUE
 ];

@@ -1,5 +1,5 @@
 <?php
-$_SERVER['84PHP_CONFIG']['Pay']=[
+$_SERVER['84PHP']['Config']['Pay']=[
 	'Timeout'=>15,
 	
 	'AliPid'=>'',

@@ -1,6 +1,5 @@
 <?php
-$_SERVER['84PHP_CONFIG']['Data']=[
-	//公共参数
+$_SERVER['84PHP']['Config']['Data']=[
 	'Handle'=>'redis',
 	'Connect'=>[
 		'file'=>[

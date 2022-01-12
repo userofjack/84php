@@ -1,5 +1,6 @@
 <?php
-$_SERVER['84PHP_CONFIG']['Log']=[
+$_SERVER['84PHP']['Config']['Log']=[
 	'Interval'=>'H',
-	'Access'=>FALSE
+	'Access'=>FALSE,
+	'Level'=>'info'
 ];

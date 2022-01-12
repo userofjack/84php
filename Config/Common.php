@@ -2,29 +2,22 @@
 /*
   84PHP开源框架
 
-  ©2017-2021 84PHP.COM
+  ©2022 84PHP.com
 
-  框架版本号：5.1.0
+  框架版本号：6.0.0
 */
 
 //框架配置项
 
-define('FrameworkConfig',[
+$_SERVER['84PHP']['Config']['Common']=[
 	//调试模式
 	'Debug'=>TRUE,
-	//路由模式（'BASE'或'PATH'或'MIX'）
-	'Route'=>'MIX',
-	
 	//强制HTTPS,
-	'Https'=>FALSE,
+	'HTTPS'=>FALSE,
 	//超时时限（秒）
-	'RunTimeLimit'=>FALSE,
+	'TimeLimit'=>FALSE,
 	//安全码
 	'SafeCode'=>'',
-	//SESSION自动开启
-	'SessionStart'=>FALSE,
 	//时区
-	'TimeZone'=>'Asia/Shanghai',
-	//始终返回200状态码
-	'Always200'=>TRUE
-]);
+	'TimeZone'=>'Asia/Shanghai'
+];

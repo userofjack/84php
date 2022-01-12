@@ -1,5 +1,5 @@
 <?php
-$_SERVER['84PHP_CONFIG']['Filter']=[
+$_SERVER['84PHP']['Config']['Filter']=[
 	'Rule'=>[
 		'digit'=>'/^\d+$|^\d+[.]?\d+$/',//数值
 		'int_digit'=>'/^\d+$/',//正整数

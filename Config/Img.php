@@ -1,4 +1,4 @@
 <?php
-$_SERVER['84PHP_CONFIG']['Img']=[
+$_SERVER['84PHP']['Config']['Img']=[
 	'FontFile'=>'/Lib/ImgFont.ttf'
 ];

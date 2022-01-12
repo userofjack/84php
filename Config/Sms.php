@@ -1,5 +1,5 @@
 <?php
-$_SERVER['84PHP_CONFIG']['Sms']=[
+$_SERVER['84PHP']['Config']['Sms']=[
 	'Timeout'=>15,
 
 	'AliyunAccessKeyID'=>'',

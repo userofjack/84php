@@ -1,6 +1,6 @@
 <?php
 
-$_SERVER['84PHP_CONFIG']['Db']=[
+$_SERVER['84PHP']['Config']['Db']=[
 	'Log'=>FALSE,
 
 	'RW_Splitting'=>FALSE,

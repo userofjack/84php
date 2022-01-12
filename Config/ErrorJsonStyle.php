@@ -1,1 +1,0 @@
-{"code":{$Code},"status":"error","message":"{$ErrorInfo}","data":{"FrameworkVersion":"{$Version}"}}

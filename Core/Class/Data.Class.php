@@ -2,215 +2,233 @@
 /*
   84PHP开源框架
 
-  ©2017-2021 84PHP.COM
+  ©2022 84PHP.com
 
-  框架版本号：5.1.0
+  框架版本号：6.0.0
 */
 
-require(RootPath.'/Config/Data.php');
+require(__ROOT__.'/Config/Data.php');
 
-class Data{
-	private static $Handle;
-	private static $Connect;
+class Data
+{
+    private static $Handle;
+    private static $Connect;
 
-	public static function ClassInitial(){
-		self::$Handle=strtolower($_SERVER['84PHP_CONFIG']['Data']['Handle']);
-		
-		if(self::$Handle=='redis'){
-			self::RedisConnect();
-		}
-	}
+    public static function classInitial()
+    {
+        self::$Handle=strtolower($_SERVER['84PHP']['Config']['Data']['Handle']);
+        
+        if (self::$Handle=='redis') {
+            self::redisConnect();
+        }
+    }
 
-	//设置
-	public static function Set($UnionData=[]){
-		$Key=QuickParamet($UnionData,'key','键');
-		$Value=QuickParamet($UnionData,'value','值');
-		$Time=QuickParamet($UnionData,'time','时间',FALSE,3600);
-		$Prefix=QuickParamet($UnionData,'prefix','前缀',FALSE,'');
-		if($Key==''){
-			return FALSE;
-		}
-		if($Key==''){
-			return FALSE;
-		}
-		if($Value==NULL){
-			$Value='';
-		}
-		if(!is_bool($Value)&&!is_array($Value)&&!is_int($Value)&&!is_float($Value)&&!is_string($Value)&&!is_object($Value)){
-			return FALSE;
-		}
-		$Time=intval($Time);
-		if(self::$Handle=='file'){
-			return self::SetByFile($Prefix,$Key,$Value,$Time);
-		}
-		if(self::$Handle=='redis'){
-			return self::SetByRedis($Prefix,$Key,$Value,$Time);
-		}
-		
-	}
-	
-	//获取
-	public static function Get($UnionData=[]){
-		$Key=QuickParamet($UnionData,'key','键');		
-		$Prefix=QuickParamet($UnionData,'prefix','前缀',FALSE,'');
-		$Callback=QuickParamet($UnionData,'callback','回调',FALSE,NULL);
-		if($Key==''){
-			return NULL;
-		}
-		if(self::$Handle=='file'){
-			$Result=self::GetByFile($Prefix,$Key);
-		}
-		else if(self::$Handle=='redis'){
-			$Result=self::GetByRedis($Prefix,$Key);
-		}
-		if($Result===NULL&&is_object($Callback)){
-			return $Callback();
-		}
-		else{
-			return $Result;
-		}
-	}
-	
-	//变量转字符串
-	private static function VarToStr($Value){
-		return serialize($Value);
-	}
-	
-	//字符串转变量
-	private static function StrToVar($String){
-		return unserialize($String);
-	}
-	
-	//获取文件缓存路径
-	private static function GetFilePath($Prefix,$Key,$Mkdir=FALSE){
-		$MD5=md5($Key);
-		$Path=RootPath.'/Temp/Data/'.$Prefix;
-		$Level=intval($_SERVER['84PHP_CONFIG']['Data']['Connect']['file']['level']);
-		if($_SERVER['84PHP_CONFIG']['Data']['Connect']['file']['level']<1){
-			$Level=0;
-		}
-		if($_SERVER['84PHP_CONFIG']['Data']['Connect']['file']['level']>15){
-			$Level=15;
-		}
-		for($i=0;$i<$Level;$i++){
-			$Path.='/'.$MD5[0].$MD5[1];
-			$MD5=substr($MD5,2);
-		}
-		$Path=str_replace(['\\','//'],['/','/'],$Path);
-		if($Mkdir){
-			if(!is_dir($Path)){
-				mkdir($Path,0777,TRUE);
-			}
-		}
-		
-		$Path.='/'.$MD5.'.tmp';
-		if($Path[0]=='/'){
-			$Path=substr($Path,1);
-		}
-		return $Path;
-	}
+    //设置
+    public static function set($UnionData=[])
+    {
+        $Key=quickParamet($UnionData,'key','键');
+        $Value=quickParamet($UnionData,'value','值');
+        $Time=quickParamet($UnionData,'time','时间',FALSE,3600);
+        $Prefix=quickParamet($UnionData,'prefix','前缀',FALSE,'');
+        if ($Key=='') {
+            return FALSE;
+        }
+        if ($Key=='') {
+            return FALSE;
+        }
+        if ($Value==NULL) {
+            $Value='';
+        }
+        if (!is_bool($Value)&&!is_array($Value)&&!is_int($Value)&&!is_float($Value)&&!is_string($Value)&&!is_object($Value)) {
+            return FALSE;
+        }
+        $Time=intval($Time);
+        if (self::$Handle=='file') {
+            return self::setByFile($Prefix,$Key,$Value,$Time);
+        }
+        if (self::$Handle=='redis') {
+            return self::setByRedis($Prefix,$Key,$Value,$Time);
+        }
+        
+    }
+    
+    //获取
+    public static function get($UnionData=[])
+    {
+        $Key=quickParamet($UnionData,'key','键');        
+        $Prefix=quickParamet($UnionData,'prefix','前缀',FALSE,'');
+        $Callback=quickParamet($UnionData,'callback','回调',FALSE,NULL);
+        if ($Key=='') {
+            return NULL;
+        }
+        if (self::$Handle=='file') {
+            $Result=self::getByFile($Prefix,$Key);
+        }
+        else if (self::$Handle=='redis') {
+            $Result=self::getByRedis($Prefix,$Key);
+        }
+        if ($Result===NULL&&is_object($Callback)) {
+            return $Callback();
+        }
+        else {
+            return $Result;
+        }
+    }
+    
+    //变量转字符串
+    private static function varToStr($Value)
+    {
+        return serialize($Value);
+    }
+    
+    //字符串转变量
+    private static function strToVar($String)
+    {
+        return unserialize($String);
+    }
+    
+    //获取文件缓存路径
+    private static function getFilePath($Prefix,$Key,$Mkdir=FALSE)
+    {
+        $MD5=md5($Key);
+        $Path=__ROOT__.'/Temp/Data/'.$Prefix;
+        $Level=intval($_SERVER['84PHP']['Config']['Data']['Connect']['file']['level']);
+        if ($_SERVER['84PHP']['Config']['Data']['Connect']['file']['level']<1) {
+            $Level=0;
+        }
+        if ($_SERVER['84PHP']['Config']['Data']['Connect']['file']['level']>15) {
+            $Level=15;
+        }
+        for ($i=0;$i<$Level;$i++) {
+            $Path.='/'.$MD5[0].$MD5[1];
+            $MD5=substr($MD5,2);
+        }
+        $Path=str_replace(['\\','//'],['/','/'],$Path);
+        if ($Mkdir) {
+            if (!is_dir($Path)) {
+                mkdir($Path,0777,TRUE);
+            }
+        }
+        
+        $Path.='/'.$MD5.'.tmp';
+        if ($Path[0]=='/') {
+            $Path=substr($Path,1);
+        }
+        return $Path;
+    }
 
-	//设置文件緩存
-	private static function SetByFile($Prefix,$Key,$Value,$Time){
-		if($Time<1){
-			return self::DeleteByFile($Key,$Prefix);
-		}
-		$Cache=strval(intval(Runtime)+$Time)."\r\n".self::VarToStr($Value);
-		$FileHandle=fopen(self::GetFilePath($Prefix,$Key,TRUE),'w');
-		if(!$FileHandle){
-			Wrong::Report(['detail'=>'Error#M.16.0','code'=>'M.16.0']);
-		}
-		fwrite($FileHandle,$Cache);
-		fclose($FileHandle);
-		return TRUE;
-	}
-	
-	//删除文件緩存
-	private static function DeleteByFile($Key,$Prefix,$Path=''){
-		if($Path==''){
-			$Path=self::GetFilePath($Prefix,$Key);
-		}
-		if(file_exists($Path)){
-			$Result=unlink($Path);
-		}
-		else{
-			$Result=TRUE;
-		}
-		return $Result;
-	}
+    //设置文件緩存
+    private static function setByFile($Prefix,$Key,$Value,$Time)
+    {
+        if ($Time<1) {
+            return self::deleteByFile($Key,$Prefix);
+        }
+        $Cache=strval(intval(__TIME__)+$Time)."\r\n".self::varToStr($Value);
+        $FileHandle=fopen(self::getFilePath($Prefix,$Key,TRUE),'w');
+        if (!$FileHandle) {
+            Api::wrong(['level'=>'F','detail'=>'Error#M.12.0','code'=>'M.12.0']);
+        }
+        fwrite($FileHandle,$Cache);
+        fclose($FileHandle);
+        return TRUE;
+    }
+    
+    //删除文件緩存
+    private static function deleteByFile($Key,$Prefix,$Path='')
+    {
+        if ($Path=='') {
+            $Path=self::getFilePath($Prefix,$Key);
+        }
+        if (file_exists($Path)) {
+            $Result=unlink($Path);
+        }
+        else {
+            $Result=TRUE;
+        }
+        return $Result;
+    }
 
-	//获取文件缓存
-	private static function GetByFile($Prefix,$Key){
-		$FilePath=self::GetFilePath($Prefix,$Key);
-		if(!file_exists($FilePath)){
-			return NULL;
-		}
-		$Cache=file_get_contents($FilePath);
-		$ExpTime=intval(strtok($Cache, "\r\n"));
-		if($ExpTime<=0||$ExpTime<intval(Runtime)){
-			if (mt_rand(1,$_SERVER['84PHP_CONFIG']['Data']['Connect']['file']['clean'])==1){
-				self::DeleteByFile($Key,$Prefix,$FilePath);
-			}
-			return NULL;
-		}
-		return self::StrToVar(strtok("\r\n"));
-	}
-	
-	//连接Redis
-	private static function RedisConnect(){
-		self::$Connect=new Redis();
-		try
-		{
-			self::$Connect->connect($_SERVER['84PHP_CONFIG']['Data']['Connect']['redis']['address'],$_SERVER['84PHP_CONFIG']['Data']['Connect']['redis']['port'],$_SERVER['84PHP_CONFIG']['Data']['Connect']['redis']['timeout']);
-		}
-		catch (Throwable $t)
-		{
-			Wrong::Report(['detail'=>'Error#M.16.1','code'=>'M.16.1']);
-		}
-		if($_SERVER['84PHP_CONFIG']['Data']['Connect']['redis']['password']!=''){
-			self::$Connect->auth($_SERVER['84PHP_CONFIG']['Data']['Connect']['redis']['password']) ?:Wrong::Report(['detail'=>'Error#M.16.2','code'=>'M.16.2']);
-		}
-		self::$Connect->select($_SERVER['84PHP_CONFIG']['Data']['Connect']['redis']['dbnumber'])?:Wrong::Report(['detail'=>'Error#M.16.3','code'=>'M.16.3']);
-	}
+    //获取文件缓存
+    private static function getByFile($Prefix,$Key)
+    {
+        $FilePath=self::getFilePath($Prefix,$Key);
+        if (!file_exists($FilePath)) {
+            return NULL;
+        }
+        $Cache=file_get_contents($FilePath);
+        if ($Cache===FALSE) {
+            Api::wrong(['level'=>'F','detail'=>'Error#M.12.4','code'=>'M.12.4']);
+        }
+        $ExpTime=intval(strtok($Cache, "\r\n"));
+        if ($ExpTime<=0||$ExpTime<intval(__TIME__)) {
+            if (mt_rand(1,$_SERVER['84PHP']['Config']['Data']['Connect']['file']['clean'])==1) {
+                self::deleteByFile($Key,$Prefix,$FilePath);
+            }
+            return NULL;
+        }
+        return self::strToVar(strtok("\r\n"));
+    }
+    
+    //连接Redis
+    private static function redisConnect()
+    {
+        self::$Connect=new Redis();
+        try
+        {
+            self::$Connect->connect($_SERVER['84PHP']['Config']['Data']['Connect']['redis']['address'],$_SERVER['84PHP']['Config']['Data']['Connect']['redis']['port'],$_SERVER['84PHP']['Config']['Data']['Connect']['redis']['timeout']);
+        }
+        catch (Throwable $t)
+        {
+            Api::wrong(['level'=>'F','detail'=>'Error#M.12.1','code'=>'M.12.1']);
+        }
+        if ($_SERVER['84PHP']['Config']['Data']['Connect']['redis']['password']!='') {
+            self::$Connect->auth($_SERVER['84PHP']['Config']['Data']['Connect']['redis']['password']) ?:Api::wrong(['level'=>'F','detail'=>'Error#M.12.2','code'=>'M.12.2']);
+        }
+        self::$Connect->select($_SERVER['84PHP']['Config']['Data']['Connect']['redis']['dbnumber'])?:Api::wrong(['level'=>'F','detail'=>'Error#M.12.3','code'=>'M.12.3']);
+    }
 
-	//关闭Redis缓存
-	public static function CloseRedisConnect(){
-		self::$Connect->close();
-	}
+    //关闭Redis缓存
+    public static function closeRedisConnect()
+    {
+        self::$Connect->close();
+    }
 
-	//设置Redis緩存
-	private static function SetByRedis($Prefix,$Key,$Value,$Time){
-		$MD5=md5($Key);
-		if($Prefix!=''){
-			$Prefix.='_';
-		}
-		if($Time<1){
-			self::$Connect->delete($MD5);
-			return TRUE;
-		}
-		$Cache=self::VarToStr($Value);
-		self::$Connect->set($Prefix.$MD5,$Cache);
-		self::$Connect->expire($Prefix.$MD5,$Time);
-		return TRUE;
-	}
-	
-	//获取Redis缓存
-	private static function GetByRedis($Prefix,$Key){
-		$MD5=md5($Key);
-		if($Prefix!=''){
-			$Prefix.='_';
-		}
-		$Cache=self::$Connect->get($Prefix.$MD5);
+    //设置Redis緩存
+    private static function setByRedis($Prefix,$Key,$Value,$Time)
+    {
+        $MD5=md5($Key);
+        if ($Prefix!='') {
+            $Prefix.='_';
+        }
+        if ($Time<1) {
+            self::$Connect->delete($MD5);
+            return TRUE;
+        }
+        $Cache=self::varToStr($Value);
+        self::$Connect->set($Prefix.$MD5,$Cache);
+        self::$Connect->expire($Prefix.$MD5,$Time);
+        return TRUE;
+    }
+    
+    //获取Redis缓存
+    private static function getByRedis($Prefix,$Key)
+    {
+        $MD5=md5($Key);
+        if ($Prefix!='') {
+            $Prefix.='_';
+        }
+        $Cache=self::$Connect->get($Prefix.$MD5);
 
-		if($Cache==FALSE){
-			return NULL;
-		}
-		return self::StrToVar($Cache);
-	}
+        if ($Cache==FALSE) {
+            return NULL;
+        }
+        return self::strToVar($Cache);
+    }
 
-	//调用方法不存在
-	public static function __callStatic($Method,$Parameters){
-		UnknownStaticMethod(__CLASS__,$Method);
-	}
+    //调用方法不存在
+    public static function __callStatic($Method,$Parameters)
+    {
+        unknownStaticMethod(__CLASS__,$Method);
+    }
 }
-Data::ClassInitial();
+Data::classInitial();

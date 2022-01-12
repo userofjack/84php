@@ -1,6 +1,6 @@
 <?php
 
-$_SERVER['84PHP_CONFIG']['Mail']=[
+$_SERVER['84PHP']['Config']['Mail']=[
 	'Server'=>'',
 	'Port'=>25,
 	'UserName'=>'',
