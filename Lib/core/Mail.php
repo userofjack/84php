@@ -1,4 +1,8 @@
 <?php
+namespace core;
+
+use core\Common;
+
 /*
   84PHP开源框架
 
@@ -7,13 +11,13 @@
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/Config/Mail.php');
+require(__ROOT__.'/config/core/Mail.php');
 
 class Mail
 {
     
     //SocketError
-    private static function ssendError($Handle)
+    private static function sendError($Handle)
     {
         fclose($Handle);
         return FALSE;
@@ -22,16 +26,16 @@ class Mail
     //Socket发送
     public static function send($UnionData=[])
     {
-        $Address=quickParamet($UnionData,'address','地址');
-        $Title=quickParamet($UnionData,'title','标题');
-        $Content=quickParamet($UnionData,'content','内容');
-        $Timeout=quickParamet($UnionData,'timeout','超时时间',FALSE,15);
+        $Address=Common::quickParamet($UnionData,'address','地址');
+        $Title=Common::quickParamet($UnionData,'title','标题');
+        $Content=Common::quickParamet($UnionData,'content','内容');
+        $Timeout=Common::quickParamet($UnionData,'timeout','超时时间',FALSE,15);
 
         $Send=NULL;
         $Response='';
         $Handle=fsockopen($_SERVER['84PHP']['Config']['Mail']['Server'],$_SERVER['84PHP']['Config']['Mail']['Port'],$Errno,$ErrMsg,$Timeout);
         if (!$Handle&&$Errno===0) {
-            self::ssendError($Handle);
+            self::sendError($Handle);
         }
         stream_set_blocking($Handle,1);
         $Response.=fgets($Handle,512);
@@ -48,33 +52,33 @@ class Mail
         }
         $Send="AUTH LOGIN\r\n";
         if (fwrite($Handle,$Send)===FALSE) {
-            self::ssendError($Handle);
+            self::sendError($Handle);
         }
         $Response.=fgets($Handle,512);
         $Send=base64_encode($_SERVER['84PHP']['Config']['Mail']['UserName'])."\r\n";
         if (fwrite($Handle,$Send)===FALSE) {
-            self::ssendError($Handle);
+            self::sendError($Handle);
         }
         $Response.=fgets($Handle,512);
         $Send=base64_encode($_SERVER['84PHP']['Config']['Mail']['PassWord'])."\r\n";
         if (fwrite($Handle,$Send)===FALSE) {
-            self::ssendError($Handle);
+            self::sendError($Handle);
         }
         $Response.=fgets($Handle,512);
         $Send='MAIL FROM: <'.$_SERVER['84PHP']['Config']['Mail']['FromAddress'].">\r\n";
 
         if (fwrite($Handle,$Send)===FALSE) {
-            self::ssendError($Handle);
+            self::sendError($Handle);
         }
         $Response.=fgets($Handle,512);
         $Send='RCPT TO: <'.$Address."> \r\n";
         if (fwrite($Handle,$Send)===FALSE) {
-            self::ssendError($Handle);
+            self::sendError($Handle);
         }
         $Response.=fgets($Handle,512);
         $Send="DATA\r\n";
         if (fwrite($Handle,$Send)===FALSE) {
-            self::ssendError($Handle);
+            self::sendError($Handle);
         }
         $Response.=fgets($Handle,512);
         if (!empty($NewFromAddress)) {
@@ -105,6 +109,6 @@ class Mail
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }

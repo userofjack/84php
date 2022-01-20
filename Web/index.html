@@ -26,20 +26,17 @@
 	<div class="main">
 		<div class="main-logo">
 			<div class="main-logo-img" onClick="Jump('https://www.84php.com',true,true)">
-				<div class="main-logo-version"><span>5.1.0</span></div>
+				<div class="main-logo-version"><span>6.0.0</span></div>
 			</div>
-		</div>
-		<div class="main-go">
-			<form class="main-go-input-box"method="post" action="index.act">
-				<input name="testinput" class="main-go-input" placeholder="随便输点啥..." autocomplete="off">
-				<div class="main-go-btn">
-					<div class="main-go-btn-icon" onClick="Submit()"></div>
-				</div>
-			</form>
 		</div>
 		<div class="main-guide">
 			<div class="main-guide-class">
-				<div class="main-guide-class-item main-guide-class-item-active" onMouseOver="Guide(this)">框架文档
+				<div class="main-guide-class-item main-guide-class-item-active" onMouseOver="Guide(this)">调试工具
+					<div class="main-guide-class-item-linebox">
+						<div class="main-guide-class-item-hoverline"></div>
+					</div>
+				</div>
+				<div class="main-guide-class-item" onMouseOver="Guide(this)">框架文档
 					<div class="main-guide-class-item-linebox">
 						<div class="main-guide-class-item-hoverline"></div>
 					</div>
@@ -55,6 +52,14 @@
 					</div>
 				</div>
 			</div>
+		</div>
+		<div class="main-go" style="display: none">
+			<form class="main-go-input-box"method="post" action="index.act">
+				<input name="testinput" class="main-go-input" placeholder="随便输点啥..." autocomplete="off">
+				<div class="main-go-btn">
+					<div class="main-go-btn-icon" onClick="Submit()"></div>
+				</div>
+			</form>
 		</div>
 		<div class="main-document">
 			<div class="main-document-loading">文档加载中...</div>

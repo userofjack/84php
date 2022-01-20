@@ -1,4 +1,9 @@
 <?php
+namespace core;
+
+use core\Common;
+use core\Api;
+
 /*
   84PHP开源框架
 
@@ -7,7 +12,7 @@
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/Config/Ftp.php');
+require(__ROOT__.'/config/core/Ftp.php');
 
 class Ftp
 {
@@ -15,11 +20,11 @@ class Ftp
     //上传
     public static function up($UnionData=[])
     {
-        $From=quickParamet($UnionData,'from','本地路径');
-        $To=quickParamet($UnionData,'to','远程路径');
-        $Timeout=quickParamet($UnionData,'timeout','超时时间',FALSE,90);
+        $From=Common::quickParamet($UnionData,'from','本地路径');
+        $To=Common::quickParamet($UnionData,'to','远程路径');
+        $Timeout=Common::quickParamet($UnionData,'timeout','超时时间',FALSE,90);
         
-        $From=diskPath($From);
+        $From=Common::diskPath($From);
 
         $Connect=ftp_connect($_SERVER['84PHP']['Config']['Ftp']['Server'],$_SERVER['84PHP']['Config']['Ftp']['Port'],$Timeout);
         $Login=ftp_login($Connect,$_SERVER['84PHP']['Config']['Ftp']['User'],$_SERVER['84PHP']['Config']['Ftp']['Password']);
@@ -39,11 +44,11 @@ class Ftp
     //下载
     public static function down($UnionData=[])
     {
-        $From=quickParamet($UnionData,'from','远程路径');
-        $To=__ROOT__.quickParamet($UnionData,'to','本地路径');
-        $Timeout=quickParamet($UnionData,'timeout','超时时间',FALSE,90);
+        $From=Common::quickParamet($UnionData,'from','远程路径');
+        $To=__ROOT__.Common::quickParamet($UnionData,'to','本地路径');
+        $Timeout=Common::quickParamet($UnionData,'timeout','超时时间',FALSE,90);
         
-        $To=diskPath($To);
+        $To=Common::diskPath($To);
 
         $Connect=ftp_connect($_SERVER['84PHP']['Config']['Ftp']['Server'],$_SERVER['84PHP']['Config']['Ftp']['Port'],$Timeout);
         $Login=ftp_login($Connect,$_SERVER['84PHP']['Config']['Ftp']['User'],$_SERVER['84PHP']['Config']['Ftp']['Password']);
@@ -63,6 +68,6 @@ class Ftp
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }

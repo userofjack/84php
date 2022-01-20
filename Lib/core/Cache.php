@@ -1,4 +1,9 @@
 <?php
+namespace core;
+
+use core\Common;
+use core\Api;
+
 /*
   84PHP开源框架
 
@@ -7,7 +12,7 @@
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/Config/Cache.php');
+require(__ROOT__.'/config/core/Cache.php');
 
 class Cache
 {
@@ -70,8 +75,8 @@ class Cache
     //编译
     public static function compile($UnionData=[])
     {
-        $Path=quickParamet($UnionData,'path','路径');
-        $Force=quickParamet($UnionData,'force','强制编译',FALSE,FALSE);
+        $Path=Common::quickParamet($UnionData,'path','路径');
+        $Force=Common::quickParamet($UnionData,'force','强制编译',FALSE,FALSE);
         
         if (__DEBUG__) {
             $Force=TRUE;
@@ -170,6 +175,6 @@ class Cache
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }

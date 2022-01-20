@@ -1,4 +1,9 @@
 <?php
+namespace core;
+
+use core\Common;
+use core\Api;
+
 /*
   84PHP开源框架
 
@@ -12,7 +17,7 @@ class Dir
     //目录文件属性
     public static function state($UnionData=[])
     {
-        $Path=quickParamet($UnionData,'path','路径');
+        $Path=Common::quickParamet($UnionData,'path','路径');
         
         if (!is_array($Path)) {
             $PathArray=[$Path];
@@ -26,23 +31,23 @@ class Dir
         foreach ($PathArray as $Key => $Val) {
             $TempArray=[];
 
-            if (file_exists(diskPath($Val))) {
-                if (is_readable(diskPath($Val))) {
+            if (file_exists(Common::diskPath($Val))) {
+                if (is_readable(Common::diskPath($Val))) {
                     $TempArray['R']='Y';
                 }
                 else {
                     $TempArray['R']='N';
                 }
                 
-                if (is_writable(diskPath($Val))) {
+                if (is_writable(Common::diskPath($Val))) {
                     $TempArray['W']='Y';
                 }
                 else {
                     $TempArray['W']='N';
                 }
                 
-                if (is_dir(diskPath($Val))) {
-                    if (is_executable(diskPath($Val))) {
+                if (is_dir(Common::diskPath($Val))) {
+                    if (is_executable(Common::diskPath($Val))) {
                         $TempArray['Ex']='Y';
                     }
                     else {
@@ -83,10 +88,10 @@ class Dir
     //目录大小
     public static function size($UnionData=[])
     {
-        $Path=quickParamet($UnionData,'path','路径');
-        $Unit=quickParamet($UnionData,'unit','单位',FALSE,NULL);
+        $Path=Common::quickParamet($UnionData,'path','路径');
+        $Unit=Common::quickParamet($UnionData,'unit','单位',FALSE,NULL);
 
-        $DirSize=self::sizeCall(diskPath($Path));
+        $DirSize=self::sizeCall(Common::diskPath($Path));
         
         if ($Unit=='KB') {
             $DirSize=round($DirSize/pow(1024,1),2);
@@ -133,14 +138,14 @@ class Dir
     //删除目录
     public static function delete($UnionData=[])
     {
-        $Path=quickParamet($UnionData,'path','路径');
+        $Path=Common::quickParamet($UnionData,'path','路径');
 
         if (!is_array($Path)) {
-            self::deleteCall(diskPath($Path));
+            self::deleteCall(Common::diskPath($Path));
         }
         else {
             foreach ($Path as $Val) {
-                self::deleteCall(diskPath($Path));
+                self::deleteCall(Common::diskPath($Path));
             }
         }
     }
@@ -180,15 +185,15 @@ class Dir
     //复制目录
     public static function copy($UnionData=[])
     {
-        $From=quickParamet($UnionData,'from','源路径');
-        $To=quickParamet($UnionData,'to','目标路径');
+        $From=Common::quickParamet($UnionData,'from','源路径');
+        $To=Common::quickParamet($UnionData,'to','目标路径');
 
-        self::copyCall(diskPath($Path), diskPath($Path));
+        self::copyCall(Common::diskPath($Path), Common::diskPath($Path));
     }
     
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }

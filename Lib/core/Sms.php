@@ -1,4 +1,9 @@
 <?php
+namespace core;
+
+use core\Common;
+use core\Tool;
+
 /*
   84PHP开源框架
 
@@ -7,7 +12,7 @@
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/Config/Sms.php');
+require(__ROOT__.'/config/core/Sms.php');
 
 class Sms
 {
@@ -25,9 +30,9 @@ class Sms
     //阿里云云通信接口
     public static function aliyun($UnionData=[])
     {
-        $Number=quickParamet($UnionData,'number','号码');
-        $Template=quickParamet($UnionData,'template','模板');
-        $Param=quickParamet($UnionData,'param','参数',FALSE,NULL);
+        $Number=Common::quickParamet($UnionData,'number','号码');
+        $Template=Common::quickParamet($UnionData,'template','模板');
+        $Param=Common::quickParamet($UnionData,'param','参数',FALSE,NULL);
         
         $PhoneNumber=NULL;
         $TempTimestamp=gmdate('Y-m-d\TH:i:s\Z');
@@ -87,6 +92,6 @@ class Sms
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }

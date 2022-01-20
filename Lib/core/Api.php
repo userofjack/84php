@@ -1,4 +1,9 @@
 <?php
+namespace core;
+
+use core\Common;
+use core\Log;
+
 /*
   84PHP开源框架
 
@@ -7,15 +12,15 @@
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/Config/Api.php');
+require(__ROOT__.'/config/core/Api.php');
 
 class Api
 {
     public static function respond($UnionData)
     {
-        $Content=quickParamet($UnionData,'content','内容',FALSE,[]);
-        $Log=quickParamet($UnionData,'log','日志',FALSE,FALSE);
-        $HttpCode=quickParamet($UnionData,'http','响应码',FALSE,200);
+        $Content=Common::quickParamet($UnionData,'content','内容',FALSE,[]);
+        $Log=Common::quickParamet($UnionData,'log','日志',FALSE,FALSE);
+        $HttpCode=Common::quickParamet($UnionData,'http','响应码',FALSE,200);
         
         $Style=$_SERVER['84PHP']['Config']['Api']['Template'];
         
@@ -38,12 +43,12 @@ class Api
     
     public static function wrong($UnionData)
     {
-        $Detail=quickParamet($UnionData,'detail','详情');
-        $Code=quickParamet($UnionData,'code','状态码',FALSE,0);
-        $Stack=quickParamet($UnionData,'stack','堆栈',FALSE,FALSE);
-        $Log=quickParamet($UnionData,'log','日志',FALSE,TRUE);
-        $HttpCode=quickParamet($UnionData,'http','响应码',FALSE,200);
-        $Level=strtoupper(quickParamet($UnionData,'level','级别',TRUE));
+        $Detail=Common::quickParamet($UnionData,'detail','详情');
+        $Code=Common::quickParamet($UnionData,'code','状态码',FALSE,0);
+        $Stack=Common::quickParamet($UnionData,'stack','堆栈',FALSE,FALSE);
+        $Log=Common::quickParamet($UnionData,'log','日志',FALSE,TRUE);
+        $HttpCode=Common::quickParamet($UnionData,'http','响应码',FALSE,200);
+        $Level=strtoupper(Common::quickParamet($UnionData,'level','级别',TRUE));
         
         $Config=$_SERVER['84PHP']['Config']['Api'];
         

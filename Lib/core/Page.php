@@ -1,4 +1,9 @@
 <?php
+namespace core;
+
+use core\Common;
+use core\Db;
+
 /*
   84PHP开源框架
 
@@ -13,19 +18,19 @@ class Page
     //分页
     public static function base($UnionData=[])
     {
-        $Table=quickParamet($UnionData,'table','表');
-        $Field=quickParamet($UnionData,'field','字段',FALSE,[]);
-        $Value=quickParamet($UnionData,'value','值',FALSE,[]);
-        $Condition=quickParamet($UnionData,'condition','条件',FALSE,'=');
-        $Order=quickParamet($UnionData,'order','顺序',FALSE,NULL);
-        $Desc=quickParamet($UnionData,'desc','降序',FALSE,FALSE);
-        $Index=quickParamet($UnionData,'index','索引',FALSE,NULL);        
-        $Sql=quickParamet($UnionData,'sql','sql',FALSE,NULL);
+        $Table=Common::quickParamet($UnionData,'table','表');
+        $Field=Common::quickParamet($UnionData,'field','字段',FALSE,[]);
+        $Value=Common::quickParamet($UnionData,'value','值',FALSE,[]);
+        $Condition=Common::quickParamet($UnionData,'condition','条件',FALSE,'=');
+        $Order=Common::quickParamet($UnionData,'order','顺序',FALSE,NULL);
+        $Desc=Common::quickParamet($UnionData,'desc','降序',FALSE,FALSE);
+        $Index=Common::quickParamet($UnionData,'index','索引',FALSE,NULL);        
+        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
 
-        $Page=quickParamet($UnionData,'page','页码');        
-        $Number=quickParamet($UnionData,'number','数量');        
+        $Page=Common::quickParamet($UnionData,'page','页码');        
+        $Number=Common::quickParamet($UnionData,'number','数量');        
 
-        $FieldLimit=quickParamet($UnionData,'field_limit','字段限制',FALSE,NULL);        
+        $FieldLimit=Common::quickParamet($UnionData,'field_limit','字段限制',FALSE,NULL);        
         
         $Result=['result'=>[],'info'=>[]];
         $NowPage=intval($Page);
@@ -100,6 +105,6 @@ class Page
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }

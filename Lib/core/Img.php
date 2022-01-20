@@ -1,4 +1,9 @@
 <?php
+namespace core;
+
+use core\Common;
+use core\Api;
+
 /*
   84PHP开源框架
 
@@ -7,7 +12,7 @@
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/Config/Img.php');
+require(__ROOT__.'/config/core/Img.php');
 
 class Img
 {
@@ -123,30 +128,30 @@ class Img
     //伸缩和水印
     public static function change($UnionData=[])
     {
-        $From=quickParamet($UnionData,'image','源图片');
-        $DataType=strtolower(quickParamet($UnionData,'data_type','资源类型',FALSE,'path'));
-        $To=quickParamet($UnionData,'to','目标路径',FALSE,NULL);
-        $Width=quickParamet($UnionData,'width','宽度',FALSE,NULL);
-        $Height=quickParamet($UnionData,'height','高度',FALSE,NULL);
-        $Scale=quickParamet($UnionData,'scale','缩放',FALSE,1.0);
-        $Word=quickParamet($UnionData,'word','文字',FALSE,NULL);
-        $WordSize=quickParamet($UnionData,'word_size','文字大小',FALSE,NULL);
-        $WordColor=quickParamet($UnionData,'word_color','文字颜色',FALSE,'#333333');
-        $WordMarginX=quickParamet($UnionData,'word_margin_x','文字左边距',FALSE,0);
-        $WordMarginY=quickParamet($UnionData,'word_margin_y','文字顶边距',FALSE,0);
-        $Quality=quickParamet($UnionData,'quality','质量',FALSE,75);
-        $DataType=strtolower(quickParamet($UnionData,'data_type','资源类型',FALSE,'path'));
-        $MIME=strtolower(quickParamet($UnionData,'mime','图片格式',FALSE,'jpeg'));
+        $From=Common::quickParamet($UnionData,'image','源图片');
+        $DataType=strtolower(Common::quickParamet($UnionData,'data_type','资源类型',FALSE,'path'));
+        $To=Common::quickParamet($UnionData,'to','目标路径',FALSE,NULL);
+        $Width=Common::quickParamet($UnionData,'width','宽度',FALSE,NULL);
+        $Height=Common::quickParamet($UnionData,'height','高度',FALSE,NULL);
+        $Scale=Common::quickParamet($UnionData,'scale','缩放',FALSE,1.0);
+        $Word=Common::quickParamet($UnionData,'word','文字',FALSE,NULL);
+        $WordSize=Common::quickParamet($UnionData,'word_size','文字大小',FALSE,NULL);
+        $WordColor=Common::quickParamet($UnionData,'word_color','文字颜色',FALSE,'#333333');
+        $WordMarginX=Common::quickParamet($UnionData,'word_margin_x','文字左边距',FALSE,0);
+        $WordMarginY=Common::quickParamet($UnionData,'word_margin_y','文字顶边距',FALSE,0);
+        $Quality=Common::quickParamet($UnionData,'quality','质量',FALSE,75);
+        $DataType=strtolower(Common::quickParamet($UnionData,'data_type','资源类型',FALSE,'path'));
+        $MIME=strtolower(Common::quickParamet($UnionData,'mime','图片格式',FALSE,'jpeg'));
         
         if ($DataType!='path') {
             $DataType='string';
         }
         else {
-            $From=diskPath($From);
+            $From=Common::diskPath($From);
         }
 
         if (!empty($To)) {
-            $To=diskPath($To);
+            $To=Common::diskPath($To);
         }
         
         $WordColorArray=["red"=>80,"green"=>80,"blue"=>80];
@@ -182,7 +187,7 @@ class Img
             if ($WordColor!=NULL) {
                 $WordColorArray=self::hexRGB($WordColor);
             }
-            if (!imagettftext($NewImg,$FontSize,0,$WordMarginX,$WordMarginY,$textcolor1,diskPath($_SERVER['84PHP']['Config']['Img']['FontFile']),$Word)) {
+            if (!imagettftext($NewImg,$FontSize,0,$WordMarginX,$WordMarginY,$textcolor1,Common::diskPath($_SERVER['84PHP']['Config']['Img']['FontFile']),$Word)) {
                 Api::wrong(['level'=>'F','detail'=>'Error#M.2.5','code'=>'M.2.5']);
             }
         }
@@ -196,26 +201,26 @@ class Img
     //合并图片
     public static function merge($UnionData=[])
     {
-        $Background=quickParamet($UnionData,'background','背景');
-        $Foreground=quickParamet($UnionData,'foreground','前景');
-        $DataType=strtolower(quickParamet($UnionData,'data_type','资源类型',FALSE,'path'));
-        $To=quickParamet($UnionData,'to','目标路径',FALSE,NULL);
-        $ImageX=quickParamet($UnionData,'image_x','起始X',FALSE,0);
-        $ImageY=quickParamet($UnionData,'image_y','起始Y',FALSE,0);
-        $Scale=quickParamet($UnionData,'scale','缩放',FALSE,1.0);
-        $Quality=quickParamet($UnionData,'quality','质量',FALSE,75);
-        $MIME=strtolower(quickParamet($UnionData,'mime','图片类型',FALSE,'jpeg'));
+        $Background=Common::quickParamet($UnionData,'background','背景');
+        $Foreground=Common::quickParamet($UnionData,'foreground','前景');
+        $DataType=strtolower(Common::quickParamet($UnionData,'data_type','资源类型',FALSE,'path'));
+        $To=Common::quickParamet($UnionData,'to','目标路径',FALSE,NULL);
+        $ImageX=Common::quickParamet($UnionData,'image_x','起始X',FALSE,0);
+        $ImageY=Common::quickParamet($UnionData,'image_y','起始Y',FALSE,0);
+        $Scale=Common::quickParamet($UnionData,'scale','缩放',FALSE,1.0);
+        $Quality=Common::quickParamet($UnionData,'quality','质量',FALSE,75);
+        $MIME=strtolower(Common::quickParamet($UnionData,'mime','图片类型',FALSE,'jpeg'));
         
         if (!empty($To)) {
-            $To=diskPath($To);
+            $To=Common::diskPath($To);
         }
         
         if ($DataType!='path') {
             $DataType='string';
         }
         else {
-            $Background=diskPath($Background);
-            $Foreground=diskPath($Foreground);
+            $Background=Common::diskPath($Background);
+            $Foreground=Common::diskPath($Foreground);
         }
 
         
@@ -233,6 +238,6 @@ class Img
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }

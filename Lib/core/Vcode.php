@@ -1,4 +1,9 @@
 <?php
+namespace core;
+
+use core\Api;
+use core\Common;
+
 /*
   84PHP开源框架
 
@@ -7,7 +12,7 @@
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/Config/Vcode.php');
+require(__ROOT__.'/config/core/Vcode.php');
 
 class Vcode
 {
@@ -21,16 +26,16 @@ class Vcode
     //验证码
     public static function create($UnionData=[])
     {
-        $Word=quickParamet($UnionData,'word','文字',TRUE);
-        $Base64=quickParamet($UnionData,'base64','base64',FALSE,FALSE);
-        $Width=quickParamet($UnionData,'width','宽度',FALSE,80);
-        $Height=quickParamet($UnionData,'height','高度',FALSE,30);
-        $WordColor=quickParamet($UnionData,'word_color','文字颜色',FALSE,'#000000');
-        $Dot=quickParamet($UnionData,'dot','点',FALSE,15);
-        $Line=quickParamet($UnionData,'line','线',FALSE,2);
-        $NoiseHexColor=quickParamet($UnionData,'noise_color','噪点颜色',FALSE,'#ff6600');
+        $Word=Common::quickParamet($UnionData,'word','文字',TRUE);
+        $Base64=Common::quickParamet($UnionData,'base64','base64',FALSE,FALSE);
+        $Width=Common::quickParamet($UnionData,'width','宽度',FALSE,80);
+        $Height=Common::quickParamet($UnionData,'height','高度',FALSE,30);
+        $WordColor=Common::quickParamet($UnionData,'word_color','文字颜色',FALSE,'#000000');
+        $Dot=Common::quickParamet($UnionData,'dot','点',FALSE,15);
+        $Line=Common::quickParamet($UnionData,'line','线',FALSE,2);
+        $NoiseHexColor=Common::quickParamet($UnionData,'noise_color','噪点颜色',FALSE,'#ff6600');
         
-        $Font=diskPath($_SERVER['84PHP']['Config']['Vcode']['FontFile']);
+        $Font=Common::diskPath($_SERVER['84PHP']['Config']['Vcode']['FontFile']);
                 
         if (!file_exists($Font)) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.10.0','code'=>'M.10.0']);
@@ -76,6 +81,6 @@ class Vcode
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }

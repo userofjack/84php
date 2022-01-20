@@ -1,4 +1,8 @@
 <?php
+namespace core;
+
+use core\Common;
+
 /*
   84PHP开源框架
 
@@ -7,7 +11,7 @@
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/Config/Log.php');
+require(__ROOT__.'/config/core/Log.php');
 
 class Log
 {
@@ -39,8 +43,8 @@ class Log
     //添加记录
     public static function add($UnionData=[])
     {
-        $Info=quickParamet($UnionData,'info','内容',FALSE,'');
-        $LevelName=quickParamet($UnionData,'level','等级',FALSE,'info');
+        $Info=Common::quickParamet($UnionData,'info','内容',FALSE,'');
+        $LevelName=Common::quickParamet($UnionData,'level','等级',FALSE,'info');
         $Level=self::getLevel($LevelName);
 
         if ($Level===FALSE) {
@@ -59,7 +63,7 @@ class Log
     //写入文件
     public static function output()
     {
-        if (strlen($_SERVER['84PHP']['Config']['Common']['SafeCode'])<10) {
+        if (strlen($_SERVER['84PHP']['Config']['Base']['SafeCode'])<10) {
             return false;
         }
         
@@ -94,7 +98,7 @@ class Log
                 "\r\n";
         }
         
-        $FilePath='/Temp/Log/'.$_SERVER['84PHP']['Config']['Common']['SafeCode'].date('/Y-m/d',__TIME__);
+        $FilePath='/Temp/Log/'.$_SERVER['84PHP']['Config']['Base']['SafeCode'].date('/Y-m/d',__TIME__);
         if (!file_exists(__ROOT__.$FilePath)) {
             mkdir(__ROOT__.$FilePath,0777,TRUE);
         }
@@ -140,6 +144,6 @@ class Log
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }

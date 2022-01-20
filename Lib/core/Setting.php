@@ -1,4 +1,9 @@
 <?php
+namespace core;
+
+use core\Common;
+use core\Api;
+
 /*
   84PHP开源框架
 
@@ -13,7 +18,7 @@ class Setting
     //检查配置文件
     private static function fileCheck($Module)
     {
-        $FilePath=__ROOT__.'/Config/'.ucfirst($Module).'.php';
+        $FilePath=__ROOT__.'/config/core/'.ucfirst($Module).'.php';
         if (file_exists($FilePath)) {
             return TRUE;
         }
@@ -87,11 +92,11 @@ class Setting
     //获取配置项的值
     public static function get($UnionData=[])
     {
-        $Module=quickParamet($UnionData,'module','模块');
-        $Name=quickParamet($UnionData,'name','名称');
+        $Module=Common::quickParamet($UnionData,'module','模块');
+        $Name=Common::quickParamet($UnionData,'name','名称');
         
         self::fileCheck($Module);
-        require_once(__ROOT__.'/Config/'.ucfirst($Module).'.php');
+        require_once(__ROOT__.'/config/core/'.ucfirst($Module).'.php');
         if (isset($_SERVER['84PHP']['Config'][$Module][$Name])) {
             return $_SERVER['84PHP']['Config'][$Module][$Name];
         }
@@ -101,14 +106,14 @@ class Setting
     //写入配置项
     public static function set($UnionData=[])
     {
-        $Module=quickParamet($UnionData,'module','模块');
-        $Name=quickParamet($UnionData,'name','名称');
-        $Value=quickParamet($UnionData,'value','值');
+        $Module=Common::quickParamet($UnionData,'module','模块');
+        $Name=Common::quickParamet($UnionData,'name','名称');
+        $Value=Common::quickParamet($UnionData,'value','值');
         $Module=ucfirst($Module);
 
         $CodeText=self::fileCheck($Module);
         $OldValue=self::get($Module,$Name);
-        require_once(__ROOT__.'/Config/'.$Module.'.php');
+        require_once(__ROOT__.'/config/core/'.$Module.'.php');
         if (gettype($OldValue)!=gettype($Value)) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.9.3','code'=>'M.9.3']);
         }
@@ -123,7 +128,7 @@ class Setting
             }
         }
         $CodeText.="\r\n];";
-        $Handle=@fopen(__ROOT__.'/Config/'.$Module.'.php','w');
+        $Handle=@fopen(__ROOT__.'/config/core/'.$Module.'.php','w');
         if (!$Handle) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.9.4','code'=>'M.9.4']);
         }
@@ -134,9 +139,9 @@ class Setting
     //临时改变配置项
     public static function change($UnionData=[])
     {
-        $Module=quickParamet($UnionData,'module','模块');
-        $Name=quickParamet($UnionData,'name','名称');
-        $Value=quickParamet($UnionData,'value','值');
+        $Module=Common::quickParamet($UnionData,'module','模块');
+        $Name=Common::quickParamet($UnionData,'name','名称');
+        $Value=Common::quickParamet($UnionData,'value','值');
                 
         if (!isset($_SERVER['84PHP']['Config'][$Module])) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.9.4','code'=>'M.9.4']);
@@ -153,6 +158,6 @@ class Setting
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }

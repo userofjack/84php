@@ -1,4 +1,9 @@
 <?php
+namespace core;
+
+use core\Common;
+use core\Api;
+
 /*
   84PHP开源框架
 
@@ -7,29 +12,39 @@
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/Config/Data.php');
+require(__ROOT__.'/config/core/Data.php');
 
 class Data
 {
     private static $Handle;
     private static $Connect;
 
-    public static function classInitial()
+    private static function initial()
     {
+        if(!empty($_SERVER['84PHP']['Runtime']['Data']['Initial'])){
+            return TRUE;
+        }
+
         self::$Handle=strtolower($_SERVER['84PHP']['Config']['Data']['Handle']);
         
         if (self::$Handle=='redis') {
             self::redisConnect();
         }
+        
+        $_SERVER['84PHP']['Runtime']['Data']['Initial']=1;
+        return TRUE;
     }
 
     //设置
     public static function set($UnionData=[])
     {
-        $Key=quickParamet($UnionData,'key','键');
-        $Value=quickParamet($UnionData,'value','值');
-        $Time=quickParamet($UnionData,'time','时间',FALSE,3600);
-        $Prefix=quickParamet($UnionData,'prefix','前缀',FALSE,'');
+        $Key=Common::quickParamet($UnionData,'key','键');
+        $Value=Common::quickParamet($UnionData,'value','值');
+        $Time=Common::quickParamet($UnionData,'time','时间',FALSE,3600);
+        $Prefix=Common::quickParamet($UnionData,'prefix','前缀',FALSE,'');
+
+        self::initial();
+
         if ($Key=='') {
             return FALSE;
         }
@@ -55,9 +70,12 @@ class Data
     //获取
     public static function get($UnionData=[])
     {
-        $Key=quickParamet($UnionData,'key','键');        
-        $Prefix=quickParamet($UnionData,'prefix','前缀',FALSE,'');
-        $Callback=quickParamet($UnionData,'callback','回调',FALSE,NULL);
+        $Key=Common::quickParamet($UnionData,'key','键');        
+        $Prefix=Common::quickParamet($UnionData,'prefix','前缀',FALSE,'');
+        $Callback=Common::quickParamet($UnionData,'callback','回调',FALSE,NULL);
+
+        self::initial();
+
         if ($Key=='') {
             return NULL;
         }
@@ -188,7 +206,7 @@ class Data
     }
 
     //关闭Redis缓存
-    public static function closeRedisConnect()
+    private static function closeRedisConnect()
     {
         self::$Connect->close();
     }
@@ -228,7 +246,6 @@ class Data
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }
-Data::classInitial();

@@ -1,4 +1,9 @@
 <?php
+namespace core;
+
+use core\Common;
+use core\Api;
+
 /*
   84PHP开源框架
 
@@ -85,15 +90,15 @@ class Load
     //上传
     public static function up($UnionData=[])
     {
-        $FieldCheck=quickParamet($UnionData,'field','字段');
-        $Path=quickParamet($UnionData,'path','路径');
-        $Type=quickParamet($UnionData,'type','类型');
-        $SaveName=quickParamet($UnionData,'save_name','保存名称',FALSE,NULL);
-        $Size=quickParamet($UnionData,'size','大小',FALSE,NULL);
-        $Number=quickParamet($UnionData,'number','数量',FALSE,NULL);
-        $IgnoreError=quickParamet($UnionData,'ignore_error','忽略错误',FALSE,FALSE);
+        $FieldCheck=Common::quickParamet($UnionData,'field','字段');
+        $Path=Common::quickParamet($UnionData,'path','路径');
+        $Type=Common::quickParamet($UnionData,'type','类型');
+        $SaveName=Common::quickParamet($UnionData,'save_name','保存名称',FALSE,NULL);
+        $Size=Common::quickParamet($UnionData,'size','大小',FALSE,NULL);
+        $Number=Common::quickParamet($UnionData,'number','数量',FALSE,NULL);
+        $IgnoreError=Common::quickParamet($UnionData,'ignore_error','忽略错误',FALSE,FALSE);
         
-        $Path=diskPath($Path);
+        $Path=Common::diskPath($Path);
         $Return=[];
         if (!empty($FieldCheck)&&is_array($FieldCheck)) {
             foreach ($FieldCheck as $Val) {
@@ -197,14 +202,14 @@ class Load
     //下载
     public static function down($UnionData=[])
     {
-        $Url=quickParamet($UnionData,'url','地址');
-        $Path=quickParamet($UnionData,'path','路径');
-        $FileName=quickParamet($UnionData,'filename','文件名',FALSE,'');
-        $Headers=quickParamet($UnionData,'header','header',FALSE,[]);
-        $Timeout=quickParamet($UnionData,'timeout','超时时间',FALSE,86400);
-        $Ssl=quickParamet($UnionData,'ssl','ssl',FALSE,FALSE);
+        $Url=Common::quickParamet($UnionData,'url','地址');
+        $Path=Common::quickParamet($UnionData,'path','路径');
+        $FileName=Common::quickParamet($UnionData,'filename','文件名',FALSE,'');
+        $Headers=Common::quickParamet($UnionData,'header','header',FALSE,[]);
+        $Timeout=Common::quickParamet($UnionData,'timeout','超时时间',FALSE,86400);
+        $Ssl=Common::quickParamet($UnionData,'ssl','ssl',FALSE,FALSE);
 
-        $Path=diskPath($Path);
+        $Path=Common::diskPath($Path);
         
         set_time_limit($Timeout);
         if (!function_exists('curl_init'))
@@ -255,6 +260,6 @@ class Load
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }

@@ -1,4 +1,9 @@
 <?php
+namespace core;
+
+use core\Common;
+use core\Api;
+
 /*
   84PHP开源框架
 
@@ -7,7 +12,7 @@
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/Config/Filter.php');
+require(__ROOT__.'/config/core/Filter.php');
 
 class Filter
 {
@@ -59,9 +64,9 @@ class Filter
     //按模式检查
     public static function byMode($UnionData=[])
     {
-        $Field=quickParamet($UnionData,'field','字段');
-        $Optional=quickParamet($UnionData,'optional','可选',FALSE,[]);
-        $Mode=quickParamet($UnionData,'mode','模式');
+        $Field=Common::quickParamet($UnionData,'field','字段');
+        $Optional=Common::quickParamet($UnionData,'optional','可选',FALSE,[]);
+        $Mode=Common::quickParamet($UnionData,'mode','模式');
         $Mode=strtolower($Mode);
         if ($Mode!='get'&&$Mode!='post'&&$Mode!='header') {
             Api::wrong(['level'=>'F','detail'=>'Error#M.7.0'."\r\n\r\n @ ".$TempOp[0],'code'=>'M.7.0']);
@@ -96,8 +101,8 @@ class Filter
     //从数据检查
     public static function byData($UnionData=[])
     {
-        $Data=quickParamet($UnionData,'data','数据');
-        $Check=quickParamet($UnionData,'check','校验');
+        $Data=Common::quickParamet($UnionData,'data','数据');
+        $Check=Common::quickParamet($UnionData,'check','校验');
         
         $Operate=explode(',',$Data);
 
@@ -110,6 +115,6 @@ class Filter
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }

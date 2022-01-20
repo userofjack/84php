@@ -9,7 +9,7 @@
 
 //框架配置项
 
-$_SERVER['84PHP']['Config']['Common']=[
+$_SERVER['84PHP']['Config']['Base']=[
 	//调试模式
 	'Debug'=>TRUE,
 	//强制HTTPS,
@@ -19,5 +19,7 @@ $_SERVER['84PHP']['Config']['Common']=[
 	//安全码
 	'SafeCode'=>'',
 	//时区
-	'TimeZone'=>'Asia/Shanghai'
+	'TimeZone'=>'Asia/Shanghai',
+    //404处理
+    'PageNotFound'=>''
 ];

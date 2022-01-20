@@ -80,7 +80,7 @@ body{
 	height:100%;
 	width:100%;
 	margin:0px;
-	background-color:#f3f5fa;
+	background-color:#f0f3f5;
 	font-family:"Microsoft YaHei", 微软雅黑, "Microsoft JhengHei";
 	color:#333;
 	position:relative;
@@ -222,7 +222,7 @@ td{
 }
 .main-logo{
 	width: 100%;
-	height: 19%;
+	height: 15%;
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;
@@ -262,7 +262,7 @@ td{
 }
 .main-go{
 	width: 80%;
-	margin: 6% 0 5% 0;
+	margin: 0;
 	box-sizing: border-box;
 	line-height: 1;
 	display: flex;
@@ -320,16 +320,18 @@ td{
 	cursor: pointer
 }
 .main-guide{
-	width: 80%;
-	margin: 0 auto;
+	width: 100%;
+	margin: 4% 0 0 0;
 	margin-bottom: 2%;
 	display: flex;
 	align-items: center;
 	flex-direction: column;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 6px 0 #e9eaf2;
 }
 .main-guide-class{
 	width: 100%;
-	border-bottom: 1px solid #e9e9e9;
 	display: flex;
 	justify-content: center
 }

@@ -1,4 +1,11 @@
 <?php
+namespace core;
+
+use core\Common;
+use core\Api;
+use core\Tool;
+
+
 /*
   84PHP开源框架
 
@@ -7,7 +14,7 @@
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/Config/Pay.php');
+require(__ROOT__.'/config/core/Pay.php');
 
 class Pay
 {
@@ -36,11 +43,11 @@ class Pay
     //支付宝支付接口
     public static function aliPay($UnionData=[])
     {
-        $Id=quickParamet($UnionData,'id','编号');
-        $Title=quickParamet($UnionData,'title','标题');
-        $Total=quickParamet($UnionData,'total','金额');
-        $QR=quickParamet($UnionData,'qr','二维码',FALSE,FALSE);
-        $QRWidth=quickParamet($UnionData,'qr_width','二维码宽度',FALSE,NULL);
+        $Id=Common::quickParamet($UnionData,'id','编号');
+        $Title=Common::quickParamet($UnionData,'title','标题');
+        $Total=Common::quickParamet($UnionData,'total','金额');
+        $QR=Common::quickParamet($UnionData,'qr','二维码',FALSE,FALSE);
+        $QRWidth=Common::quickParamet($UnionData,'qr_width','二维码宽度',FALSE,NULL);
         
         $PostArray=[
                 'service'=>'create_direct_pay_by_user',
@@ -78,12 +85,12 @@ class Pay
     //微信支付接口
     public static function wxPay($UnionData=[])
     {
-        $Id=quickParamet($UnionData,'id','编号');
-        $Title=quickParamet($UnionData,'title','标题');
-        $Total=quickParamet($UnionData,'total','金额');
-        $Mode=quickParamet($UnionData,'mode','模式',FALSE,'NATIVE');
-        $Ip=quickParamet($UnionData,'ip','ip地址',FALSE,NULL);
-        $OpenID=quickParamet($UnionData,'openid','openid',FALSE,NULL);
+        $Id=Common::quickParamet($UnionData,'id','编号');
+        $Title=Common::quickParamet($UnionData,'title','标题');
+        $Total=Common::quickParamet($UnionData,'total','金额');
+        $Mode=Common::quickParamet($UnionData,'mode','模式',FALSE,'NATIVE');
+        $Ip=Common::quickParamet($UnionData,'ip','ip地址',FALSE,NULL);
+        $OpenID=Common::quickParamet($UnionData,'openid','openid',FALSE,NULL);
 
         if (empty($Ip)) {
             $Ip=self::getClientIp();
@@ -216,7 +223,7 @@ class Pay
     //微信支付验签
     public static function wxPayVerify($UnionData=[])
     {
-        $String=quickParamet($UnionData,'string','字符串');
+        $String=Common::quickParamet($UnionData,'string','字符串');
         $XmlArray=json_decode(json_encode(simplexml_load_string($String,'SimpleXMLElement',LIBXML_NOCDATA)),TRUE);
         if (empty($XmlArray)) {
             return FALSE;
@@ -240,6 +247,6 @@ class Pay
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }

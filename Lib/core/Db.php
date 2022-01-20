@@ -1,4 +1,10 @@
 <?php
+namespace core;
+
+use core\Common;
+use core\Api;
+use core\Log;
+
 /*
   84PHP开源框架
 
@@ -7,7 +13,7 @@
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/Config/Db.php');
+require(__ROOT__.'/config/core/Db.php');
 
 class Db
 {
@@ -15,9 +21,16 @@ class Db
     private static $NowDb;
     private static $Stmts;
     
-    public static function classInitial()
+    private static function initial()
     {
+        if(!empty($_SERVER['84PHP']['Runtime']['Db']['Initial'])){
+            return TRUE;
+        }
+
         self::connect();
+        
+        $_SERVER['84PHP']['Runtime']['Db']['Initial']=1;
+        return TRUE;
     }
     
     //读写分离随机选择数据库
@@ -59,9 +72,9 @@ class Db
             ';dbname='.$_SERVER['84PHP']['Config']['Db']['DbInfo'][self::$NowDb]['dbname'].
             ';charset='.$_SERVER['84PHP']['Config']['Db']['DbInfo'][self::$NowDb]['charset'];
         
-        try{
+        try {
             self::$DbHandle=@new PDO($Dsn,$_SERVER['84PHP']['Config']['Db']['DbInfo'][self::$NowDb]['username'],$_SERVER['84PHP']['Config']['Db']['DbInfo'][self::$NowDb]['password']);
-            self::$DbHandle->setAttribute(PDO::aTTR_ERRMODE, PDO::eRRMODE_EXCEPTION);
+            self::$DbHandle->setAttribute(PDO::aTTR_ERRMODE,PDO::eRRMODE_EXCEPTION);
         }
         catch(PDOException $Error) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.8.1'."\r\n\r\n @ ".'ErrorInfo: ('.$Error->getCode().') '.$Error->getMessage(),'code'=>'M.8.1']);
@@ -105,7 +118,7 @@ class Db
     {
         self::sqlLog($PreSql);
 
-        try{
+        try {
             self::$Stmts[$StmtKey]->execute();
         }
         catch(PDOException $Error) {
@@ -300,17 +313,19 @@ class Db
     //查询一条数据
     public static function select($UnionData=[])
     {
-        $Table=quickParamet($UnionData,'table','表');
-        $Field=quickParamet($UnionData,'field','字段',FALSE,[]);
-        $Value=quickParamet($UnionData,'value','值',FALSE,[]);
-        $Condition=quickParamet($UnionData,'condition','条件',FALSE,'=');
-        $Order=quickParamet($UnionData,'order','顺序',FALSE,NULL);
-        $Desc=quickParamet($UnionData,'desc','降序',FALSE,FALSE);
-        $Index=quickParamet($UnionData,'index','索引',FALSE,NULL);        
-        $Sql=quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=quickParamet($UnionData,'bind','绑定',FALSE,[]);
+        $Table=Common::quickParamet($UnionData,'table','表');
+        $Field=Common::quickParamet($UnionData,'field','字段',FALSE,[]);
+        $Value=Common::quickParamet($UnionData,'value','值',FALSE,[]);
+        $Condition=Common::quickParamet($UnionData,'condition','条件',FALSE,'=');
+        $Order=Common::quickParamet($UnionData,'order','顺序',FALSE,NULL);
+        $Desc=Common::quickParamet($UnionData,'desc','降序',FALSE,FALSE);
+        $Index=Common::quickParamet($UnionData,'index','索引',FALSE,NULL);        
+        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
+        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
+        $FieldLimit=Common::quickParamet($UnionData,'field_limit','字段限制',FALSE,NULL);        
 
-        $FieldLimit=quickParamet($UnionData,'field_limit','字段限制',FALSE,NULL);        
+        self::initial();
+        
         $QueryString=self::queryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,[1],$Index,NULL);
 
         self::randomDb();
@@ -329,19 +344,22 @@ class Db
     //查询多条数据
     public static function selectMore($UnionData=[])
     {
-        $Table=quickParamet($UnionData,'table','表');
-        $Field=quickParamet($UnionData,'field','字段',FALSE,[]);
-        $Value=quickParamet($UnionData,'value','值',FALSE,[]);
-        $Condition=quickParamet($UnionData,'condition','条件',FALSE,'=');
-        $Order=quickParamet($UnionData,'order','顺序',FALSE,NULL);
-        $Desc=quickParamet($UnionData,'desc','降序',FALSE,FALSE);
-        $Limit=quickParamet($UnionData,'limit','限制',FALSE,NULL);
-        $Index=quickParamet($UnionData,'index','索引',FALSE,NULL);        
-        $Sql=quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=quickParamet($UnionData,'bind','绑定',FALSE,[]);
+        $Table=Common::quickParamet($UnionData,'table','表');
+        $Field=Common::quickParamet($UnionData,'field','字段',FALSE,[]);
+        $Value=Common::quickParamet($UnionData,'value','值',FALSE,[]);
+        $Condition=Common::quickParamet($UnionData,'condition','条件',FALSE,'=');
+        $Order=Common::quickParamet($UnionData,'order','顺序',FALSE,NULL);
+        $Desc=Common::quickParamet($UnionData,'desc','降序',FALSE,FALSE);
+        $Limit=Common::quickParamet($UnionData,'limit','限制',FALSE,NULL);
+        $Index=Common::quickParamet($UnionData,'index','索引',FALSE,NULL);        
+        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
+        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
 
-        $FieldLimit=quickParamet($UnionData,'field_limit','字段限制',FALSE,NULL);        
-        $GroupBy=quickParamet($UnionData,'group_by','分组',FALSE,NULL);
+        $FieldLimit=Common::quickParamet($UnionData,'field_limit','字段限制',FALSE,NULL);        
+        $GroupBy=Common::quickParamet($UnionData,'group_by','分组',FALSE,NULL);
+
+        self::initial();
+        
         $QueryString=self::queryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,$GroupBy);
         
         self::randomDb();
@@ -360,21 +378,23 @@ class Db
     //记录总数
     public static function                                                                      Total($UnionData=[])
     {
-        $Table=quickParamet($UnionData,'table','表');
-        $Field=quickParamet($UnionData,'field','字段',FALSE,[]);
-        $Value=quickParamet($UnionData,'value','值',FALSE,[]);
-        $Condition=quickParamet($UnionData,'condition','条件',FALSE,'=');
-        $Order=quickParamet($UnionData,'order','顺序',FALSE,'Total');
-        $Desc=quickParamet($UnionData,'desc','降序',FALSE,FALSE);
-        $Limit=quickParamet($UnionData,'limit','限制',FALSE,NULL);
-        $Index=quickParamet($UnionData,'index','索引',FALSE,NULL);        
-        $Sql=quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=quickParamet($UnionData,'bind','绑定',FALSE,[]);
+        $Table=Common::quickParamet($UnionData,'table','表');
+        $Field=Common::quickParamet($UnionData,'field','字段',FALSE,[]);
+        $Value=Common::quickParamet($UnionData,'value','值',FALSE,[]);
+        $Condition=Common::quickParamet($UnionData,'condition','条件',FALSE,'=');
+        $Order=Common::quickParamet($UnionData,'order','顺序',FALSE,'Total');
+        $Desc=Common::quickParamet($UnionData,'desc','降序',FALSE,FALSE);
+        $Limit=Common::quickParamet($UnionData,'limit','限制',FALSE,NULL);
+        $Index=Common::quickParamet($UnionData,'index','索引',FALSE,NULL);        
+        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
+        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
+        $GroupBy=Common::quickParamet($UnionData,'group_by','分组',FALSE,NULL);
 
-        $GroupBy=quickParamet($UnionData,'group_by','分组',FALSE,NULL);
-        $QueryString=self::queryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,$GroupBy);
+        self::initial();
                         
         self::randomDb();
+
+        $QueryString=self::queryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,$GroupBy);
         
         $FieldLimit='';
         if (!empty($GroupBy)) {
@@ -401,18 +421,20 @@ class Db
     //求和
     public static function sum($UnionData=[])
     {
-        $Table=quickParamet($UnionData,'table','表');
-        $Field=quickParamet($UnionData,'field','字段',FALSE,[]);
-        $Value=quickParamet($UnionData,'value','值',FALSE,[]);
-        $Condition=quickParamet($UnionData,'condition','条件',FALSE,'=');
-        $Order=quickParamet($UnionData,'order','顺序',FALSE,NULL);
-        $Desc=quickParamet($UnionData,'desc','降序',FALSE,FALSE);
-        $Limit=quickParamet($UnionData,'limit','限制',FALSE,NULL);
-        $Index=quickParamet($UnionData,'index','索引',FALSE,NULL);        
-        $Sql=quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=quickParamet($UnionData,'bind','绑定',FALSE,[]);
-        
-        $SumField=quickParamet($UnionData,'sum','合计');        
+        $Table=Common::quickParamet($UnionData,'table','表');
+        $Field=Common::quickParamet($UnionData,'field','字段',FALSE,[]);
+        $Value=Common::quickParamet($UnionData,'value','值',FALSE,[]);
+        $Condition=Common::quickParamet($UnionData,'condition','条件',FALSE,'=');
+        $Order=Common::quickParamet($UnionData,'order','顺序',FALSE,NULL);
+        $Desc=Common::quickParamet($UnionData,'desc','降序',FALSE,FALSE);
+        $Limit=Common::quickParamet($UnionData,'limit','限制',FALSE,NULL);
+        $Index=Common::quickParamet($UnionData,'index','索引',FALSE,NULL);        
+        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
+        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
+        $SumField=Common::quickParamet($UnionData,'sum','合计');        
+
+        self::initial();
+
         $QueryString=self::queryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
         
         $SumSql='';
@@ -444,10 +466,12 @@ class Db
     //插入数据
     public static function insert($UnionData=[])
     {
-        $Table=quickParamet($UnionData,'table','表');
-        $Data=quickParamet($UnionData,'data','数据');
-        $Sql=quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=quickParamet($UnionData,'bind','绑定',FALSE,[]);
+        $Table=Common::quickParamet($UnionData,'table','表');
+        $Data=Common::quickParamet($UnionData,'data','数据');
+        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
+        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
+
+        self::initial();
 
         $InsertField=NULL;
         $InsertValue=NULL;
@@ -477,17 +501,19 @@ class Db
     //删除数据
     public static function delete($UnionData=[])
     {
-        $Table=quickParamet($UnionData,'table','表');
-        $Field=quickParamet($UnionData,'field','字段',FALSE,[]);
-        $Value=quickParamet($UnionData,'value','值',FALSE,[]);
-        $Condition=quickParamet($UnionData,'condition','条件',FALSE,'=');
-        $Order=quickParamet($UnionData,'order','顺序',FALSE,NULL);
-        $Desc=quickParamet($UnionData,'desc','降序',FALSE,FALSE);
-        $Limit=quickParamet($UnionData,'limit','限制',FALSE,NULL);
-        $Index=quickParamet($UnionData,'index','索引',FALSE,NULL);        
-        $Sql=quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=quickParamet($UnionData,'bind','绑定',FALSE,[]);
-        $RowCount=quickParamet($UnionData,'row_count','行数统计',FALSE,FALSE);
+        $Table=Common::quickParamet($UnionData,'table','表');
+        $Field=Common::quickParamet($UnionData,'field','字段',FALSE,[]);
+        $Value=Common::quickParamet($UnionData,'value','值',FALSE,[]);
+        $Condition=Common::quickParamet($UnionData,'condition','条件',FALSE,'=');
+        $Order=Common::quickParamet($UnionData,'order','顺序',FALSE,NULL);
+        $Desc=Common::quickParamet($UnionData,'desc','降序',FALSE,FALSE);
+        $Limit=Common::quickParamet($UnionData,'limit','限制',FALSE,NULL);
+        $Index=Common::quickParamet($UnionData,'index','索引',FALSE,NULL);        
+        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
+        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
+        $RowCount=Common::quickParamet($UnionData,'row_count','行数统计',FALSE,FALSE);
+
+        self::initial();
         
         $QueryString=self::queryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
         
@@ -509,20 +535,21 @@ class Db
     //更新数据
     public static function update($UnionData=[])
     {
-        $Table=quickParamet($UnionData,'table','表');
-        $Field=quickParamet($UnionData,'field','字段',FALSE,[]);
-        $Value=quickParamet($UnionData,'value','值',FALSE,[]);
-        $Condition=quickParamet($UnionData,'condition','条件',FALSE,'=');
-        $Order=quickParamet($UnionData,'order','顺序',FALSE,NULL);
-        $Desc=quickParamet($UnionData,'desc','降序',FALSE,FALSE);
-        $Limit=quickParamet($UnionData,'limit','限制',FALSE,NULL);
-        $Index=quickParamet($UnionData,'index','索引',FALSE,NULL);        
-        $Sql=quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=quickParamet($UnionData,'bind','绑定',FALSE,[]);
-        $RowCount=quickParamet($UnionData,'row_count','行数统计',FALSE,FALSE);
+        $Table=Common::quickParamet($UnionData,'table','表');
+        $Field=Common::quickParamet($UnionData,'field','字段',FALSE,[]);
+        $Value=Common::quickParamet($UnionData,'value','值',FALSE,[]);
+        $Condition=Common::quickParamet($UnionData,'condition','条件',FALSE,'=');
+        $Order=Common::quickParamet($UnionData,'order','顺序',FALSE,NULL);
+        $Desc=Common::quickParamet($UnionData,'desc','降序',FALSE,FALSE);
+        $Limit=Common::quickParamet($UnionData,'limit','限制',FALSE,NULL);
+        $Index=Common::quickParamet($UnionData,'index','索引',FALSE,NULL);        
+        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
+        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
+        $RowCount=Common::quickParamet($UnionData,'row_count','行数统计',FALSE,FALSE);
+        $Data=Common::quickParamet($UnionData,'data','数据');
+        $AutoOP=Common::quickParamet($UnionData,'auto_operate','自动操作',FALSE,NULL);
 
-        $Data=quickParamet($UnionData,'data','数据');
-        $AutoOP=quickParamet($UnionData,'auto_operate','自动操作',FALSE,NULL);
+        self::initial();
 
         $QueryString=self::queryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
 
@@ -561,9 +588,11 @@ class Db
     //查询自定义语句
     public static function other($UnionData=[])
     {
-        $Sql=quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=quickParamet($UnionData,'bind','绑定',FALSE,[]);
-        $Fetch=quickParamet($UnionData,'fetch_result','取回结果',FALSE,FALSE);
+        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
+        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
+        $Fetch=Common::quickParamet($UnionData,'fetch_result','取回结果',FALSE,FALSE);
+
+        self::initial();
 
         $StmtKey=self::createBind($Sql);
         self::bindData($StmtKey,[],$Bind,$Tag='',TRUE);
@@ -576,7 +605,10 @@ class Db
     //事务
     private static function acid($UnionData=[])
     {
-        $Option=quickParamet($UnionData,'option','操作');
+        $Option=Common::quickParamet($UnionData,'option','操作');
+
+        self::initial();
+
         if ($Option=='begin') {
             try {  
                 self::$DbHandle->beginTransaction();
@@ -607,7 +639,6 @@ class Db
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }
-Db::classInitial();

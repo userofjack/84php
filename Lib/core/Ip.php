@@ -1,4 +1,9 @@
 <?php
+namespace core;
+
+use core\Common;
+use core\Api;
+
 /*
   84PHP开源框架
 
@@ -7,7 +12,7 @@
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/Config/Ip.php');
+require(__ROOT__.'/config/core/Ip.php');
 
 class Ip
 {
@@ -17,8 +22,11 @@ class Ip
     private static $WhiteList;
 
 
-    public static function classInitial()
+    private static function initial()
     {
+        if(!empty($_SERVER['84PHP']['Runtime']['Ip']['Initial'])){
+            return TRUE;
+        }
         
         self::$BlackListFile=__ROOT__.'/Temp/ip-blacklist.php';
         self::$WhiteListFile=__ROOT__.'/Temp/ip-whitelist.php';
@@ -40,6 +48,9 @@ class Ip
         
         self::$BlackList=self::textToArray($BlackListText);
         self::$WhiteList=self::textToArray($WhiteListText);
+        
+        $_SERVER['84PHP']['Runtime']['Ip']['Initial']=1;
+        return TRUE;
     }
     
     //格式检测
@@ -142,7 +153,7 @@ class Ip
     //写入文件
     private static function save($UnionData=[])
     {
-        $Type=quickParamet($UnionData,'type','类型',FALSE,'b');
+        $Type=Common::quickParamet($UnionData,'type','类型',FALSE,'b');
         if (strtolower($Type)=='b') {
             $ListText=self::arrayToText(self::$BlackList);
             $Handle=@fopen(self::$BlackListFile,'w');
@@ -164,10 +175,13 @@ class Ip
     //添加
     public static function add($UnionData=[])
     {
-        $Type=quickParamet($UnionData,'type','类型');
-        $StartIP=quickParamet($UnionData,'ip_start','起始ip');
-        $EndIP=quickParamet($UnionData,'ip_end','结束ip',FALSE,NULL);
-        $ExpTime=quickParamet($UnionData,'exp_time','过期时间',FALSE,NULL);
+        $Type=Common::quickParamet($UnionData,'type','类型');
+        $StartIP=Common::quickParamet($UnionData,'ip_start','起始ip');
+        $EndIP=Common::quickParamet($UnionData,'ip_end','结束ip',FALSE,NULL);
+        $ExpTime=Common::quickParamet($UnionData,'exp_time','过期时间',FALSE,NULL);
+        
+        self::initial();
+        
         if (empty($StartIP)) {
             return FALSE;
         }
@@ -199,9 +213,12 @@ class Ip
     //移除
     public static function delete($UnionData=[])
     {
-        $StartIP=quickParamet($UnionData,'ip_start','起始ip');
-        $EndIP=quickParamet($UnionData,'ip_end','结束ip',FALSE,NULL);
-        $Type=quickParamet($UnionData,'type','类型');
+        $StartIP=Common::quickParamet($UnionData,'ip_start','起始ip');
+        $EndIP=Common::quickParamet($UnionData,'ip_end','结束ip',FALSE,NULL);
+        $Type=Common::quickParamet($UnionData,'type','类型');
+
+        self::initial();
+
         if (empty($StartIP)) {
             return FALSE;
         }
@@ -224,6 +241,8 @@ class Ip
     //IP黑名单检测
     public static function check($UnionData=[])
     {
+        self::initial();
+
         if (!self::find(2,$_SERVER['REMOTE_ADDR'])&&self::find(1,$_SERVER['REMOTE_ADDR'])) {
             if ($_SERVER['84PHP']['Config']['Ip']['ExitProgream']) {
                 Api::wrong(['level'=>'F','detail'=>'Error#M.3.3','code'=>'M.3.3']);
@@ -238,7 +257,10 @@ class Ip
     //导出全部记录
     public static function getAll($UnionData=[])
     {
-        $Type=quickParamet($UnionData,'type','类型');
+        $Type=Common::quickParamet($UnionData,'type','类型');
+
+        self::initial();
+
         $Return=[];
         if (strtolower($Type)=='b') {
             $ListArray=self::$BlackList;
@@ -259,8 +281,11 @@ class Ip
     //查找
     public static function find($UnionData=[])
     {
-        $Type=quickParamet($UnionData,'type','类型');
-        $IP=quickParamet($UnionData,'ip','ip地址');
+        $Type=Common::quickParamet($UnionData,'type','类型');
+        $IP=Common::quickParamet($UnionData,'ip','ip地址');
+
+        self::initial();
+        
         if (empty($IP)) {
             return FALSE;
         }
@@ -285,8 +310,11 @@ class Ip
     //清理
     public static function clean($UnionData=[])
     {
-        $Reset=quickParamet($UnionData,'reset','重置',FALSE,FALSE);
-        $Type=quickParamet($UnionData,'type','类型');
+        $Reset=Common::quickParamet($UnionData,'reset','重置',FALSE,FALSE);
+        $Type=Common::quickParamet($UnionData,'type','类型');
+
+        self::initial();
+
         if ($Reset) {
             if (strtolower($Type)=='b'||empty($Type)) {
                 self::$BlackList=[];
@@ -322,7 +350,6 @@ class Ip
     //调用方法不存在
     public static function __callStatic($Method,$Parameters)
     {
-        unknownStaticMethod(__CLASS__,$Method);
+        Common::unknownStaticMethod(__CLASS__,$Method);
     }
 }
-Ip::classInitial();
