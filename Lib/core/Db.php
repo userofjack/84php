@@ -1,6 +1,7 @@
 <?php
 namespace core;
 
+use PDO;
 use core\Common;
 use core\Api;
 use core\Log;
@@ -74,7 +75,7 @@ class Db
         
         try {
             self::$DbHandle=@new PDO($Dsn,$_SERVER['84PHP']['Config']['Db']['DbInfo'][self::$NowDb]['username'],$_SERVER['84PHP']['Config']['Db']['DbInfo'][self::$NowDb]['password']);
-            self::$DbHandle->setAttribute(PDO::aTTR_ERRMODE,PDO::eRRMODE_EXCEPTION);
+            self::$DbHandle->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
         }
         catch(PDOException $Error) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.8.1'."\r\n\r\n @ ".'ErrorInfo: ('.$Error->getCode().') '.$Error->getMessage(),'code'=>'M.8.1']);
@@ -127,10 +128,10 @@ class Db
         }
         
         if ($Action=='Fetch') {
-            return self::$Stmts[$StmtKey]->fetch(PDO::fETCH_ASSOC);
+            return self::$Stmts[$StmtKey]->fetch(PDO::FETCH_ASSOC);
         }
         else if ($Action=='FetchAll') {
-            return self::$Stmts[$StmtKey]->fetchAll(PDO::fETCH_ASSOC);
+            return self::$Stmts[$StmtKey]->fetchAll(PDO::FETCH_ASSOC);
         }
         else if ($Action=='InsertId') {
             return self::$DbHandle->lastInsertId();
