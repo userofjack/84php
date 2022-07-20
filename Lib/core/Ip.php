@@ -12,8 +12,6 @@ use core\Api;
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/config/core/Ip.php');
-
 class Ip
 {
     private static $BlackListFile;
@@ -24,7 +22,7 @@ class Ip
 
     private static function initial()
     {
-        if(!empty($_SERVER['84PHP']['Runtime']['Ip']['Initial'])){
+        if(!empty($_SERVER['84PHP']['Runtime']['Ip']['initial'])){
             return TRUE;
         }
         
@@ -49,7 +47,7 @@ class Ip
         self::$BlackList=self::textToArray($BlackListText);
         self::$WhiteList=self::textToArray($WhiteListText);
         
-        $_SERVER['84PHP']['Runtime']['Ip']['Initial']=1;
+        $_SERVER['84PHP']['Runtime']['Ip']['initial']=1;
         return TRUE;
     }
     
@@ -244,7 +242,7 @@ class Ip
         self::initial();
 
         if (!self::find(2,$_SERVER['REMOTE_ADDR'])&&self::find(1,$_SERVER['REMOTE_ADDR'])) {
-            if ($_SERVER['84PHP']['Config']['Ip']['ExitProgream']) {
+            if ($_SERVER['84PHP']['Config']['Ip']['exitProgream']) {
                 Api::wrong(['level'=>'F','detail'=>'Error#M.3.3','code'=>'M.3.3']);
             }
             else {

@@ -1,13 +1,13 @@
 <?php
 
-$_SERVER['84PHP']['Config']['Db']=[
-	'Log'=>FALSE,
+$_SERVER['84PHP']['Config']['Rpc']=[
+	'log'=>FALSE,
 
-	'RW_Splitting'=>FALSE,
+	'rwSplitting'=>FALSE,
 	
-	'DbType'=>'mysql',
+	'dbType'=>'mysql',
 
-	'DbInfo'=>[
+	'dbInfo'=>[
 		'default'=>[
 			'address'=>'localhost',
 			'username'=>'root',

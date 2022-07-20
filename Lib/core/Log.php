@@ -11,8 +11,6 @@ use core\Common;
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/config/core/Log.php');
-
 class Log
 {
     private static $FilePath;
@@ -63,17 +61,17 @@ class Log
     //写入文件
     public static function output()
     {
-        if (strlen($_SERVER['84PHP']['Config']['Base']['SafeCode'])<10) {
+        if (strlen($_SERVER['84PHP']['Config']['Base']['safeCode'])<10) {
             return false;
         }
         
-        if (strtoupper($_SERVER['84PHP']['Config']['Log']['Interval'])=='H') {
+        if (strtoupper($_SERVER['84PHP']['Config']['Log']['interval'])=='H') {
             $LogFileName=date('H\H',__TIME__);
         }
-        else if (strtoupper($_SERVER['84PHP']['Config']['Log']['Interval'])=='M') {
+        else if (strtoupper($_SERVER['84PHP']['Config']['Log']['interval'])=='M') {
             $LogFileName=date('H\H_i',__TIME__);
         }
-        else if (strtoupper($_SERVER['84PHP']['Config']['Log']['Interval'])=='HM') {
+        else if (strtoupper($_SERVER['84PHP']['Config']['Log']['interval'])=='HM') {
             $LogFileName=date('H\H_i',__TIME__);
             if (__TIME__%60<30) {
                 $LogFileName.='_(1)';
@@ -88,7 +86,7 @@ class Log
         
         $AccessInfo='';
         
-        if ($_SERVER['84PHP']['Config']['Log']['Access']) {
+        if ($_SERVER['84PHP']['Config']['Log']['access']) {
             $AccessInfo=
                 '[access] IP:'.$_SERVER['REMOTE_ADDR'].
                 ' | DOMAIN:'.$_SERVER['SERVER_NAME'].
@@ -98,14 +96,14 @@ class Log
                 "\r\n";
         }
         
-        $FilePath='/Temp/Log/'.$_SERVER['84PHP']['Config']['Base']['SafeCode'].date('/Y-m/d',__TIME__);
+        $FilePath='/Temp/Log/'.$_SERVER['84PHP']['Config']['Base']['safeCode'].date('/Y-m/d',__TIME__);
         if (!file_exists(__ROOT__.$FilePath)) {
             mkdir(__ROOT__.$FilePath,0777,TRUE);
         }
         
         $Content='### '.date('Y-m-d H:i:s',__TIME__).' ('.__TIME__.")\r\n[path] ".__URI__."\r\n".$AccessInfo;
 
-        $ConfigLevel=self::getLevel($_SERVER['84PHP']['Config']['Log']['Level']);
+        $ConfigLevel=self::getLevel($_SERVER['84PHP']['Config']['Log']['level']);
 
         if ($ConfigLevel===FALSE) {
             return FALSE;

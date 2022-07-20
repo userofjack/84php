@@ -14,8 +14,6 @@ use core\Tool;
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/config/core/Pay.php');
-
 class Pay
 {
     
@@ -51,15 +49,15 @@ class Pay
         
         $PostArray=[
                 'service'=>'create_direct_pay_by_user',
-                'partner'=>$_SERVER['84PHP']['Config']['Pay']['AliPid'],
+                'partner'=>$_SERVER['84PHP']['Config']['Pay']['aliPid'],
                 '_input_charset'=>'utf-8',
-                'notify_url'=>$_SERVER['84PHP']['Config']['Pay']['AliNotifyUrl'],
-                'return_url'=>$_SERVER['84PHP']['Config']['Pay']['AliReturnUrl'],
+                'notify_url'=>$_SERVER['84PHP']['Config']['Pay']['aliNotifyUrl'],
+                'return_url'=>$_SERVER['84PHP']['Config']['Pay']['aliReturnUrl'],
                 'out_trade_no'=>$Id,
                 'subject'=>$Title,    
                 'payment_type'=>'1',
                 'total_fee'=>intval($Total)/100,
-                'seller_id'=>$_SERVER['84PHP']['Config']['Pay']['AliPid'],
+                'seller_id'=>$_SERVER['84PHP']['Config']['Pay']['aliPid'],
                 'it_b_pay'=>'1h',
                 ];
         if ($QR) {
@@ -78,7 +76,7 @@ class Pay
             $SortString.=$Key.'='.$Val.'&';
         }
         $SortString=substr($SortString, 0, -1);
-        $Md5=md5($SortString.$_SERVER['84PHP']['Config']['Pay']['AliKey']);
+        $Md5=md5($SortString.$_SERVER['84PHP']['Config']['Pay']['aliKey']);
         $SortString.='&sign='.$Md5.'&sign_type=MD5';
         return 'https://mapi.alipay.com/gateway.do?'.$SortString;
     }
@@ -103,47 +101,47 @@ class Pay
         }
         $ExpireTime=date('YmdHis',__TIME__+3600);
         $PostArray=[
-                'appid'=>$_SERVER['84PHP']['Config']['Pay']['WxAppid'],
-                'mch_id'=>$_SERVER['84PHP']['Config']['Pay']['WxMchId'],
+                'appid'=>$_SERVER['84PHP']['Config']['Pay']['wxAppid'],
+                'mch_id'=>$_SERVER['84PHP']['Config']['Pay']['wxMchId'],
                 'nonce_str'=>$String,
                 'body'=>$Title,
                 'out_trade_no'=>$Id,
                 'total_fee'=>$Total,
                 'spbill_create_ip'=>$Ip,
                 'time_expire'=>$ExpireTime,
-                'notify_url'=>$_SERVER['84PHP']['Config']['Pay']['WxNotifyUrl'],
+                'notify_url'=>$_SERVER['84PHP']['Config']['Pay']['wxNotifyUrl'],
                 'trade_type'=>$Mode,
                 ];
         if ($Mode=='JSAPI') {
             $PostArray['openid']=$OpenID;
         }
         if ($Mode=='MWEB') {
-            $PostArray['scene_info']=json_encode($_SERVER['84PHP']['Config']['Pay']['WxSceneInfo']);
+            $PostArray['scene_info']=json_encode($_SERVER['84PHP']['Config']['Pay']['wxSceneInfo']);
         }
         ksort($PostArray);
         $SortString=NULL;
         foreach ($PostArray as $Key => $Val) {
             $SortString.=$Key.'='.$Val.'&';
         }
-        $Md5=md5($SortString.'key='.$_SERVER['84PHP']['Config']['Pay']['WxKey']);
+        $Md5=md5($SortString.'key='.$_SERVER['84PHP']['Config']['Pay']['wxKey']);
         
         $Data='<?xml version=\'1.0\'?>'."\r\n".
         '<xml>'."\r\n".
-        '<appid>'.$_SERVER['84PHP']['Config']['Pay']['WxAppid'].'</appid>'."\r\n".
-        '<mch_id>'.$_SERVER['84PHP']['Config']['Pay']['WxMchId'].'</mch_id>'."\r\n".
+        '<appid>'.$_SERVER['84PHP']['Config']['Pay']['wxAppid'].'</appid>'."\r\n".
+        '<mch_id>'.$_SERVER['84PHP']['Config']['Pay']['wxMchId'].'</mch_id>'."\r\n".
         '<nonce_str>'.$String.'</nonce_str>'."\r\n".
         '<body>'.$Title.'</body>'."\r\n".
         '<out_trade_no>'.$Id.'</out_trade_no>'."\r\n".
         '<total_fee>'.$Total.'</total_fee>'."\r\n".
         '<spbill_create_ip>'.$Ip.'</spbill_create_ip>'."\r\n".
         '<time_expire>'.$ExpireTime.'</time_expire>'."\r\n".
-        '<notify_url>'.$_SERVER['84PHP']['Config']['Pay']['WxNotifyUrl'].'</notify_url>'."\r\n".
+        '<notify_url>'.$_SERVER['84PHP']['Config']['Pay']['wxNotifyUrl'].'</notify_url>'."\r\n".
         '<trade_type>'.$Mode.'</trade_type>'."\r\n";
         if ($Mode=='JSAPI') {
             $Data.='<openid>'.$OpenID.'</openid>'."\r\n";
         }
         if ($Mode=='MWEB') {
-            $Data.='<scene_info>'.json_encode($_SERVER['84PHP']['Config']['Pay']['WxSceneInfo']).'</scene_info>'."\r\n";
+            $Data.='<scene_info>'.json_encode($_SERVER['84PHP']['Config']['Pay']['wxSceneInfo']).'</scene_info>'."\r\n";
         }
         $Data.='<sign>'.$Md5.'</sign>'."\r\n".
         '</xml>
@@ -155,7 +153,7 @@ class Pay
             'ssl'=>TRUE,
             'data'=>$Data,
             'header'=>'Content-Type: text/xml; charset=UTF-8',
-            'timeout'=>$_SERVER['84PHP']['Config']['Pay']['Timeout']]);
+            'timeout'=>$_SERVER['84PHP']['Config']['Pay']['timeout']]);
         
         xml_parse_into_struct(xml_parser_create(),$Send,$ReturnArray);
         $Return=FALSE;
@@ -202,15 +200,15 @@ class Pay
             }
         }
         $WillCheck=substr($WillCheck, 0, -1);
-        $Sign=md5($WillCheck.$_SERVER['84PHP']['Config']['Pay']['AliKey']);
+        $Sign=md5($WillCheck.$_SERVER['84PHP']['Config']['Pay']['aliKey']);
         if ($Sign!=$PostArray['sign']) {
             return FALSE;
         }
         $NotifyResult=Tool::send([
-            'url'=>'https://mapi.alipay.com/gateway.do?service=notify_verify&partner='.$_SERVER['84PHP']['Config']['Pay']['AliPid'].'&notify_id='.$PostArray['notify_id'],
+            'url'=>'https://mapi.alipay.com/gateway.do?service=notify_verify&partner='.$_SERVER['84PHP']['Config']['Pay']['aliPid'].'&notify_id='.$PostArray['notify_id'],
             'mode'=>'GET',
             'ssl'=>TRUE,
-            'timeout'=>$_SERVER['84PHP']['Config']['Pay']['Timeout']]);
+            'timeout'=>$_SERVER['84PHP']['Config']['Pay']['timeout']]);
 
         if (strtoupper($NotifyResult)=='TRUE') {
             return TRUE;
@@ -235,7 +233,7 @@ class Pay
                 $WillCheck.=$Key.'='.$Val.'&';
             }
         }
-        $Sign=strtoupper(md5($WillCheck.'key='.$_SERVER['84PHP']['Config']['Pay']['WxKey']));
+        $Sign=strtoupper(md5($WillCheck.'key='.$_SERVER['84PHP']['Config']['Pay']['wxKey']));
         if ($Sign==$XmlArray['sign']) {
             return $XmlArray;
         }

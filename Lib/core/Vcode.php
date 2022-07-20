@@ -12,8 +12,6 @@ use core\Common;
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/config/core/Vcode.php');
-
 class Vcode
 {
 
@@ -35,7 +33,7 @@ class Vcode
         $Line=Common::quickParamet($UnionData,'line','线',FALSE,2);
         $NoiseHexColor=Common::quickParamet($UnionData,'noise_color','噪点颜色',FALSE,'#ff6600');
         
-        $Font=Common::diskPath($_SERVER['84PHP']['Config']['Vcode']['FontFile']);
+        $Font=Common::diskPath($_SERVER['84PHP']['Config']['Vcode']['fontFile']);
                 
         if (!file_exists($Font)) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.10.0','code'=>'M.10.0']);

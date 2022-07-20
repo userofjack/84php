@@ -1,4 +1,4 @@
 <?php
 $_SERVER['84PHP']['Config']['Vcode']=[
-	'FontFile'=>'/Lib/VcodeFont.ttf'
+	'fontFile'=>'/Lib/VcodeFont.ttf'
 ];

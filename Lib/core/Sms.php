@@ -12,8 +12,6 @@ use core\Tool;
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/config/core/Sms.php');
-
 class Sms
 {
     
@@ -41,7 +39,7 @@ class Sms
         }
         $RecNum=substr($PhoneNumber,0,-1);
         $GetArray=[
-                'AccessKeyId'=>$_SERVER['84PHP']['Config']['Sms']['AliyunAccessKeyID'],
+                'AccessKeyId'=>$_SERVER['84PHP']['Config']['Sms']['aliyunAccessKeyID'],
                 'Timestamp'=>$TempTimestamp,
                 'SignatureMethod'=>'HMAC-SHA1',
                 'SignatureVersion'=>'1.0',
@@ -50,9 +48,9 @@ class Sms
 
                 'Action'=>'SendSms',
                 'Version'=>'2017-05-25',
-                'RegionId'=>$_SERVER['84PHP']['Config']['Sms']['AliyunRegionId'],
+                'RegionId'=>$_SERVER['84PHP']['Config']['Sms']['aliyunRegionId'],
                 'PhoneNumbers'=>$PhoneNumber,
-                'SignName'=>$_SERVER['84PHP']['Config']['Sms']['AliyunSignName'],
+                'SignName'=>$_SERVER['84PHP']['Config']['Sms']['aliyunSignName'],
                 'TemplateCode'=>$Template
                 ];
         if (!empty($Param)) {
@@ -66,7 +64,7 @@ class Sms
             $SortString.=self::aliyunEncode($Key).'='.self::aliyunEncode($Val).'&';
         }
         $SortString=substr($SortString,0,-1);
-        $Signed=base64_encode(hash_hmac('sha1','GET&%2F&'.self::aliyunEncode($SortString),$_SERVER['84PHP']['Config']['Sms']['AliyunAccessKeySecret']."&",TRUE));
+        $Signed=base64_encode(hash_hmac('sha1','GET&%2F&'.self::aliyunEncode($SortString),$_SERVER['84PHP']['Config']['Sms']['aliyunAccessKeySecret']."&",TRUE));
         $SignArray=[
                 'Signature'=>$Signed
         ];

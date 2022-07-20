@@ -12,8 +12,6 @@ use core\Api;
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/config/core/Data.php');
-
 class Data
 {
     private static $Handle;
@@ -21,17 +19,17 @@ class Data
 
     private static function initial()
     {
-        if(!empty($_SERVER['84PHP']['Runtime']['Data']['Initial'])){
+        if(!empty($_SERVER['84PHP']['Runtime']['Data']['initial'])){
             return TRUE;
         }
 
-        self::$Handle=strtolower($_SERVER['84PHP']['Config']['Data']['Handle']);
+        self::$Handle=strtolower($_SERVER['84PHP']['Config']['Data']['handle']);
         
         if (self::$Handle=='redis') {
             self::redisConnect();
         }
         
-        $_SERVER['84PHP']['Runtime']['Data']['Initial']=1;
+        $_SERVER['84PHP']['Runtime']['Data']['initial']=1;
         return TRUE;
     }
 
@@ -110,11 +108,11 @@ class Data
     {
         $MD5=md5($Key);
         $Path=__ROOT__.'/Temp/Data/'.$Prefix;
-        $Level=intval($_SERVER['84PHP']['Config']['Data']['Connect']['file']['level']);
-        if ($_SERVER['84PHP']['Config']['Data']['Connect']['file']['level']<1) {
+        $Level=intval($_SERVER['84PHP']['Config']['Data']['connect']['file']['level']);
+        if ($_SERVER['84PHP']['Config']['Data']['connect']['file']['level']<1) {
             $Level=0;
         }
-        if ($_SERVER['84PHP']['Config']['Data']['Connect']['file']['level']>15) {
+        if ($_SERVER['84PHP']['Config']['Data']['connect']['file']['level']>15) {
             $Level=15;
         }
         for ($i=0;$i<$Level;$i++) {
@@ -179,7 +177,7 @@ class Data
         }
         $ExpTime=intval(strtok($Cache, "\r\n"));
         if ($ExpTime<=0||$ExpTime<intval(__TIME__)) {
-            if (mt_rand(1,$_SERVER['84PHP']['Config']['Data']['Connect']['file']['clean'])==1) {
+            if (mt_rand(1,$_SERVER['84PHP']['Config']['Data']['connect']['file']['clean'])==1) {
                 self::deleteByFile($Key,$Prefix,$FilePath);
             }
             return NULL;
@@ -193,16 +191,16 @@ class Data
         self::$Connect=new Redis();
         try
         {
-            self::$Connect->connect($_SERVER['84PHP']['Config']['Data']['Connect']['redis']['address'],$_SERVER['84PHP']['Config']['Data']['Connect']['redis']['port'],$_SERVER['84PHP']['Config']['Data']['Connect']['redis']['timeout']);
+            self::$Connect->connect($_SERVER['84PHP']['Config']['Data']['connect']['redis']['address'],$_SERVER['84PHP']['Config']['Data']['connect']['redis']['port'],$_SERVER['84PHP']['Config']['Data']['connect']['redis']['timeout']);
         }
         catch (Throwable $t)
         {
             Api::wrong(['level'=>'F','detail'=>'Error#M.12.1','code'=>'M.12.1']);
         }
-        if ($_SERVER['84PHP']['Config']['Data']['Connect']['redis']['password']!='') {
-            self::$Connect->auth($_SERVER['84PHP']['Config']['Data']['Connect']['redis']['password']) ?:Api::wrong(['level'=>'F','detail'=>'Error#M.12.2','code'=>'M.12.2']);
+        if ($_SERVER['84PHP']['Config']['Data']['connect']['redis']['password']!='') {
+            self::$Connect->auth($_SERVER['84PHP']['Config']['Data']['connect']['redis']['password']) ?:Api::wrong(['level'=>'F','detail'=>'Error#M.12.2','code'=>'M.12.2']);
         }
-        self::$Connect->select($_SERVER['84PHP']['Config']['Data']['Connect']['redis']['dbnumber'])?:Api::wrong(['level'=>'F','detail'=>'Error#M.12.3','code'=>'M.12.3']);
+        self::$Connect->select($_SERVER['84PHP']['Config']['Data']['connect']['redis']['dbnumber'])?:Api::wrong(['level'=>'F','detail'=>'Error#M.12.3','code'=>'M.12.3']);
     }
 
     //关闭Redis缓存

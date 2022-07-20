@@ -11,15 +11,15 @@
 
 $_SERVER['84PHP']['Config']['Base']=[
 	//调试模式
-	'Debug'=>TRUE,
+	'debug'=>TRUE,
 	//强制HTTPS,
-	'HTTPS'=>FALSE,
+	'https'=>FALSE,
 	//超时时限（秒）
-	'TimeLimit'=>FALSE,
+	'timeLimit'=>FALSE,
 	//安全码
-	'SafeCode'=>'',
+	'safeCode'=>'',
 	//时区
-	'TimeZone'=>'Asia/Shanghai',
+	'timeZone'=>'Asia/Shanghai',
     //404处理
-    'PageNotFound'=>''
+    'pageNotFound'=>''
 ];

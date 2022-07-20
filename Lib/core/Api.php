@@ -12,8 +12,6 @@ use core\Log;
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/config/core/Api.php');
-
 class Api
 {
     public static function respond($UnionData)
@@ -22,7 +20,7 @@ class Api
         $Log=Common::quickParamet($UnionData,'log','日志',FALSE,FALSE);
         $HttpCode=Common::quickParamet($UnionData,'http','响应码',FALSE,200);
         
-        $Style=$_SERVER['84PHP']['Config']['Api']['Template'];
+        $Style=$_SERVER['84PHP']['Config']['Api']['template'];
         
         foreach ($Content as $Key => $Val) {
             $Style[$Key]=$Val;
@@ -52,9 +50,15 @@ class Api
         
         $Config=$_SERVER['84PHP']['Config']['Api'];
         
+        foreach ($Config['wrong']['ignore'] as $Val) {
+            if(strstr($Detail,$Val)){
+                return TRUE;
+            }
+        }
+        
         $Detail=str_replace('\\','/',$Detail);
-        if (isset($Config['Wrong']['Replace'][$Code])) {
-            $Code=$Config['Wrong']['Replace'][$Code];
+        if (isset($Config['wrong']['replace'][$Code])) {
+            $Code=$Config['wrong']['replace'][$Code];
         }
 
         $WrongInfo=['level'=>'','detail'=>$Detail,'stack'=>[],'time'=>microtime(TRUE)];
@@ -98,22 +102,22 @@ class Api
         }
         
         
-        if (__DEBUG__||stristr($Config['Wrong']['Respond'],$Level)!==FALSE) {
-            foreach ($Config['Wrong']['Style'] as $Key => $Val) {
-                $Config['Wrong']['Style'][$Key]=str_replace(['{code}','{info}','{time}'],[$Code,$Detail,$WrongInfo['time']],$Val);
+        if (__DEBUG__||stristr($Config['wrong']['respond'],$Level)!==FALSE) {
+            foreach ($Config['wrong']['style'] as $Key => $Val) {
+                $Config['wrong']['style'][$Key]=str_replace(['{code}','{info}','{time}'],[$Code,$Detail,$WrongInfo['time']],$Val);
                 if($Val=='{stack}'){
-                    $Config['Wrong']['Style'][$Key]=$WrongInfo['stack'];
+                    $Config['wrong']['style'][$Key]=$WrongInfo['stack'];
                 }
             }
         }
         else {
-            foreach ($Config['Wrong']['Style'] as $Key => $Val) {
-                $Config['Wrong']['Style'][$Key]=str_replace(['{code}','{info}','{time}'],['M.4.12','Error#M.4.12',$WrongInfo['time']],$Val);
+            foreach ($Config['wrong']['style'] as $Key => $Val) {
+                $Config['wrong']['style'][$Key]=str_replace(['{code}','{info}','{time}'],['M.4.12','Error#M.4.12',$WrongInfo['time']],$Val);
             }
         }
-        self::respond(['content'=>$Config['Wrong']['Style'],'http'=>$HttpCode]);
+        self::respond(['content'=>$Config['wrong']['style'],'http'=>$HttpCode]);
        
-        if (stristr($Config['Wrong']['Log'],$Level)!==FALSE) {
+        if (stristr($Config['wrong']['log'],$Level)!==FALSE) {
             $WrongLog='['.$WrongInfo['level'].'] '.$Detail;
             
             foreach ($WrongInfo['stack'] as $Key => $Val) {

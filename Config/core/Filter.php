@@ -1,6 +1,6 @@
 <?php
 $_SERVER['84PHP']['Config']['Filter']=[
-	'Rule'=>[
+	'rule'=>[
 		'digit'=>'/^\d+$|^\d+[.]?\d+$/',//数值
 		'int_digit'=>'/^\d+$/',//正整数
 		'float_digit'=>'/^\d+[.]?\d+$/',//小数

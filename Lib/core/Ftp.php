@@ -12,8 +12,6 @@ use core\Api;
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/config/core/Ftp.php');
-
 class Ftp
 {
 
@@ -26,8 +24,8 @@ class Ftp
         
         $From=Common::diskPath($From);
 
-        $Connect=ftp_connect($_SERVER['84PHP']['Config']['Ftp']['Server'],$_SERVER['84PHP']['Config']['Ftp']['Port'],$Timeout);
-        $Login=ftp_login($Connect,$_SERVER['84PHP']['Config']['Ftp']['User'],$_SERVER['84PHP']['Config']['Ftp']['Password']);
+        $Connect=ftp_connect($_SERVER['84PHP']['Config']['Ftp']['server'],$_SERVER['84PHP']['Config']['Ftp']['port'],$Timeout);
+        $Login=ftp_login($Connect,$_SERVER['84PHP']['Config']['Ftp']['user'],$_SERVER['84PHP']['Config']['Ftp']['password']);
         if ((!$Connect)||(!$Login)) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.1.0','code'=>'M.1.0']);
         }
@@ -50,8 +48,8 @@ class Ftp
         
         $To=Common::diskPath($To);
 
-        $Connect=ftp_connect($_SERVER['84PHP']['Config']['Ftp']['Server'],$_SERVER['84PHP']['Config']['Ftp']['Port'],$Timeout);
-        $Login=ftp_login($Connect,$_SERVER['84PHP']['Config']['Ftp']['User'],$_SERVER['84PHP']['Config']['Ftp']['Password']);
+        $Connect=ftp_connect($_SERVER['84PHP']['Config']['Ftp']['server'],$_SERVER['84PHP']['Config']['Ftp']['port'],$Timeout);
+        $Login=ftp_login($Connect,$_SERVER['84PHP']['Config']['Ftp']['user'],$_SERVER['84PHP']['Config']['Ftp']['password']);
         if ((!$Connect)||(!$Login)) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.1.0','code'=>'M.1.0']);
         }

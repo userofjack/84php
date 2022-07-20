@@ -12,8 +12,6 @@ use core\Api;
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/config/core/Img.php');
-
 class Img
 {
 
@@ -187,7 +185,7 @@ class Img
             if ($WordColor!=NULL) {
                 $WordColorArray=self::hexRGB($WordColor);
             }
-            if (!imagettftext($NewImg,$FontSize,0,$WordMarginX,$WordMarginY,$textcolor1,Common::diskPath($_SERVER['84PHP']['Config']['Img']['FontFile']),$Word)) {
+            if (!imagettftext($NewImg,$FontSize,0,$WordMarginX,$WordMarginY,$textcolor1,Common::diskPath($_SERVER['84PHP']['Config']['Img']['fontFile']),$Word)) {
                 Api::wrong(['level'=>'F','detail'=>'Error#M.2.5','code'=>'M.2.5']);
             }
         }

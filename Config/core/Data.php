@@ -1,7 +1,7 @@
 <?php
 $_SERVER['84PHP']['Config']['Data']=[
-	'Handle'=>'redis',
-	'Connect'=>[
+	'handle'=>'redis',
+	'connect'=>[
 		'file'=>[
 			'level'=>3,
 			'clean'=>1000,

@@ -14,8 +14,6 @@ use core\Log;
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/config/core/Db.php');
-
 class Db
 {
     private static $DbHandle;
@@ -24,22 +22,22 @@ class Db
     
     private static function initial()
     {
-        if(!empty($_SERVER['84PHP']['Runtime']['Db']['Initial'])){
+        if(!empty($_SERVER['84PHP']['Runtime']['Db']['initial'])){
             return TRUE;
         }
 
         self::connect();
         
-        $_SERVER['84PHP']['Runtime']['Db']['Initial']=1;
+        $_SERVER['84PHP']['Runtime']['Db']['initial']=1;
         return TRUE;
     }
     
     //读写分离随机选择数据库
     private static function randomDb()
     {
-        if ($_SERVER['84PHP']['Config']['Db']['RW_Splitting']) {
+        if ($_SERVER['84PHP']['Config']['Db']['rwSplitting']) {
             $AllDb=[];
-            foreach ($_SERVER['84PHP']['Config']['Db']['DbInfo'] as $Key => $Val) {
+            foreach ($_SERVER['84PHP']['Config']['Db']['dbInfo'] as $Key => $Val) {
                 $AllDb[]=$Key;
             }
             self::$DbHandle=null;
@@ -64,17 +62,17 @@ class Db
         }
         self::$Stmts=[];
 
-        if (empty($_SERVER['84PHP']['Config']['Db']['DbInfo'][self::$NowDb])) {
+        if (empty($_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb])) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.8.0','code'=>'M.8.0']);
         }
-        $Dsn=$_SERVER['84PHP']['Config']['Db']['DbType'].
-            ':host='.$_SERVER['84PHP']['Config']['Db']['DbInfo'][self::$NowDb]['address'].
-            ';port='.$_SERVER['84PHP']['Config']['Db']['DbInfo'][self::$NowDb]['port'].
-            ';dbname='.$_SERVER['84PHP']['Config']['Db']['DbInfo'][self::$NowDb]['dbname'].
-            ';charset='.$_SERVER['84PHP']['Config']['Db']['DbInfo'][self::$NowDb]['charset'];
+        $Dsn=$_SERVER['84PHP']['Config']['Db']['dbType'].
+            ':host='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['address'].
+            ';port='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['port'].
+            ';dbname='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['dbname'].
+            ';charset='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['charset'];
         
         try {
-            self::$DbHandle=@new PDO($Dsn,$_SERVER['84PHP']['Config']['Db']['DbInfo'][self::$NowDb]['username'],$_SERVER['84PHP']['Config']['Db']['DbInfo'][self::$NowDb]['password']);
+            self::$DbHandle=@new PDO($Dsn,$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['username'],$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['password']);
             self::$DbHandle->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
         }
         catch(PDOException $Error) {
@@ -148,7 +146,7 @@ class Db
     //写入日志
     private static function sqlLog($Sql)
     {
-        if ($_SERVER['84PHP']['Config']['Db']['Log']) {
+        if ($_SERVER['84PHP']['Config']['Db']['log']) {
             Log::add(['level'=>'debug','info'=>'[SQL] '.$Sql]);
         }
     }
@@ -484,7 +482,7 @@ class Db
         $InsertField=substr($InsertField,0,-1);
         $InsertValue=substr($InsertValue,0,-1);
         
-        if ($_SERVER['84PHP']['Config']['Db']['RW_Splitting']&&self::$NowDb!='default') {
+        if ($_SERVER['84PHP']['Config']['Db']['rwSplitting']&&self::$NowDb!='default') {
             self::$DbHandle=null;
             self::$NowDb='default';
             self::connect();
@@ -518,7 +516,7 @@ class Db
         
         $QueryString=self::queryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
         
-        if ($_SERVER['84PHP']['Config']['Db']['RW_Splitting']&&self::$NowDb!='default') {
+        if ($_SERVER['84PHP']['Config']['Db']['rwSplitting']&&self::$NowDb!='default') {
             self::$DbHandle=null;
             self::$NowDb='default';
             self::connect();
@@ -570,7 +568,7 @@ class Db
         }
         $DataSql=substr($DataSql,0,-1);
         
-        if ($_SERVER['84PHP']['Config']['Db']['RW_Splitting']&&self::$NowDb!='default') {
+        if ($_SERVER['84PHP']['Config']['Db']['rwSplitting']&&self::$NowDb!='default') {
             self::$DbHandle=null;
             self::$NowDb='default';
             self::connect();

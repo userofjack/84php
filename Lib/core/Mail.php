@@ -11,8 +11,6 @@ use core\Common;
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/config/core/Mail.php');
-
 class Mail
 {
     
@@ -33,13 +31,13 @@ class Mail
 
         $Send=NULL;
         $Response='';
-        $Handle=fsockopen($_SERVER['84PHP']['Config']['Mail']['Server'],$_SERVER['84PHP']['Config']['Mail']['Port'],$Errno,$ErrMsg,$Timeout);
+        $Handle=fsockopen($_SERVER['84PHP']['Config']['Mail']['server'],$_SERVER['84PHP']['Config']['Mail']['port'],$Errno,$ErrMsg,$Timeout);
         if (!$Handle&&$Errno===0) {
             self::sendError($Handle);
         }
         stream_set_blocking($Handle,1);
         $Response.=fgets($Handle,512);
-        $Send='EHLO '.'=?utf-8?B?'.base64_encode($_SERVER['84PHP']['Config']['Mail']['FromName']).'?='."\r\n";
+        $Send='EHLO '.'=?utf-8?B?'.base64_encode($_SERVER['84PHP']['Config']['Mail']['fromName']).'?='."\r\n";
         if (fwrite($Handle,$Send)===FALSE) {
             return FALSE;
         }
@@ -55,17 +53,17 @@ class Mail
             self::sendError($Handle);
         }
         $Response.=fgets($Handle,512);
-        $Send=base64_encode($_SERVER['84PHP']['Config']['Mail']['UserName'])."\r\n";
+        $Send=base64_encode($_SERVER['84PHP']['Config']['Mail']['userName'])."\r\n";
         if (fwrite($Handle,$Send)===FALSE) {
             self::sendError($Handle);
         }
         $Response.=fgets($Handle,512);
-        $Send=base64_encode($_SERVER['84PHP']['Config']['Mail']['PassWord'])."\r\n";
+        $Send=base64_encode($_SERVER['84PHP']['Config']['Mail']['passWord'])."\r\n";
         if (fwrite($Handle,$Send)===FALSE) {
             self::sendError($Handle);
         }
         $Response.=fgets($Handle,512);
-        $Send='MAIL FROM: <'.$_SERVER['84PHP']['Config']['Mail']['FromAddress'].">\r\n";
+        $Send='MAIL FROM: <'.$_SERVER['84PHP']['Config']['Mail']['fromAddress'].">\r\n";
 
         if (fwrite($Handle,$Send)===FALSE) {
             self::sendError($Handle);
@@ -82,10 +80,10 @@ class Mail
         }
         $Response.=fgets($Handle,512);
         if (!empty($NewFromAddress)) {
-            $Head='From: =?utf-8?B?'.base64_encode($_SERVER['84PHP']['Config']['Mail']['FromName']).'?= <'.$NewFromAddress.">\r\n";
+            $Head='From: =?utf-8?B?'.base64_encode($_SERVER['84PHP']['Config']['Mail']['fromName']).'?= <'.$NewFromAddress.">\r\n";
         }
         else {
-            $Head='From: =?utf-8?B?'.base64_encode($_SERVER['84PHP']['Config']['Mail']['FromName']).'?= <'.$_SERVER['84PHP']['Config']['Mail']['FromAddress'].">\r\n";
+            $Head='From: =?utf-8?B?'.base64_encode($_SERVER['84PHP']['Config']['Mail']['fromName']).'?= <'.$_SERVER['84PHP']['Config']['Mail']['fromAddress'].">\r\n";
         }
         $Head.='To: '.$Address."\r\n";
         $Head.='Subject: =?utf-8?B?'.base64_encode($Title)."?=\r\n";

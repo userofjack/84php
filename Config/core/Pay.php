@@ -1,17 +1,17 @@
 <?php
 $_SERVER['84PHP']['Config']['Pay']=[
-	'Timeout'=>15,
+	'timeout'=>15,
 	
-	'AliPid'=>'',
-	'AliKey'=>'',
-	'AliNotifyUrl'=>'',
-	'AliReturnUrl'=>'',
+	'aliPid'=>'',
+	'aliKey'=>'',
+	'aliNotifyUrl'=>'',
+	'aliReturnUrl'=>'',
 
-	'WxAppid'=>'',
-	'WxMchId'=>'',
-	'WxKey'=>'',
-	'WxNotifyUrl'=>'',
-	'WxSceneInfo'=>[
+	'wxAppid'=>'',
+	'wxMchId'=>'',
+	'wxKey'=>'',
+	'wxNotifyUrl'=>'',
+	'wxSceneInfo'=>[
 		'h5_info'=>[
 			'type'=>'',
 			'wap_url'=>'',

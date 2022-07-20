@@ -12,8 +12,6 @@ use core\Api;
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/config/core/Cache.php');
-
 class Cache
 {
     
@@ -87,7 +85,7 @@ class Cache
                 
         $CacheFile=self::fileInfo($CacheDir.$Path.'.php');
         
-        if (!__DEBUG__&&!$Force&&$CacheFile['exist']&&$CacheFile['time']+$_SERVER['84PHP']['Config']['Cache']['ExpTime']>__TIME__) {
+        if (!__DEBUG__&&!$Force&&$CacheFile['exist']&&$CacheFile['time']+$_SERVER['84PHP']['Config']['Cache']['expTime']>__TIME__) {
             return FALSE;
         }
 
@@ -136,7 +134,7 @@ class Cache
                 $CacheChanged=TRUE;
             }
         }        
-        if (!__DEBUG__&&!$Force&&$CacheFile['exist']&&$CacheFile['time']+$_SERVER['84PHP']['Config']['Cache']['ExpTime']<=__TIME__&&!$CacheChanged) {
+        if (!__DEBUG__&&!$Force&&$CacheFile['exist']&&$CacheFile['time']+$_SERVER['84PHP']['Config']['Cache']['expTime']<=__TIME__&&!$CacheChanged) {
             touch($CacheFile['path']);
             return FALSE;
         }

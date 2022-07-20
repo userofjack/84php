@@ -12,8 +12,6 @@ use core\Api;
   框架版本号：6.0.0
 */
 
-require(__ROOT__.'/config/core/Filter.php');
-
 class Filter
 {
     
@@ -53,8 +51,8 @@ class Filter
             return filter_var($Value, FILTER_VALIDATE_IP);
         }
         $RuleName=$OpArray[3];
-        if (!empty($_SERVER['84PHP']['Config']['Filter']['Rule'][$RuleName])) {
-            if (preg_match($_SERVER['84PHP']['Config']['Filter']['Rule'][$RuleName],$Value)==0) {
+        if (!empty($_SERVER['84PHP']['Config']['Filter']['rule'][$RuleName])) {
+            if (preg_match($_SERVER['84PHP']['Config']['Filter']['rule'][$RuleName],$Value)==0) {
                 return FALSE;
             }
         }

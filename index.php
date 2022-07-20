@@ -14,13 +14,19 @@ define('__TIME__',microtime(TRUE));
 define('__VERSION__','6.0.0');
 define('__ROOT__',str_replace(['\\','//'],'/',dirname(__FILE__)));
 
+
+register_shutdown_function( "fatalErrorHandler" );
+set_error_handler('systemErrorHandler', E_ALL | E_STRICT);
+define('E_FATAL',E_ERROR|E_USER_ERROR|E_CORE_ERROR|E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_PARSE );
+
+
 set_include_path(get_include_path().PATH_SEPARATOR.__ROOT__.'/lib/');
 
 $_SERVER['84PHP']=['Config'=>[],'Log'=>[],'Option'=>[],'Runtime'=>[],'URI'=>''];
 
 require(__ROOT__.'/config/base.php');
 
-define('__DEBUG__',$_SERVER['84PHP']['Config']['Base']['Debug']);
+define('__DEBUG__',$_SERVER['84PHP']['Config']['Base']['debug']);
 
 spl_autoload_register(
     function($ClassName)
@@ -29,6 +35,9 @@ spl_autoload_register(
             Api::wrong(['level'=>'F','detail'=>'Error#C.0.5'."\r\n\r\n @ ".$ClassName,'code'=>'C.0.5']);
         }
         else {
+            if (file_exists(__ROOT__.'/config/'.str_replace(['\\','//'],'/',$ClassName).'.php')) {
+                require(__ROOT__.'/config/'.str_replace(['\\','//'],'/',$ClassName).'.php');
+            }
             require(__ROOT__.'/lib/'.str_replace(['\\','//'],'/',$ClassName).'.php');
         }
     }
@@ -38,13 +47,13 @@ if (isset($_SERVER['REQUEST_METHOD'])&&$_SERVER['REQUEST_METHOD']=='OPTIONS') {
     die('OPTIONS request blocked by framework.');
 }
 
-date_default_timezone_set($_SERVER['84PHP']['Config']['Base']['TimeZone']);
+date_default_timezone_set($_SERVER['84PHP']['Config']['Base']['timeZone']);
 
-if ($_SERVER['84PHP']['Config']['Base']['TimeLimit']!==FALSE) {
-    set_time_limit($_SERVER['84PHP']['Config']['Base']['TimeLimit']);
+if ($_SERVER['84PHP']['Config']['Base']['timeLimit']!==FALSE) {
+    set_time_limit($_SERVER['84PHP']['Config']['Base']['timeLimit']);
 }
 
-if ($_SERVER['84PHP']['Config']['Base']['HTTPS']) {
+if ($_SERVER['84PHP']['Config']['Base']['https']) {
     if (!isset($_SERVER['HTTPS'])) {
         Api::wrong(['level'=>'F','detail'=>'Error#C.0.6','code'=>'C.0.6']);
     }
@@ -64,7 +73,14 @@ else {
 }
 
 // 错误处理
-set_error_handler('systemErrorHandler', E_ALL | E_STRICT);
+function fatalErrorHandler()
+{
+    $Error=error_get_last();
+    if ($Error&&($Error["type"]===($Error["type"]&E_FATAL))) {
+        systemErrorHandler($Error["type"],$Error["message"],$Error["file"],$Error["line"]);
+  }
+}
+
 function systemErrorHandler($ErrorNo,$ErrorMsg,$ErrorFile,$ErrorLine)
 {
     if (error_reporting()==0) {
@@ -134,8 +150,8 @@ else if (file_exists(__ROOT__.'/web'.__URI__.'/index.htm')) {
 	$Content=file_get_contents(__ROOT__.'/Web'.__URI__.'/index.htm');
 	echo($Content);
 }
-else if (!empty($_SERVER['84PHP']['Config']['Base']['PageNotFound'])) {
-    header('Location: '.$_SERVER['84PHP']['Config']['Base']['PageNotFound']);
+else if (!empty($_SERVER['84PHP']['Config']['Base']['pageNotFound'])) {
+    header('Location: '.$_SERVER['84PHP']['Config']['Base']['pageNotFound']);
 }
 else {
     Api::wrong(['level'=>'U','detail'=>'Error#C.0.0','code'=>'C.0.0','http'=>404]);
