@@ -19,6 +19,6 @@ $_SERVER['84PHP']['Config']['Api']=[
 		'replace'=>[
             
         ],
-        'ignore'=>[''],
+        'ignore'=>[],
 	],
 ];

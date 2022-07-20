@@ -70,12 +70,11 @@ class Db
             ';port='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['port'].
             ';dbname='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['dbname'].
             ';charset='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['charset'];
-        
         try {
             self::$DbHandle=@new PDO($Dsn,$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['username'],$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['password']);
             self::$DbHandle->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
         }
-        catch(PDOException $Error) {
+        catch(\PDOException $Error) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.8.1'."\r\n\r\n @ ".'ErrorInfo: ('.$Error->getCode().') '.$Error->getMessage(),'code'=>'M.8.1']);
         }
     }
@@ -120,7 +119,7 @@ class Db
         try {
             self::$Stmts[$StmtKey]->execute();
         }
-        catch(PDOException $Error) {
+        catch(\PDOException $Error) {
             $ModuleError='Detail: '.$Error->getMessage().' | SQL String: '.$PreSql.' | errno:'.$Error->getCode();
             Api::wrong(['level'=>'F','detail'=>'Error#M.8.2'."\r\n\r\n @ ".$ModuleError,'code'=>'M.8.2']);
         }
@@ -612,7 +611,7 @@ class Db
             try {  
                 self::$DbHandle->beginTransaction();
                 return TRUE;                
-            } catch (Exception $Error) {
+            } catch (\Exception $Error) {
                 Api::wrong(['level'=>'F','detail'=>'Error#M.8.3'."\r\n\r\n @ ".'Detail: '.$Error->getMessage(),'code'=>'M.8.3']);
             }
         }
