@@ -1,10 +1,10 @@
 <?php
 namespace core;
 
+use Exception;
 use PDO;
-use core\Common;
-use core\Api;
-use core\Log;
+use PDOException;
+
 
 /*
   84PHP开源框架
@@ -20,7 +20,7 @@ class Db
     private static $NowDb;
     private static $Stmts;
     
-    private static function initial()
+    private static function initial(): bool
     {
         if(!empty($_SERVER['84PHP']['Runtime']['Db']['initial'])){
             return TRUE;
@@ -30,20 +30,6 @@ class Db
         
         $_SERVER['84PHP']['Runtime']['Db']['initial']=1;
         return TRUE;
-    }
-    
-    //读写分离随机选择数据库
-    private static function randomDb()
-    {
-        if ($_SERVER['84PHP']['Config']['Db']['rwSplitting']) {
-            $AllDb=[];
-            foreach ($_SERVER['84PHP']['Config']['Db']['dbInfo'] as $Key => $Val) {
-                $AllDb[]=$Key;
-            }
-            self::$DbHandle=null;
-            self::$NowDb=$AllDb[mt_rand(1,(count($AllDb)-1))];
-            self::connect();
-        }
     }
     
     //选择数据库
@@ -65,7 +51,7 @@ class Db
         if (empty($_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb])) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.8.0','code'=>'M.8.0']);
         }
-        $Dsn=$_SERVER['84PHP']['Config']['Db']['dbType'].
+        $Dsn=$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['type'].
             ':host='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['address'].
             ';port='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['port'].
             ';dbname='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['dbname'].
@@ -74,19 +60,48 @@ class Db
             self::$DbHandle=@new PDO($Dsn,$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['username'],$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['password']);
             self::$DbHandle->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
         }
-        catch(\PDOException $Error) {
+        catch(PDOException $Error) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.8.1'."\r\n\r\n @ ".'ErrorInfo: ('.$Error->getCode().') '.$Error->getMessage(),'code'=>'M.8.1']);
         }
     }
-    
-    //预处理语句转SQL
-    private static function preToSql($PreSql,$Data,$Tag)
+
+    //参数检查
+    private static function parameterCheck($UnionData,$Extra=[]): array
     {
-        $TrueSql='';
+        $Parameters=[
+            'table'=>Common::quickParameter($UnionData,'table','表'),
+            'field'=>Common::quickParameter($UnionData,'field','字段',FALSE,[]),
+            'value'=>Common::quickParameter($UnionData,'value','值',FALSE,[]),
+            'condition'=>Common::quickParameter($UnionData,'condition','条件',FALSE,'='),
+            'order'=>Common::quickParameter($UnionData,'order','顺序',FALSE),
+            'desc'=>Common::quickParameter($UnionData,'desc','降序',FALSE,FALSE),
+            'limit'=>Common::quickParameter($UnionData,'limit','限制',FALSE),
+            'index'=>Common::quickParameter($UnionData,'index','索引',FALSE),
+            'sql'=>Common::quickParameter($UnionData,'sql','sql',FALSE),
+            'bind'=>Common::quickParameter($UnionData,'bind','绑定',FALSE,[]),
+        ];
+
+        $ExtraParameters=[
+            'data'=>['data','数据',TRUE,NULL],
+            'sumField'=>['sum','合计',TRUE,NULL],
+            'fieldLimit'=>['field_limit','字段限制',FALSE,NULL],
+            'fetch'=>['fetch_result','取回结果',FALSE,FALSE],
+            'rowCount'=>['row_count','行数统计',FALSE,FALSE],
+            'autoOp'=>['auto_operate','自动操作',FALSE,NULL],
+            'groupBy'=>['group_by','分组',FALSE,NULL],
+        ];
+
+        foreach($ExtraParameters as $Key =>$Val){
+            if(in_array($Key,$Extra)){
+                $Parameters[$Key]=Common::quickParameter($UnionData,$Val[0],$Val[1],$Val[2],$Val[3]);
+            }
+        }
+
+        return $Parameters;
     }
-    
+
     //创建绑定
-    private static function createBind($PreSql)
+    private static function createBind($PreSql): string
     {
         $StmtKey=md5($PreSql);
         if (empty(self::$Stmts[$StmtKey])) {
@@ -119,21 +134,21 @@ class Db
         try {
             self::$Stmts[$StmtKey]->execute();
         }
-        catch(\PDOException $Error) {
+        catch(PDOException $Error) {
             $ModuleError='Detail: '.$Error->getMessage().' | SQL String: '.$PreSql.' | errno:'.$Error->getCode();
             Api::wrong(['level'=>'F','detail'=>'Error#M.8.2'."\r\n\r\n @ ".$ModuleError,'code'=>'M.8.2']);
         }
-        
+
         if ($Action=='Fetch') {
             return self::$Stmts[$StmtKey]->fetch(PDO::FETCH_ASSOC);
         }
-        else if ($Action=='FetchAll') {
+        elseif ($Action=='FetchAll') {
             return self::$Stmts[$StmtKey]->fetchAll(PDO::FETCH_ASSOC);
         }
-        else if ($Action=='InsertId') {
+        elseif ($Action=='InsertId') {
             return self::$DbHandle->lastInsertId();
         }
-        else if ($Action=='RowCount') {
+        elseif ($Action=='RowCount') {
             return self::$Stmts[$StmtKey]->rowCount();
         }
         else {
@@ -141,7 +156,7 @@ class Db
         }
 
     }
-    
+
     //写入日志
     private static function sqlLog($Sql)
     {
@@ -149,7 +164,7 @@ class Db
             Log::add(['level'=>'debug','info'=>'[SQL] '.$Sql]);
         }
     }
-    
+
     //获取表列表
     private static function getTableList($TableData)
     {
@@ -158,14 +173,13 @@ class Db
             foreach ($TableData as $Val) {
                 $TableList.=' '.$Val.' ,';
             }
-            $TableList=substr($TableList,0,-1);
-            return $TableList;
+            return substr($TableList,0,-1);
         }
         else {
             return ' '.$TableData;
         }
     }
-    
+
     //获取字段列表
     private static function getFieldList($FieldData,$Default)
     {
@@ -174,102 +188,97 @@ class Db
             if (is_string($FieldData)) {
                 return ' '.$FieldData;
             }
-            else if (is_array($FieldData)) {
+            elseif (is_array($FieldData)) {
                 foreach ($FieldData as $Val) {
                     $FieldList.=' '.$Val.' ,';
                 }
-                $FieldList=substr($FieldList,0,-1);
-                return $FieldList;
+                return substr($FieldList,0,-1);
             }
         }
         return $Default;
     }
 
     //查询条件转SQL语句
-    private static function queryToSql($OtherSql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,$GroupBy)
+    private static function queryToSql($Para): string
     {
-        if (empty($Condition)) {
-            $Condition='=';
+
+
+        if (empty($Para['condition'])) {
+            $Para['condition']='=';
         }
 
         $WhereSql='';
-        foreach ($Field as $Key => $Val) {
+        foreach ($Para['field'] as $Key => $Val) {
             if ($WhereSql=='') {
                 $WhereSql=' WHERE';
             }
-            
-            if (!is_array($Condition)||empty($Condition[$Key])) {
+
+            if (!is_array($Para['condition'])||empty($Para['condition'][$Key])) {
                 $TempCo=['=','AND'];
                 $WhereSql.=' '.$Val.' '.$TempCo[0].' :_Where_'.$Val;
-                if ($Key<(count($Field)-1)) {
-                    $WhereSql.=' '.$TempCo[1];
-                }
             }
-            else if (!is_array($Condition[$Key])) {
-                if (strpos($Condition[$Key],',')===FALSE) {
-                    $Condition[$Key]=str_replace(' ','',$Condition[$Key]);
-                    $TempCo=[$Condition[$Key],'AND'];
+            elseif (!is_array($Para['condition'][$Key])) {
+                if (strpos($Para['condition'][$Key],',')===FALSE) {
+                    $Para['condition'][$Key]=str_replace(' ','',$Para['condition'][$Key]);
+                    $TempCo=[$Para['condition'][$Key],'AND'];
                 }
                 else {
-                    $Condition[$Key]=str_replace(' ','',$Condition[$Key]);
-                    $TempCo=explode(',',$Condition[$Key]);
+                    $Para['condition'][$Key]=str_replace(' ','',$Para['condition'][$Key]);
+                    $TempCo=explode(',',$Para['condition'][$Key]);
                     if (empty($TempCo[1])) {
                         $TempCo[1]='AND';
                     }
                 }
                 $WhereSql.=' '.$Val.' '.$TempCo[0].' :_Where_'.$Val;
-                if ($Key<(count($Field)-1)) {
-                    $WhereSql.=' '.$TempCo[1];
-                }
             }
             else {
-                if (empty($Condition[$Key][0])) {
+                if (empty($Para['condition'][$Key][0])) {
                     $TempCo=['=','AND'];
                 }
-                else if (strpos($Condition[$Key][0],',')===FALSE) {
-                    $Condition[$Key][0]=str_replace(' ','',$Condition[$Key][0]);
-                    $TempCo=[$Condition[$Key][0],'AND'];
+                elseif (strpos($Para['condition'][$Key][0],',')===FALSE) {
+                    $Para['condition'][$Key][0]=str_replace(' ','',$Para['condition'][$Key][0]);
+                    $TempCo=[$Para['condition'][$Key][0],'AND'];
                 }
                 else {
-                    $Condition[$Key][0]=str_replace(' ','',$Condition[$Key][0]);
-                    $TempCo=explode(',',$Condition[$Key][0]);
+                    $Para['condition'][$Key][0]=str_replace(' ','',$Para['condition'][$Key][0]);
+                    $TempCo=explode(',',$Para['condition'][$Key][0]);
                     if (empty($TempCo[1])) {
                         $TempCo[1]='AND';
                     }
                 }
                 $TempBeforeTag='';
                 $TempAfterTag='';
-                if (empty($Condition[$Key][1])) {
-                }
-                else if (strpos($Condition[$Key][1],',')===FALSE) {
-                    $Condition[$Key][1]=str_replace(' ','',$Condition[$Key][1]);
-                    $TempBeforeTag=$Condition[$Key][1]; 
-                }
-                else {
-                    $Condition[$Key][1]=str_replace(' ','',$Condition[$Key][1]);
-                    $TempTag=explode(',',$Condition[$Key][1]);
-                    $TempBeforeTag=$TempTag[0];
-                    $TempAfterTag=$TempTag[1];
+                if (!empty($Para['condition'][$Key][1])) {
+                    if (strpos($Para['condition'][$Key][1],',')===FALSE) {
+                        $Para['condition'][$Key][1]=str_replace(' ','',$Para['condition'][$Key][1]);
+                        $TempBeforeTag=$Para['condition'][$Key][1];
+                    }
+                    else {
+                        $Para['condition'][$Key][1]=str_replace(' ','',$Para['condition'][$Key][1]);
+                        $TempTag=explode(',',$Para['condition'][$Key][1]);
+                        $TempBeforeTag=$TempTag[0];
+                        $TempAfterTag=$TempTag[1];
+                    }
                 }
 
                 $WhereSql.=' '.$TempBeforeTag.$Val.' '.$TempCo[0].' :_Where_'.$Val.' '.$TempAfterTag;
-                if ($Key<(count($Field)-1)) {
-                    $WhereSql.=' '.$TempCo[1];
-                }
+            }
+            if ($Key<(count($Para['field'])-1)) {
+                $WhereSql.=' '.$TempCo[1];
             }
         }
-        if (is_string($Order)) {
-            $OrderSql=' ORDER BY '.$Order;
-            if ($Desc) {
+        if (is_string($Para['order'])) {
+            $OrderSql=' ORDER BY '.$Para['order'];
+            if ($Para['desc']) {
                 $OrderSql.=' DESC';
             }
         }
-        else if (is_array($Order)) {
+        elseif (is_array($Para['order'])) {
             $OrderSql=' ORDER BY ';
-            foreach ($Order as $Key => $Val) {
+            foreach ($Para['order'] as $Key => $Val) {
                 if (!empty($Val)) {
                     $OrderSql.=$Val;
-                    if ($Desc||(isset($Desc[$Key])&&$Desc[$Key])) {
+                    if ($Para['desc']||(isset($Para['desc'][$Key])&&$Para['desc'][$Key])) {
                         $OrderSql.=' DESC';
                     }
                     $OrderSql.=',';
@@ -280,134 +289,89 @@ class Db
         else {
             $OrderSql='';
         }
-        if (!empty($Index)) {
-            $IndexSql=' FORCE INDEX('.$Index.')';
+        if (!empty($Para['index'])) {
+            $IndexSql=' FORCE INDEX('.$Para['index'].')';
         }
         else {
             $IndexSql='';
         }
-        if (is_array($Limit)) {
-            if (!empty($Limit[1])) {
-                $LimitSql=' LIMIT '.intval($Limit[0]).','.intval($Limit[1]);
+
+        $LimitSql='';
+        if (is_array($Para['limit'])) {
+            if (!empty($Para['limit'][1])) {
+                $LimitSql=' LIMIT '.intval($Para['limit'][0]).','.intval($Para['limit'][1]);
             }
-            else if (isset($Limit[0])) {
-                $LimitSql=' LIMIT 0,'.intval($Limit[0]);
+            elseif (isset($Para['limit'][0])) {
+                $LimitSql=' LIMIT 0,'.intval($Para['limit'][0]);
             }
         }
-        else {
-            $LimitSql='';
-        }
-        
-        if (!empty($GroupBy)) {
-            $GroupBySql='GROUP BY '.self::getFieldList($GroupBy,'');
+
+        if (!empty($Para['groupBy'])) {
+            $GroupBySql='GROUP BY '.self::getFieldList($Para['groupBy'],'');
         }
         else {
             $GroupBySql='';
         }
-        
-        return $WhereSql.$OrderSql.$LimitSql.$IndexSql.$GroupBySql.' '.$OtherSql;
+
+        return $WhereSql.$OrderSql.$LimitSql.$IndexSql.$GroupBySql.' '.$Para['sql'];
     }
-    
+
     //查询一条数据
     public static function select($UnionData=[])
     {
-        $Table=Common::quickParamet($UnionData,'table','表');
-        $Field=Common::quickParamet($UnionData,'field','字段',FALSE,[]);
-        $Value=Common::quickParamet($UnionData,'value','值',FALSE,[]);
-        $Condition=Common::quickParamet($UnionData,'condition','条件',FALSE,'=');
-        $Order=Common::quickParamet($UnionData,'order','顺序',FALSE,NULL);
-        $Desc=Common::quickParamet($UnionData,'desc','降序',FALSE,FALSE);
-        $Index=Common::quickParamet($UnionData,'index','索引',FALSE,NULL);        
-        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
-        $FieldLimit=Common::quickParamet($UnionData,'field_limit','字段限制',FALSE,NULL);        
+        $Para=self::parameterCheck($UnionData,['fieldLimit']);
 
         self::initial();
-        
-        $QueryString=self::queryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,[1],$Index,NULL);
 
-        self::randomDb();
-        
-        $QueryString='SELECT '.self::getFieldList($FieldLimit,'*').' FROM'.self::getTableList($Table).$QueryString;
+        $Para['limit']=[1];
+        $Para['groupBy']=NULL;
+
+        $QueryString='SELECT '.self::getFieldList($Para['fieldLimit'],'*').' FROM'.self::getTableList($Para['table']).self::queryToSql($Para);
 
         $StmtKey=self::createBind($QueryString);
-        self::bindData($StmtKey,$Field,$Value,$Tag='_Where_');
-        self::bindData($StmtKey,[],$Bind,$Tag='',TRUE);
+        self::bindData($StmtKey,$Para['field'],$Para['value'],'_Where_');
+        self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
 
-        $Return=self::execBind($StmtKey,$QueryString,'Fetch');
-
-        return $Return;
+        return self::execBind($StmtKey,$QueryString,'Fetch');
     }
     
     //查询多条数据
     public static function selectMore($UnionData=[])
     {
-        $Table=Common::quickParamet($UnionData,'table','表');
-        $Field=Common::quickParamet($UnionData,'field','字段',FALSE,[]);
-        $Value=Common::quickParamet($UnionData,'value','值',FALSE,[]);
-        $Condition=Common::quickParamet($UnionData,'condition','条件',FALSE,'=');
-        $Order=Common::quickParamet($UnionData,'order','顺序',FALSE,NULL);
-        $Desc=Common::quickParamet($UnionData,'desc','降序',FALSE,FALSE);
-        $Limit=Common::quickParamet($UnionData,'limit','限制',FALSE,NULL);
-        $Index=Common::quickParamet($UnionData,'index','索引',FALSE,NULL);        
-        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
-
-        $FieldLimit=Common::quickParamet($UnionData,'field_limit','字段限制',FALSE,NULL);        
-        $GroupBy=Common::quickParamet($UnionData,'group_by','分组',FALSE,NULL);
+        $Para=self::parameterCheck($UnionData,['fieldLimit','groupBy']);
 
         self::initial();
-        
-        $QueryString=self::queryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,$GroupBy);
-        
-        self::randomDb();
 
-        $QueryString='SELECT '.self::getFieldList($FieldLimit,'*').' FROM'.self::getTableList($Table).$QueryString;
+        $QueryString='SELECT '.self::getFieldList($Para['fieldLimit'],'*').' FROM'.self::getTableList($Para['table']).self::queryToSql($Para);
 
         $StmtKey=self::createBind($QueryString);
-        self::bindData($StmtKey,$Field,$Value,$Tag='_Where_');
-        self::bindData($StmtKey,[],$Bind,$Tag='',TRUE);
+        self::bindData($StmtKey,$Para['field'],$Para['value'],'_Where_');
+        self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
  
-        $Return=self::execBind($StmtKey,$QueryString,'FetchAll');
-
-        return $Return;
+        return self::execBind($StmtKey,$QueryString,'FetchAll');
     }
         
     //记录总数
-    public static function                                                                      Total($UnionData=[])
+    public static function total($UnionData=[])
     {
-        $Table=Common::quickParamet($UnionData,'table','表');
-        $Field=Common::quickParamet($UnionData,'field','字段',FALSE,[]);
-        $Value=Common::quickParamet($UnionData,'value','值',FALSE,[]);
-        $Condition=Common::quickParamet($UnionData,'condition','条件',FALSE,'=');
-        $Order=Common::quickParamet($UnionData,'order','顺序',FALSE,'Total');
-        $Desc=Common::quickParamet($UnionData,'desc','降序',FALSE,FALSE);
-        $Limit=Common::quickParamet($UnionData,'limit','限制',FALSE,NULL);
-        $Index=Common::quickParamet($UnionData,'index','索引',FALSE,NULL);        
-        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
-        $GroupBy=Common::quickParamet($UnionData,'group_by','分组',FALSE,NULL);
+        $Para=self::parameterCheck($UnionData,['fieldLimit','groupBy']);
 
         self::initial();
-                        
-        self::randomDb();
 
-        $QueryString=self::queryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,$GroupBy);
-        
-        $FieldLimit='';
-        if (!empty($GroupBy)) {
-            $FieldLimit.=self::getFieldList($GroupBy,'').',';
+        $Para['fieldLimit']='';
+        if (!empty($Para['groupBy'])) {
+            $Para['fieldLimit'].=self::getFieldList($Para['groupBy'],'').',';
         }
         
-        $QueryString='SELECT '.$FieldLimit.' COUNT(*) AS Total FROM'.self::getTableList($Table).$QueryString;
+        $QueryString='SELECT '.$Para['fieldLimit'].' COUNT(*) AS Total FROM'.self::getTableList($Para['table']).self::queryToSql($Para);
         
         $StmtKey=self::createBind($QueryString);
-        self::bindData($StmtKey,$Field,$Value,$Tag='_Where_');
-        self::bindData($StmtKey,[],$Bind,$Tag='',TRUE);
+        self::bindData($StmtKey,$Para['field'],$Para['value'],'_Where_');
+        self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
 
         $Return=self::execBind($StmtKey,$QueryString,'FetchAll');
 
-        if (!empty($GroupBy)) {
+        if (!empty($Para['groupBy'])) {
             return $Return;
         }
         else {
@@ -417,40 +381,25 @@ class Db
     }
     
     //求和
-    public static function sum($UnionData=[])
+    public static function sum($UnionData=[]): array
     {
-        $Table=Common::quickParamet($UnionData,'table','表');
-        $Field=Common::quickParamet($UnionData,'field','字段',FALSE,[]);
-        $Value=Common::quickParamet($UnionData,'value','值',FALSE,[]);
-        $Condition=Common::quickParamet($UnionData,'condition','条件',FALSE,'=');
-        $Order=Common::quickParamet($UnionData,'order','顺序',FALSE,NULL);
-        $Desc=Common::quickParamet($UnionData,'desc','降序',FALSE,FALSE);
-        $Limit=Common::quickParamet($UnionData,'limit','限制',FALSE,NULL);
-        $Index=Common::quickParamet($UnionData,'index','索引',FALSE,NULL);        
-        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
-        $SumField=Common::quickParamet($UnionData,'sum','合计');        
+        $Para=self::parameterCheck($UnionData,['sumField']);
 
         self::initial();
 
-        $QueryString=self::queryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
-        
         $SumSql='';
-        foreach ($SumField as $Key => $Val) {
+        foreach ($Para['sumField'] as $Key => $Val) {
             $SumSql.=' SUM('.$Key.')'.' AS '.$Val.',';
         }
         $SumSql=substr($SumSql,0,-1);
 
-        $QueryString=self::queryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
-        
-        self::randomDb();
-
-        $QueryString='SELECT'.$SumSql.' FROM'.self::getTableList($Table).$QueryString;
+        $Para['groupBy']=NULL;
+        $QueryString='SELECT'.$SumSql.' FROM'.self::getTableList($Para['table']).self::queryToSql($Para);
 
         $StmtKey=self::createBind($QueryString);
                 
-        self::bindData($StmtKey,$Field,$Value,$Tag='_Where_');
-        self::bindData($StmtKey,[],$Bind,$Tag='',TRUE);
+        self::bindData($StmtKey,$Para['field'],$Para['value'],'_Where_');
+        self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
         
         $Return=self::execBind($StmtKey,$QueryString,'Fetch');
         foreach ($Return as $Key => $Val) {
@@ -464,34 +413,25 @@ class Db
     //插入数据
     public static function insert($UnionData=[])
     {
-        $Table=Common::quickParamet($UnionData,'table','表');
-        $Data=Common::quickParamet($UnionData,'data','数据');
-        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
+        $Para=self::parameterCheck($UnionData,['data']);
 
         self::initial();
 
         $InsertField=NULL;
         $InsertValue=NULL;
         
-        foreach ($Data as $Key => $Val) {
+        foreach ($Para['data'] as $Key => $Val) {
             $InsertField.=$Key.',';
             $InsertValue.=':_Insert_'.$Key.',';
         }
         $InsertField=substr($InsertField,0,-1);
         $InsertValue=substr($InsertValue,0,-1);
         
-        if ($_SERVER['84PHP']['Config']['Db']['rwSplitting']&&self::$NowDb!='default') {
-            self::$DbHandle=null;
-            self::$NowDb='default';
-            self::connect();
-        }
-        
-        $QueryString='INSERT INTO'.self::getTableList($Table).' ( '.$InsertField.' ) VALUES ( '.$InsertValue.' )'.' '.$Sql;
+        $QueryString='INSERT INTO'.self::getTableList($Para['table']).' ( '.$InsertField.' ) VALUES ( '.$InsertValue.' )'.' '.$Para['sql'];
 
         $StmtKey=self::createBind($QueryString);
-        self::bindData($StmtKey,[],$Data,$Tag='_Insert_',TRUE);
-        self::bindData($StmtKey,[],$Bind,$Tag='',TRUE);
+        self::bindData($StmtKey,[],$Para['data'],'_Insert_',TRUE);
+        self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
 
         return self::execBind($StmtKey,$QueryString,'InsertId');
     }
@@ -499,111 +439,71 @@ class Db
     //删除数据
     public static function delete($UnionData=[])
     {
-        $Table=Common::quickParamet($UnionData,'table','表');
-        $Field=Common::quickParamet($UnionData,'field','字段',FALSE,[]);
-        $Value=Common::quickParamet($UnionData,'value','值',FALSE,[]);
-        $Condition=Common::quickParamet($UnionData,'condition','条件',FALSE,'=');
-        $Order=Common::quickParamet($UnionData,'order','顺序',FALSE,NULL);
-        $Desc=Common::quickParamet($UnionData,'desc','降序',FALSE,FALSE);
-        $Limit=Common::quickParamet($UnionData,'limit','限制',FALSE,NULL);
-        $Index=Common::quickParamet($UnionData,'index','索引',FALSE,NULL);        
-        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
-        $RowCount=Common::quickParamet($UnionData,'row_count','行数统计',FALSE,FALSE);
+        $Para=self::parameterCheck($UnionData,['rowCount']);
 
         self::initial();
         
-        $QueryString=self::queryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
-        
-        if ($_SERVER['84PHP']['Config']['Db']['rwSplitting']&&self::$NowDb!='default') {
-            self::$DbHandle=null;
-            self::$NowDb='default';
-            self::connect();
-        }
-        
-        $QueryString='DELETE FROM'.self::getTableList($Table).$QueryString;
+        $Para['groupBy']=NULL;
+        $QueryString='DELETE FROM'.self::getTableList($Para['table']).self::queryToSql($Para);
 
         $StmtKey=self::createBind($QueryString);
-        self::bindData($StmtKey,$Field,$Value,$Tag='_Where_');
-        self::bindData($StmtKey,[],$Bind,$Tag='',TRUE);
+        self::bindData($StmtKey,$Para['field'],$Para['value'],'_Where_');
+        self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
 
-        return self::execBind($StmtKey,$QueryString,$RowCount?'RowCount':'');
+        return self::execBind($StmtKey,$QueryString,$Para['rowCount']?'RowCount':'');
     }
     
     //更新数据
     public static function update($UnionData=[])
     {
-        $Table=Common::quickParamet($UnionData,'table','表');
-        $Field=Common::quickParamet($UnionData,'field','字段',FALSE,[]);
-        $Value=Common::quickParamet($UnionData,'value','值',FALSE,[]);
-        $Condition=Common::quickParamet($UnionData,'condition','条件',FALSE,'=');
-        $Order=Common::quickParamet($UnionData,'order','顺序',FALSE,NULL);
-        $Desc=Common::quickParamet($UnionData,'desc','降序',FALSE,FALSE);
-        $Limit=Common::quickParamet($UnionData,'limit','限制',FALSE,NULL);
-        $Index=Common::quickParamet($UnionData,'index','索引',FALSE,NULL);        
-        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
-        $RowCount=Common::quickParamet($UnionData,'row_count','行数统计',FALSE,FALSE);
-        $Data=Common::quickParamet($UnionData,'data','数据');
-        $AutoOP=Common::quickParamet($UnionData,'auto_operate','自动操作',FALSE,NULL);
+        $Para=self::parameterCheck($UnionData,['data','rowCount','autoOp']);
 
         self::initial();
 
-        $QueryString=self::queryToSql($Sql,$Field,$Value,$Condition,$Order,$Desc,$Limit,$Index,NULL);
-
         $DataSql=NULL;
-        $AutoOPNumber=0;
+        $AutoOpNumber=0;
 
-        foreach ($Data as $Key => $Val) {
+        foreach ($Para['data'] as $Key => $Val) {
             
-            if (!empty($AutoOP[$AutoOPNumber])) {
-                $DataSql.=$Key.' = '.$Key.' '.$AutoOP[$AutoOPNumber];
+            if (!empty($Para['autoOp'][$AutoOpNumber])) {
+                $DataSql.=$Key.' = '.$Key.' '.$Para['autoOp'][$AutoOpNumber];
             }
             else {
                 $DataSql.=$Key.' = :_Update_'.$Key;
             }
             $DataSql.=',';
-            $AutoOPNumber++;
+            $AutoOpNumber++;
         }
         $DataSql=substr($DataSql,0,-1);
         
-        if ($_SERVER['84PHP']['Config']['Db']['rwSplitting']&&self::$NowDb!='default') {
-            self::$DbHandle=null;
-            self::$NowDb='default';
-            self::connect();
-        }
-        
-        $QueryString='UPDATE'.self::getTableList($Table).' SET '.$DataSql.$QueryString;
+        $Para['groupBy']=NULL;
+        $QueryString='UPDATE'.self::getTableList($Para['table']).' SET '.$DataSql.self::queryToSql($Para);
 
         $StmtKey=self::createBind($QueryString);
-        self::bindData($StmtKey,$Field,$Value,$Tag='_Where_');
-        self::bindData($StmtKey,[],$Data,$Tag='_Update_',TRUE);
-        self::bindData($StmtKey,[],$Bind,$Tag='',TRUE);
+        self::bindData($StmtKey,$Para['field'],$Para['value'],'_Where_');
+        self::bindData($StmtKey,[],$Para['data'],'_Update_',TRUE);
+        self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
 
-        return self::execBind($StmtKey,$QueryString,$RowCount?'RowCount':'');
+        return self::execBind($StmtKey,$QueryString,$Para['rowCount']?'RowCount':'');
     }
     
     //查询自定义语句
     public static function other($UnionData=[])
     {
-        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
-        $Bind=Common::quickParamet($UnionData,'bind','绑定',FALSE,[]);
-        $Fetch=Common::quickParamet($UnionData,'fetch_result','取回结果',FALSE,FALSE);
+        $Para=self::parameterCheck($UnionData,['fetch']);
 
         self::initial();
 
-        $StmtKey=self::createBind($Sql);
-        self::bindData($StmtKey,[],$Bind,$Tag='',TRUE);
+        $StmtKey=self::createBind($Para['sql']);
+        self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
 
-        $Return=self::execBind($StmtKey,$Sql,$Fetch?'FetchAll':'');
-        
-        return $Return;
+        return self::execBind($StmtKey,$Para['sql'],$Para['fetch']?'FetchAll':'');
     }
     
     //事务
-    private static function acid($UnionData=[])
+    public static function acid($UnionData=[]): bool
     {
-        $Option=Common::quickParamet($UnionData,'option','操作');
+        $Option=Common::quickParameter($UnionData,'option','操作');
 
         self::initial();
 
@@ -611,11 +511,11 @@ class Db
             try {  
                 self::$DbHandle->beginTransaction();
                 return TRUE;                
-            } catch (\Exception $Error) {
+            } catch (Exception $Error) {
                 Api::wrong(['level'=>'F','detail'=>'Error#M.8.3'."\r\n\r\n @ ".'Detail: '.$Error->getMessage(),'code'=>'M.8.3']);
             }
         }
-        else if ($Option=='commit') {
+        elseif ($Option=='commit') {
             if (!self::$DbHandle->commit()) {
                 return FALSE;
             }
@@ -623,7 +523,7 @@ class Db
                 return TRUE;
             }
         }
-        else if ($Option=='cancel') {
+        elseif ($Option=='cancel') {
             if (!self::$DbHandle->rollBack()) {
                 return FALSE;
             }

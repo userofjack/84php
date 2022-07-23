@@ -1,9 +1,6 @@
 <?php
 namespace core;
 
-use core\Common;
-use core\Tool;
-
 /*
   84PHP开源框架
 
@@ -21,23 +18,21 @@ class Sms
         $TempEncode=urlencode($WaitEncode);
         $TempEncode=str_replace('+','%20',$TempEncode);
         $TempEncode=str_replace('*','%2A',$TempEncode);
-        $TempEncode=str_replace('%7E','~',$TempEncode);
-        return $TempEncode;
+        return str_replace('%7E','~',$TempEncode);
     }
     
     //阿里云云通信接口
-    public static function aliyun($UnionData=[])
+    public static function aliyun($UnionData=[]): bool
     {
-        $Number=Common::quickParamet($UnionData,'number','号码');
-        $Template=Common::quickParamet($UnionData,'template','模板');
-        $Param=Common::quickParamet($UnionData,'param','参数',FALSE,NULL);
+        $Number=Common::quickParameter($UnionData,'number','号码');
+        $Template=Common::quickParameter($UnionData,'template','模板');
+        $Param=Common::quickParameter($UnionData,'param','参数',FALSE);
         
         $PhoneNumber=NULL;
         $TempTimestamp=gmdate('Y-m-d\TH:i:s\Z');
-        foreach ($Number as $Key => $Val) {
+        foreach ($Number as $Val) {
             $PhoneNumber=$PhoneNumber.$Val.',';
         }
-        $RecNum=substr($PhoneNumber,0,-1);
         $GetArray=[
                 'AccessKeyId'=>$_SERVER['84PHP']['Config']['Sms']['aliyunAccessKeyID'],
                 'Timestamp'=>$TempTimestamp,
@@ -71,7 +66,7 @@ class Sms
         $GetArray=array_merge($GetArray,$SignArray);
 
         $Send=Tool::send([
-            'url'=>'http://dysmsapi.aliyuncs.com/',
+            'url'=>'https://dysmsapi.aliyuncs.com/',
             'mode'=>'GET',
             'data'=>$GetArray,
             'header'=>'x-sdk-client: php/2.0.0'

@@ -1,9 +1,6 @@
 <?php
 namespace core;
 
-use core\Common;
-use core\Api;
-
 /*
   84PHP开源框架
 
@@ -15,27 +12,27 @@ use core\Api;
 class Common
 {
     //快捷传参
-    public static function quickParamet($UnionData,$Name,$Dialect,$Must=TRUE,$Default=NULL)
+    public static function quickParameter($UnionData,$Name,$Dialect,$Must=TRUE,$Default=NULL)
     {
         if (isset($UnionData[$Name])) {
             return $UnionData[$Name];
         }
-        else if (isset($UnionData[$Dialect])) {
+        elseif (isset($UnionData[$Dialect])) {
             return $UnionData[$Dialect];
         }
-        else if (isset($UnionData[strtolower($Name)])) {
+        elseif (isset($UnionData[strtolower($Name)])) {
             return $UnionData[strtolower($Name)];
         }
-        else if (isset($UnionData[strtoupper($Name)])) {
+        elseif (isset($UnionData[strtoupper($Name)])) {
             return $UnionData[strtoupper($Name)];
         }
-        else if (isset($UnionData[mb_convert_case($Dialect,MB_CASE_LOWER,'UTF-8')])) {
+        elseif (isset($UnionData[mb_convert_case($Dialect,MB_CASE_LOWER,'UTF-8')])) {
             return $UnionData[mb_convert_case($Dialect,MB_CASE_LOWER,'UTF-8')];
         }
-        else if (isset($UnionData[mb_convert_case($Dialect,MB_CASE_UPPER,'UTF-8')])) {
+        elseif (isset($UnionData[mb_convert_case($Dialect,MB_CASE_UPPER,'UTF-8')])) {
             return $UnionData[mb_convert_case($Dialect,MB_CASE_UPPER,'UTF-8')];
         }
-        else if ($Must) {
+        if ($Must) {
             $Stack=debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS,2);
             $ErrorMsg='';
             if (isset($Stack[1]['class'])) {
@@ -43,9 +40,7 @@ class Common
             }
             Api::wrong(['level'=>'F','detail'=>'Error#C.0.3'.$ErrorMsg,'code'=>'C.0.3']);
         }
-        else {
-            return $Default;
-        }
+        return $Default;
     }
 
     //获取磁盘路径

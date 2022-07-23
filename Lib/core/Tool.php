@@ -1,9 +1,6 @@
 <?php
 namespace core;
 
-use core\Common;
-use core\Api;
-
 /*
   84PHP开源框架
 
@@ -12,14 +9,16 @@ use core\Api;
   框架版本号：6.0.0
 */
 
+use CURLFile;
+
 class Tool
 {
 
     //随机字符
     public static function random($UnionData=[])
     {
-        $Mode=Common::quickParamet($UnionData,'mode','模式',FALSE,'AaN');
-        $StringLength=Common::quickParamet($UnionData,'length','长度',FALSE,32);
+        $Mode=Common::quickParameter($UnionData,'mode','模式',FALSE,'AaN');
+        $StringLength=Common::quickParameter($UnionData,'length','长度',FALSE,32);
 
         $String=NULL;
         $NWord='0123456789';
@@ -48,9 +47,9 @@ class Tool
     }
     
     //生成UUID
-    public static function uuid($UnionData=[])
+    public static function uuid($UnionData=[]): string
     {
-        $MD5=Common::quickParamet($UnionData,'md5','md5',FALSE,FALSE);
+        $MD5=Common::quickParameter($UnionData,'md5','md5',FALSE,FALSE);
         $Return=md5(memory_get_usage().self::random().uniqid('', true).mt_rand(1,99999).$_SERVER['REMOTE_ADDR']);
         
         if (!$MD5) {
@@ -68,9 +67,9 @@ class Tool
     }
     
     //获取Header指定字段的值
-    public static function getHeader($UnionData=[])
+    public static function getHeader($UnionData=[]): array
     {
-        $Field=Common::quickParamet($UnionData,'field','字段');
+        $Field=Common::quickParameter($UnionData,'field','字段');
         $ReturnArray=[];
         foreach ($Field as $Val) {
             $FieldName='HTTP_'.str_replace('-','_',strtoupper($Val));
@@ -85,13 +84,13 @@ class Tool
     //向目标地址发送数据
     public static function send($UnionData=[])
     {
-        $Url=Common::quickParamet($UnionData,'url','地址');
-        $Mode=Common::quickParamet($UnionData,'mode','模式');
-        $Data=Common::quickParamet($UnionData,'data','数据',FALSE,[]);
-        $File=Common::quickParamet($UnionData,'file','文件',FALSE,[]);
-        $Headers=Common::quickParamet($UnionData,'header','header',FALSE,[]);
-        $Timeout=Common::quickParamet($UnionData,'timeout','超时时间',FALSE,15);
-        $Ssl=Common::quickParamet($UnionData,'ssl','ssl',FALSE,FALSE);
+        $Url=Common::quickParameter($UnionData,'url','地址');
+        $Mode=Common::quickParameter($UnionData,'mode','模式');
+        $Data=Common::quickParameter($UnionData,'data','数据',FALSE,[]);
+        $File=Common::quickParameter($UnionData,'file','文件',FALSE,[]);
+        $Headers=Common::quickParameter($UnionData,'header','header',FALSE,[]);
+        $Timeout=Common::quickParameter($UnionData,'timeout','超时时间',FALSE,15);
+        $Ssl=Common::quickParameter($UnionData,'ssl','ssl',FALSE,FALSE);
         
         $Mode=strtoupper($Mode);
         if ($Mode!='GET'&&$Mode!='POST'&&$Mode!='PUT'&&$Mode!='DELETE'){
@@ -103,7 +102,6 @@ class Tool
             Api::wrong(['level'=>'F','detail'=>'Error#M.6.0','code'=>'M.6.0']);
         }
         
-        $Response=NULL;
         $SendData=[];
         $Handle=curl_init();
         
@@ -133,7 +131,7 @@ class Tool
 
                 foreach ($File as $Key=>$Val) {
                     if (file_exists(Common::diskPath($Val))) {
-                        $SendData[$Key]=new \CURLFile(Common::diskPath($Val));
+                        $SendData[$Key]=new CURLFile(Common::diskPath($Val));
                     }
                 } 
             }

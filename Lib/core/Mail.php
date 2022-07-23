@@ -1,7 +1,7 @@
 <?php
 namespace core;
 
-use core\Common;
+
 
 /*
   84PHP开源框架
@@ -15,21 +15,20 @@ class Mail
 {
     
     //SocketError
-    private static function sendError($Handle)
+    private static function sendError($Handle): bool
     {
         fclose($Handle);
         return FALSE;
     }
     
     //Socket发送
-    public static function send($UnionData=[])
+    public static function send($UnionData=[]): bool
     {
-        $Address=Common::quickParamet($UnionData,'address','地址');
-        $Title=Common::quickParamet($UnionData,'title','标题');
-        $Content=Common::quickParamet($UnionData,'content','内容');
-        $Timeout=Common::quickParamet($UnionData,'timeout','超时时间',FALSE,15);
+        $Address=Common::quickParameter($UnionData,'address','地址');
+        $Title=Common::quickParameter($UnionData,'title','标题');
+        $Content=Common::quickParameter($UnionData,'content','内容');
+        $Timeout=Common::quickParameter($UnionData,'timeout','超时时间',FALSE,15);
 
-        $Send=NULL;
         $Response='';
         $Handle=fsockopen($_SERVER['84PHP']['Config']['Mail']['server'],$_SERVER['84PHP']['Config']['Mail']['port'],$Errno,$ErrMsg,$Timeout);
         if (!$Handle&&$Errno===0) {
@@ -94,6 +93,9 @@ class Mail
             return FALSE;
         }
         $Send="QUIT\r\n";
+        if (fwrite($Handle,$Send)===FALSE) {
+            self::sendError($Handle);
+        }
         $Response.=fgets($Handle,512);
         
         if (strstr($Response,'535 Authentication')) {

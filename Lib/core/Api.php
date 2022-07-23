@@ -1,9 +1,6 @@
 <?php
 namespace core;
 
-use core\Common;
-use core\Log;
-
 /*
   84PHP开源框架
 
@@ -16,9 +13,9 @@ class Api
 {
     public static function respond($UnionData)
     {
-        $Content=Common::quickParamet($UnionData,'content','内容',FALSE,[]);
-        $Log=Common::quickParamet($UnionData,'log','日志',FALSE,FALSE);
-        $HttpCode=Common::quickParamet($UnionData,'http','响应码',FALSE,200);
+        $Content=Common::quickParameter($UnionData,'content','内容',FALSE,[]);
+        $Log=Common::quickParameter($UnionData,'log','日志',FALSE,FALSE);
+        $HttpCode=Common::quickParameter($UnionData,'http','响应码',FALSE,200);
         
         $Style=$_SERVER['84PHP']['Config']['Api']['template'];
         
@@ -41,12 +38,12 @@ class Api
     
     public static function wrong($UnionData)
     {
-        $Detail=Common::quickParamet($UnionData,'detail','详情');
-        $Code=Common::quickParamet($UnionData,'code','状态码',FALSE,0);
-        $Stack=Common::quickParamet($UnionData,'stack','堆栈',FALSE,FALSE);
-        $Log=Common::quickParamet($UnionData,'log','日志',FALSE,TRUE);
-        $HttpCode=Common::quickParamet($UnionData,'http','响应码',FALSE,200);
-        $Level=strtoupper(Common::quickParamet($UnionData,'level','级别',TRUE));
+        $Detail=Common::quickParameter($UnionData,'detail','详情');
+        $Code=Common::quickParameter($UnionData,'code','状态码',FALSE,0);
+        $Stack=Common::quickParameter($UnionData,'stack','堆栈',FALSE,FALSE);
+        $Log=Common::quickParameter($UnionData,'log','日志',FALSE,TRUE);
+        $HttpCode=Common::quickParameter($UnionData,'http','响应码',FALSE,200);
+        $Level=strtoupper(Common::quickParameter($UnionData,'level','级别'));
         
         $Config=$_SERVER['84PHP']['Config']['Api'];
         
@@ -56,27 +53,23 @@ class Api
             }
         }
         
-        $Detail=str_replace('\\','/',$Detail);
         if (isset($Config['wrong']['replace'][$Code])) {
             $Code=$Config['wrong']['replace'][$Code];
         }
 
-        $WrongInfo=['level'=>'','detail'=>$Detail,'stack'=>[],'time'=>microtime(TRUE)];
+        $WrongInfo=['level'=>'unknown','detail'=>str_replace('\\','/',$Detail),'stack'=>[],'time'=>microtime(TRUE)];
 
         if (strtoupper($Level)=='S') {
             $WrongInfo['level']='script';
         }
-        else if (strtoupper($Level)=='F') {
+        elseif (strtoupper($Level)=='F') {
             $WrongInfo['level']='framework';
         }
-        else if (strtoupper($Level)=='A') {
+        elseif (strtoupper($Level)=='A') {
             $WrongInfo['level']='application';
         }
-        else if (strtoupper($Level)=='U') {
+        elseif (strtoupper($Level)=='U') {
             $WrongInfo['level']='user';
-        }
-        else {
-            $WrongInfo['level']='unknown';
         }
         
         if ($Stack||$WrongInfo['level']=='script'||$WrongInfo['level']=='framework') {
@@ -104,7 +97,7 @@ class Api
         
         if (__DEBUG__||stristr($Config['wrong']['respond'],$Level)!==FALSE) {
             foreach ($Config['wrong']['style'] as $Key => $Val) {
-                $Config['wrong']['style'][$Key]=str_replace(['{code}','{info}','{time}'],[$Code,$Detail,$WrongInfo['time']],$Val);
+                $Config['wrong']['style'][$Key]=str_replace(['{code}','{info}','{time}'],[$Code,$WrongInfo['detail'],$WrongInfo['time']],$Val);
                 if($Val=='{stack}'){
                     $Config['wrong']['style'][$Key]=$WrongInfo['stack'];
                 }
@@ -117,8 +110,8 @@ class Api
         }
         self::respond(['content'=>$Config['wrong']['style'],'http'=>$HttpCode]);
        
-        if (stristr($Config['wrong']['log'],$Level)!==FALSE) {
-            $WrongLog='['.$WrongInfo['level'].'] '.$Detail;
+        if (stristr($Config['wrong']['log'],$Level)!==FALSE&&$Log) {
+            $WrongLog='['.$WrongInfo['level'].'] '.$WrongInfo['detail'];
             
             foreach ($WrongInfo['stack'] as $Key => $Val) {
                 $WrongLog.="\r\n    ".$Key.' '.$Val;

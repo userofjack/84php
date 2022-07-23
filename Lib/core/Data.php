@@ -1,9 +1,6 @@
 <?php
 namespace core;
 
-use core\Common;
-use core\Api;
-
 /*
   84PHP开源框架
 
@@ -12,12 +9,14 @@ use core\Api;
   框架版本号：6.0.0
 */
 
+use Throwable;
+
 class Data
 {
     private static $Handle;
     private static $Connect;
 
-    private static function initial()
+    private static function initial(): bool
     {
         if(!empty($_SERVER['84PHP']['Runtime']['Data']['initial'])){
             return TRUE;
@@ -34,18 +33,15 @@ class Data
     }
 
     //设置
-    public static function set($UnionData=[])
+    public static function set($UnionData=[]): bool
     {
-        $Key=Common::quickParamet($UnionData,'key','键');
-        $Value=Common::quickParamet($UnionData,'value','值');
-        $Time=Common::quickParamet($UnionData,'time','时间',FALSE,3600);
-        $Prefix=Common::quickParamet($UnionData,'prefix','前缀',FALSE,'');
+        $Key=Common::quickParameter($UnionData,'key','键');
+        $Value=Common::quickParameter($UnionData,'value','值');
+        $Time=Common::quickParameter($UnionData,'time','时间',FALSE,3600);
+        $Prefix=Common::quickParameter($UnionData,'prefix','前缀',FALSE,'');
 
         self::initial();
 
-        if ($Key=='') {
-            return FALSE;
-        }
         if ($Key=='') {
             return FALSE;
         }
@@ -62,15 +58,15 @@ class Data
         if (self::$Handle=='redis') {
             return self::setByRedis($Prefix,$Key,$Value,$Time);
         }
-        
+        return TRUE;
     }
     
     //获取
     public static function get($UnionData=[])
     {
-        $Key=Common::quickParamet($UnionData,'key','键');        
-        $Prefix=Common::quickParamet($UnionData,'prefix','前缀',FALSE,'');
-        $Callback=Common::quickParamet($UnionData,'callback','回调',FALSE,NULL);
+        $Key=Common::quickParameter($UnionData,'key','键');
+        $Prefix=Common::quickParameter($UnionData,'prefix','前缀',FALSE,'');
+        $Callback=Common::quickParameter($UnionData,'callback','回调',FALSE);
 
         self::initial();
 
@@ -80,9 +76,13 @@ class Data
         if (self::$Handle=='file') {
             $Result=self::getByFile($Prefix,$Key);
         }
-        else if (self::$Handle=='redis') {
+        elseif (self::$Handle=='redis') {
             $Result=self::getByRedis($Prefix,$Key);
         }
+        else {
+            return NULL;
+        }
+
         if ($Result===NULL&&is_object($Callback)) {
             return $Callback();
         }
@@ -92,7 +92,7 @@ class Data
     }
     
     //变量转字符串
-    private static function varToStr($Value)
+    private static function varToStr($Value): string
     {
         return serialize($Value);
     }
@@ -134,12 +134,12 @@ class Data
     }
 
     //设置文件緩存
-    private static function setByFile($Prefix,$Key,$Value,$Time)
+    private static function setByFile($Prefix,$Key,$Value,$Time): bool
     {
         if ($Time<1) {
             return self::deleteByFile($Key,$Prefix);
         }
-        $Cache=strval(intval(__TIME__)+$Time)."\r\n".self::varToStr($Value);
+        $Cache=intval(__TIME__)+$Time."\r\n".self::varToStr($Value);
         $FileHandle=fopen(self::getFilePath($Prefix,$Key,TRUE),'w');
         if (!$FileHandle) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.12.0','code'=>'M.12.0']);
@@ -150,7 +150,7 @@ class Data
     }
     
     //删除文件緩存
-    private static function deleteByFile($Key,$Prefix,$Path='')
+    private static function deleteByFile($Key,$Prefix,$Path=''): bool
     {
         if ($Path=='') {
             $Path=self::getFilePath($Prefix,$Key);
@@ -193,7 +193,7 @@ class Data
         {
             self::$Connect->connect($_SERVER['84PHP']['Config']['Data']['connect']['redis']['address'],$_SERVER['84PHP']['Config']['Data']['connect']['redis']['port'],$_SERVER['84PHP']['Config']['Data']['connect']['redis']['timeout']);
         }
-        catch (Throwable $t)
+        catch(Throwable $t)
         {
             Api::wrong(['level'=>'F','detail'=>'Error#M.12.1','code'=>'M.12.1']);
         }
@@ -203,14 +203,8 @@ class Data
         self::$Connect->select($_SERVER['84PHP']['Config']['Data']['connect']['redis']['dbnumber'])?:Api::wrong(['level'=>'F','detail'=>'Error#M.12.3','code'=>'M.12.3']);
     }
 
-    //关闭Redis缓存
-    private static function closeRedisConnect()
-    {
-        self::$Connect->close();
-    }
-
     //设置Redis緩存
-    private static function setByRedis($Prefix,$Key,$Value,$Time)
+    private static function setByRedis($Prefix,$Key,$Value,$Time): bool
     {
         $MD5=md5($Key);
         if ($Prefix!='') {
@@ -235,7 +229,7 @@ class Data
         }
         $Cache=self::$Connect->get($Prefix.$MD5);
 
-        if ($Cache==FALSE) {
+        if (!$Cache) {
             return NULL;
         }
         return self::strToVar($Cache);

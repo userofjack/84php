@@ -1,7 +1,7 @@
 <?php
 namespace core;
 
-use core\Common;
+
 
 /*
   84PHP开源框架
@@ -13,24 +13,23 @@ use core\Common;
 
 class Log
 {
-    private static $FilePath;
-        
+
     //获取等级
     private static function getLevel($LevelName)
     {
         if (strtolower($LevelName)=='debug') {
             return 0;
         }
-        else if (strtolower($LevelName)=='info') {
+        elseif (strtolower($LevelName)=='info') {
             return 1;
         }
-        else if (strtolower($LevelName)=='notice') {
+        elseif (strtolower($LevelName)=='notice') {
             return 2;
         }
-        else if (strtolower($LevelName)=='warning') {
+        elseif (strtolower($LevelName)=='warning') {
             return 3;
         }
-        else if (strtolower($LevelName)=='error') {
+        elseif (strtolower($LevelName)=='error') {
             return 4;
         }
         else {
@@ -39,10 +38,10 @@ class Log
     }
     
     //添加记录
-    public static function add($UnionData=[])
+    public static function add($UnionData=[]): bool
     {
-        $Info=Common::quickParamet($UnionData,'info','内容',FALSE,'');
-        $LevelName=Common::quickParamet($UnionData,'level','等级',FALSE,'info');
+        $Info=Common::quickParameter($UnionData,'info','内容',FALSE,'');
+        $LevelName=Common::quickParameter($UnionData,'level','等级',FALSE,'info');
         $Level=self::getLevel($LevelName);
 
         if ($Level===FALSE) {
@@ -59,7 +58,7 @@ class Log
     }
 
     //写入文件
-    public static function output()
+    public static function output(): bool
     {
         if (strlen($_SERVER['84PHP']['Config']['Base']['safeCode'])<10) {
             return false;
@@ -68,10 +67,10 @@ class Log
         if (strtoupper($_SERVER['84PHP']['Config']['Log']['interval'])=='H') {
             $LogFileName=date('H\H',__TIME__);
         }
-        else if (strtoupper($_SERVER['84PHP']['Config']['Log']['interval'])=='M') {
+        elseif (strtoupper($_SERVER['84PHP']['Config']['Log']['interval'])=='M') {
             $LogFileName=date('H\H_i',__TIME__);
         }
-        else if (strtoupper($_SERVER['84PHP']['Config']['Log']['interval'])=='HM') {
+        elseif (strtoupper($_SERVER['84PHP']['Config']['Log']['interval'])=='HM') {
             $LogFileName=date('H\H_i',__TIME__);
             if (__TIME__%60<30) {
                 $LogFileName.='_(1)';
@@ -111,7 +110,7 @@ class Log
         
         foreach ($_SERVER['84PHP']['Log'] as $Val) {
             if ($Val['Level']>=$ConfigLevel) {
-                $Content.='['.$Val['LevelName'].'] '.$Val['Content']."\r\n<".strval($Val['Time'])."s>\r\n";
+                $Content.='['.$Val['LevelName'].'] '.$Val['Content']."\r\n<".$Val['Time']."s>\r\n";
             }
         }
         
@@ -125,6 +124,7 @@ class Log
             }
             fclose($Handle);
         }
+        return TRUE;
     }
     
     //清空日志

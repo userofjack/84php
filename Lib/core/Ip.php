@@ -1,9 +1,6 @@
 <?php
 namespace core;
 
-use core\Common;
-use core\Api;
-
 /*
   84PHP开源框架
 
@@ -20,7 +17,7 @@ class Ip
     private static $WhiteList;
 
 
-    private static function initial()
+    private static function initial(): bool
     {
         if(!empty($_SERVER['84PHP']['Runtime']['Ip']['initial'])){
             return TRUE;
@@ -50,18 +47,7 @@ class Ip
         $_SERVER['84PHP']['Runtime']['Ip']['initial']=1;
         return TRUE;
     }
-    
-    //格式检测
-    private static function ipCheck($Str)
-    {
-        if (preg_match('/(?=(\b|\D))((\*\.)|(\*)|(25[0-5]|2[0-4]\d|[01]?\d\d?)($|(?!\.$)\.)) {4}/',$Str)) {
-            return TRUE;
-        }
-        else {
-            return FALSE;
-        }
-    }
-    
+
     //转换
     private static function transform($Str,$Start=TRUE)
     {
@@ -82,9 +68,9 @@ class Ip
     }
     
     //文本转数组
-    private static function textToArray($Str)
+    private static function textToArray($Str): array
     {
-        $Str=preg_replace('/[^0-9.\-\*,&]/','',$Str);;
+        $Str=preg_replace('/[^\d.\-*,&]/','',$Str);
         $FirstStep=explode('&',$Str);
         $SecondStep=[];
         foreach ($FirstStep as $Key => $Val) {
@@ -104,7 +90,7 @@ class Ip
     }
     
     //数组转文本
-    private static function arrayToText($Array)
+    private static function arrayToText($Array): string
     {
         $Return='';
         foreach ($Array as $Val) {
@@ -127,7 +113,7 @@ class Ip
     }
     
     //移除
-    private static function remove($Type,$StartIPNumber,$EndIPNumber)
+    private static function remove($Type,$StartIPNumber,$EndIPNumber): bool
     {
         if (strtolower($Type)=='b') {
             $ListArray=self::$BlackList;
@@ -151,32 +137,29 @@ class Ip
     //写入文件
     private static function save($UnionData=[])
     {
-        $Type=Common::quickParamet($UnionData,'type','类型',FALSE,'b');
+        $Type=Common::quickParameter($UnionData,'type','类型',FALSE,'b');
         if (strtolower($Type)=='b') {
             $ListText=self::arrayToText(self::$BlackList);
             $Handle=@fopen(self::$BlackListFile,'w');
-            if (!$Handle) {
-                Api::wrong(['level'=>'F','detail'=>'Error#M.3.2','code'=>'M.3.2']);
-            }
         }
         else {
             $ListText=self::arrayToText(self::$WhiteList);
             $Handle=@fopen(self::$WhiteListFile,'w');
-            if (!$Handle) {
-                Api::wrong(['level'=>'F','detail'=>'Error#M.3.2','code'=>'M.3.2']);
-            }
+        }
+        if (!$Handle) {
+            Api::wrong(['level'=>'F','detail'=>'Error#M.3.2','code'=>'M.3.2']);
         }
         fwrite($Handle,'<?php exit; ?>'.$ListText);
         fclose($Handle);
     }
     
     //添加
-    public static function add($UnionData=[])
+    public static function add($UnionData=[]): bool
     {
-        $Type=Common::quickParamet($UnionData,'type','类型');
-        $StartIP=Common::quickParamet($UnionData,'ip_start','起始ip');
-        $EndIP=Common::quickParamet($UnionData,'ip_end','结束ip',FALSE,NULL);
-        $ExpTime=Common::quickParamet($UnionData,'exp_time','过期时间',FALSE,NULL);
+        $Type=Common::quickParameter($UnionData,'type','类型');
+        $StartIP=Common::quickParameter($UnionData,'ip_start','起始ip');
+        $EndIP=Common::quickParameter($UnionData,'ip_end','结束ip',FALSE);
+        $ExpTime=Common::quickParameter($UnionData,'exp_time','过期时间',FALSE);
         
         self::initial();
         
@@ -209,11 +192,11 @@ class Ip
     }
     
     //移除
-    public static function delete($UnionData=[])
+    public static function delete($UnionData=[]): bool
     {
-        $StartIP=Common::quickParamet($UnionData,'ip_start','起始ip');
-        $EndIP=Common::quickParamet($UnionData,'ip_end','结束ip',FALSE,NULL);
-        $Type=Common::quickParamet($UnionData,'type','类型');
+        $StartIP=Common::quickParameter($UnionData,'ip_start','起始ip');
+        $EndIP=Common::quickParameter($UnionData,'ip_end','结束ip',FALSE);
+        $Type=Common::quickParameter($UnionData,'type','类型');
 
         self::initial();
 
@@ -237,11 +220,19 @@ class Ip
     }
     
     //IP黑名单检测
-    public static function check($UnionData=[])
+    public static function check($UnionData=[]): bool
     {
+        $IP=Common::quickParameter($UnionData,'ip','ip',FALSE);
         self::initial();
 
-        if (!self::find(2,$_SERVER['REMOTE_ADDR'])&&self::find(1,$_SERVER['REMOTE_ADDR'])) {
+        if (ip2long($IP)===FALSE) {
+            return FALSE;
+        }
+        if(empty($IP)){
+            $IP=$_SERVER['REMOTE_ADDR'];
+        }
+
+        if (!self::find(['type'=>'w','ip'=>$IP])&&self::find(['type'=>'b','ip'=>$IP])) {
             if ($_SERVER['84PHP']['Config']['Ip']['exitProgream']) {
                 Api::wrong(['level'=>'F','detail'=>'Error#M.3.3','code'=>'M.3.3']);
             }
@@ -253,9 +244,9 @@ class Ip
     }
     
     //导出全部记录
-    public static function getAll($UnionData=[])
+    public static function getAll($UnionData=[]): array
     {
-        $Type=Common::quickParamet($UnionData,'type','类型');
+        $Type=Common::quickParameter($UnionData,'type','类型');
 
         self::initial();
 
@@ -277,17 +268,14 @@ class Ip
     }
     
     //查找
-    public static function find($UnionData=[])
+    public static function find($UnionData=[]): bool
     {
-        $Type=Common::quickParamet($UnionData,'type','类型');
-        $IP=Common::quickParamet($UnionData,'ip','ip地址');
+        $Type=Common::quickParameter($UnionData,'type','类型');
+        $IP=Common::quickParameter($UnionData,'ip','ip地址');
 
         self::initial();
         
-        if (empty($IP)) {
-            return FALSE;
-        }
-        if (ip2long($IP)===FALSE) {
+        if (empty($IP)||ip2long($IP)===FALSE) {
             return FALSE;
         }
         $IPNumber=self::transform($IP);
@@ -308,8 +296,8 @@ class Ip
     //清理
     public static function clean($UnionData=[])
     {
-        $Reset=Common::quickParamet($UnionData,'reset','重置',FALSE,FALSE);
-        $Type=Common::quickParamet($UnionData,'type','类型');
+        $Reset=Common::quickParameter($UnionData,'reset','重置',FALSE,FALSE);
+        $Type=Common::quickParameter($UnionData,'type','类型');
 
         self::initial();
 

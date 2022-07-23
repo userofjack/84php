@@ -1,9 +1,6 @@
 <?php
 namespace core;
 
-use core\Common;
-use core\Api;
-
 /*
   84PHP开源框架
 
@@ -15,9 +12,9 @@ use core\Api;
 class Dir
 {
     //目录文件属性
-    public static function state($UnionData=[])
+    public static function state($UnionData=[]): array
     {
-        $Path=Common::quickParamet($UnionData,'path','路径');
+        $Path=Common::quickParameter($UnionData,'path','路径');
         
         if (!is_array($Path)) {
             $PathArray=[$Path];
@@ -28,7 +25,7 @@ class Dir
 
         clearstatcache();
         $Return=[];
-        foreach ($PathArray as $Key => $Val) {
+        foreach ($PathArray as $Val) {
             $TempArray=[];
 
             if (file_exists(Common::diskPath($Val))) {
@@ -55,9 +52,6 @@ class Dir
                     }
                 }
             }
-            else {
-                $TempArray=[];
-            }
             $Return[$Val]=$TempArray;
         }
         return $Return;
@@ -83,31 +77,27 @@ class Dir
         else {
             Api::wrong(['level'=>'F','detail'=>'Error#M.0.0','code'=>'M.0.0']);
         }
+        return TRUE;
     }
     
     //目录大小
     public static function size($UnionData=[])
     {
-        $Path=Common::quickParamet($UnionData,'path','路径');
-        $Unit=Common::quickParamet($UnionData,'unit','单位',FALSE,NULL);
+        $Path=Common::quickParameter($UnionData,'path','路径');
+        $Unit=Common::quickParameter($UnionData,'unit','单位',FALSE);
 
         $DirSize=self::sizeCall(Common::diskPath($Path));
         
         if ($Unit=='KB') {
             $DirSize=round($DirSize/pow(1024,1),2);
-            return $DirSize;
         }
         elseif ($Unit=='MB') {
             $DirSize=round($DirSize/pow(1024,2),2);
-            return $DirSize;
         }
         elseif ($Unit=='GB') {
             $DirSize=round($DirSize/pow(1024,3),2);
-            return $DirSize;
         }
-        else {
-            return $DirSize;
-        }
+        return $DirSize;
     }
     
     //删除目录调用
@@ -119,7 +109,7 @@ class Dir
                     if ($FileName!="."&&$FileName!="..") {
                         $SubFile=$Dir."/".$FileName;
                         if (is_dir($SubFile)) {
-                            self::delCall($SubFile);
+                            self::deleteCall($SubFile);
                         }
                         if (is_file($SubFile)) {
                             @unlink($SubFile);
@@ -138,13 +128,13 @@ class Dir
     //删除目录
     public static function delete($UnionData=[])
     {
-        $Path=Common::quickParamet($UnionData,'path','路径');
+        $Path=Common::quickParameter($UnionData,'path','路径');
 
         if (!is_array($Path)) {
             self::deleteCall(Common::diskPath($Path));
         }
         else {
-            foreach ($Path as $Val) {
+            foreach ($Path as $ignored) {
                 self::deleteCall(Common::diskPath($Path));
             }
         }
@@ -185,10 +175,10 @@ class Dir
     //复制目录
     public static function copy($UnionData=[])
     {
-        $From=Common::quickParamet($UnionData,'from','源路径');
-        $To=Common::quickParamet($UnionData,'to','目标路径');
+        $From=Common::quickParameter($UnionData,'from','源路径');
+        $To=Common::quickParameter($UnionData,'to','目标路径');
 
-        self::copyCall(Common::diskPath($Path), Common::diskPath($Path));
+        self::copyCall(Common::diskPath($From), Common::diskPath($To));
     }
     
     //调用方法不存在

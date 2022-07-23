@@ -10,14 +10,14 @@ use core\Log;
 
   框架版本号：6.0.0
 */
+const __VERSION__ = '6.0.0';
 define('__TIME__',microtime(TRUE));
-define('__VERSION__','6.0.0');
 define('__ROOT__',str_replace(['\\','//'],'/',dirname(__FILE__)));
 
 
 register_shutdown_function( "fatalErrorHandler" );
 set_error_handler('systemErrorHandler', E_ALL | E_STRICT);
-define('E_FATAL',E_ERROR|E_USER_ERROR|E_CORE_ERROR|E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_PARSE );
+const E_FATAL = E_ERROR | E_USER_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_RECOVERABLE_ERROR | E_PARSE;
 
 
 set_include_path(get_include_path().PATH_SEPARATOR.__ROOT__.'/lib/');
@@ -81,7 +81,7 @@ function fatalErrorHandler()
   }
 }
 
-function systemErrorHandler($ErrorNo,$ErrorMsg,$ErrorFile,$ErrorLine)
+function systemErrorHandler($ErrorNo,$ErrorMsg,$ErrorFile,$ErrorLine): bool
 {
     if (error_reporting()==0) {
         return TRUE;
@@ -112,7 +112,7 @@ function systemErrorHandler($ErrorNo,$ErrorMsg,$ErrorFile,$ErrorLine)
             $PHPSystemError='PHP Strict: ';
             break;
         default:
-            $PHPSystemError='Unkonw error: ';
+            $PHPSystemError='Unknown error: ';
             break;
     }
  
@@ -142,15 +142,15 @@ Cache::compile(['path'=>__URI__]);
 if (file_exists(__ROOT__.'/temp/cache'.__URI__.'.php')) {
 	require(__ROOT__.'/temp/cache'.__URI__.'.php');
 }
-else if (file_exists(__ROOT__.'/web'.__URI__.'/index.html')) {
+elseif (file_exists(__ROOT__.'/web'.__URI__.'/index.html')) {
 	$Content=file_get_contents(__ROOT__.'/Web'.__URI__.'/index.html');
 	echo($Content);
 }
-else if (file_exists(__ROOT__.'/web'.__URI__.'/index.htm')) {
+elseif (file_exists(__ROOT__.'/web'.__URI__.'/index.htm')) {
 	$Content=file_get_contents(__ROOT__.'/Web'.__URI__.'/index.htm');
 	echo($Content);
 }
-else if (!empty($_SERVER['84PHP']['Config']['Base']['pageNotFound'])) {
+elseif (!empty($_SERVER['84PHP']['Config']['Base']['pageNotFound'])) {
     header('Location: '.$_SERVER['84PHP']['Config']['Base']['pageNotFound']);
 }
 else {

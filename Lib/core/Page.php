@@ -1,9 +1,6 @@
 <?php
 namespace core;
 
-use core\Common;
-use core\Db;
-
 /*
   84PHP开源框架
 
@@ -16,23 +13,13 @@ class Page
 {
 
     //分页
-    public static function base($UnionData=[])
+    public static function base($UnionData=[]): array
     {
-        $Table=Common::quickParamet($UnionData,'table','表');
-        $Field=Common::quickParamet($UnionData,'field','字段',FALSE,[]);
-        $Value=Common::quickParamet($UnionData,'value','值',FALSE,[]);
-        $Condition=Common::quickParamet($UnionData,'condition','条件',FALSE,'=');
-        $Order=Common::quickParamet($UnionData,'order','顺序',FALSE,NULL);
-        $Desc=Common::quickParamet($UnionData,'desc','降序',FALSE,FALSE);
-        $Index=Common::quickParamet($UnionData,'index','索引',FALSE,NULL);        
-        $Sql=Common::quickParamet($UnionData,'sql','sql',FALSE,NULL);
 
-        $Page=Common::quickParamet($UnionData,'page','页码');        
-        $Number=Common::quickParamet($UnionData,'number','数量');        
+        $Page=Common::quickParameter($UnionData,'page','页码');
+        $Number=Common::quickParameter($UnionData,'number','数量');
 
-        $FieldLimit=Common::quickParamet($UnionData,'field_limit','字段限制',FALSE,NULL);        
-        
-        $Result=['result'=>[],'info'=>[]];
+        $Result=['result'=>[]];
         $NowPage=intval($Page);
         if ($NowPage<1) {
             $NowPage=1;
@@ -42,16 +29,7 @@ class Page
         }
         $Number=intval($Number);
         $Start=0;
-        $TotalNumber=Db::total([
-            'table'=>$Table,
-            'field'=>$Field,
-            'value'=>$Value,
-            'condition'=>$Condition,
-            'order'=>$Order,
-            'desc'=>$Desc,
-            'index'=>$Index,
-            'sql'=>$Sql
-        ]);
+        $TotalNumber=Db::total($UnionData);
         $TotalNumber=intval($TotalNumber);
         $TotalPage=intval(ceil($TotalNumber/$Number));
         if ($Number>0) {
@@ -78,20 +56,11 @@ class Page
         }
         if ($End>$TotalNumber) {
             $End=$TotalNumber;
-        };
-        
-        $Result['result']=Db::selectMore([
-            'table'=>$Table,
-            'field'=>$Field,
-            'value'=>$Value,
-            'condition'=>$Condition,
-            'order'=>$Order,
-            'desc'=>$Desc,
-            'limit'=>$Limit,
-            'index'=>$Index,
-            'field_limit'=>$FieldLimit,
-            'sql'=>$Sql
-        ]);
+        }
+
+        $UnionData['limit']=$Limit;
+
+        $Result['result']=Db::selectMore($UnionData);
         $Result['info']=[
             'now'=>$NowPage,
             'total'=>$TotalPage,

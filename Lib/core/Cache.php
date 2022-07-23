@@ -1,9 +1,6 @@
 <?php
 namespace core;
 
-use core\Common;
-use core\Api;
-
 /*
   84PHP开源框架
 
@@ -25,7 +22,7 @@ class Cache
         }
         if (fwrite($Handle,$Context)===FALSE) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.11.3','code'=>'M.11.3']);
-        };
+        }
         fclose($Handle);
     }
 
@@ -33,8 +30,6 @@ class Cache
     //模板编译
     private static function templateTranslate($From,$To,$CacheChanged)
     {
-        $Cache=NULL;
-
         if ($CacheChanged&&file_exists($From)) {
             if (filesize($From)>0) {
                 $Cache=file_get_contents($From);
@@ -53,7 +48,7 @@ class Cache
     }
     
     //文件信息
-    private static function fileInfo($FilePath)
+    private static function fileInfo($FilePath): array
     {
         $ReturnArray=[
             'path'=>$FilePath,
@@ -71,10 +66,10 @@ class Cache
     }
     
     //编译
-    public static function compile($UnionData=[])
+    public static function compile($UnionData=[]): bool
     {
-        $Path=Common::quickParamet($UnionData,'path','路径');
-        $Force=Common::quickParamet($UnionData,'force','强制编译',FALSE,FALSE);
+        $Path=Common::quickParameter($UnionData,'path','路径');
+        $Force=Common::quickParameter($UnionData,'force','强制编译',FALSE,FALSE);
         
         if (__DEBUG__) {
             $Force=TRUE;
@@ -93,7 +88,7 @@ class Cache
 
         if (!is_dir($CacheDir)&&!@mkdir($CacheDir,0777,TRUE)) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.11.5'."\r\n\r\n @ ".$CacheDir,'code'=>'M.11.5']);
-        };
+        }
 
 
         if (!$SourcePath['exist']) {
@@ -121,12 +116,10 @@ class Cache
         }
 
         if (!$CacheFile['exist']||$CacheFile['time']>__TIME__) {
-            if ($SourcePath['exist']) {
-                $CacheChanged=TRUE;
-            }
+            $CacheChanged=TRUE;
         }
 
-        if ($SourcePath['exist']&&$CacheFile['exist']) {
+        if ($CacheFile['exist']) {
             if ($SourcePath['time']>$CacheFile['time']||$SourcePath['time']>__TIME__||$Force) {
                 if ($SourcePath['time']>__TIME__) {
                     touch($SourcePath['path']);
@@ -146,6 +139,7 @@ class Cache
         }
 
         self::templateTranslate($SourcePath['path'],$CacheFile['path'],$CacheChanged);
+        return TRUE;
     }
     
     //重建所有缓存
@@ -160,7 +154,7 @@ class Cache
                 if (is_dir($AllFile)) {
                     self::reBuild($AllFile);
                 }
-                else if (strtoupper(end($Exp))=='PHP') {
+                elseif (strtoupper(end($Exp))=='PHP') {
                     self::compile([
                         'path'=>substr(str_replace($SourceDir,'',$AllFile),0,-4)
                         ,TRUE]);

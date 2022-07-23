@@ -1,9 +1,6 @@
 <?php
 namespace core;
 
-use core\Common;
-use core\Api;
-
 /*
   84PHP开源框架
 
@@ -16,11 +13,11 @@ class Ftp
 {
 
     //上传
-    public static function up($UnionData=[])
+    public static function up($UnionData=[]): bool
     {
-        $From=Common::quickParamet($UnionData,'from','本地路径');
-        $To=Common::quickParamet($UnionData,'to','远程路径');
-        $Timeout=Common::quickParamet($UnionData,'timeout','超时时间',FALSE,90);
+        $From=Common::quickParameter($UnionData,'from','本地路径');
+        $To=Common::quickParameter($UnionData,'to','远程路径');
+        $Timeout=Common::quickParameter($UnionData,'timeout','超时时间',FALSE,90);
         
         $From=Common::diskPath($From);
 
@@ -40,11 +37,11 @@ class Ftp
     }
 
     //下载
-    public static function down($UnionData=[])
+    public static function down($UnionData=[]): bool
     {
-        $From=Common::quickParamet($UnionData,'from','远程路径');
-        $To=__ROOT__.Common::quickParamet($UnionData,'to','本地路径');
-        $Timeout=Common::quickParamet($UnionData,'timeout','超时时间',FALSE,90);
+        $From=Common::quickParameter($UnionData,'from','远程路径');
+        $To=__ROOT__.Common::quickParameter($UnionData,'to','本地路径');
+        $Timeout=Common::quickParameter($UnionData,'timeout','超时时间',FALSE,90);
         
         $To=Common::diskPath($To);
 

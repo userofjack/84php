@@ -1,9 +1,6 @@
 <?php
 namespace core;
 
-use core\Common;
-use core\Api;
-
 /*
   84PHP开源框架
 
@@ -16,7 +13,7 @@ class Filter
 {
     
     //非空检查
-    private static function emptyCheck($OpArray,$Value)
+    private static function emptyCheck($OpArray,$Value): bool
     {
         if (isset($OpArray[0])&&strtoupper($OpArray[0])=='TRUE'&&($Value===''||$Value===NULL||$Value===[])) {
             return FALSE;
@@ -25,7 +22,7 @@ class Filter
     }
     
     //长度检查
-    private static function lengthCheck($OpArray,$Value)
+    private static function lengthCheck($OpArray,$Value): bool
     {
         $Value=strval($Value);
         $StrLen=mb_strlen($Value);
@@ -60,14 +57,14 @@ class Filter
     }
 
     //按模式检查
-    public static function byMode($UnionData=[])
+    public static function byMode($UnionData=[]): bool
     {
-        $Field=Common::quickParamet($UnionData,'field','字段');
-        $Optional=Common::quickParamet($UnionData,'optional','可选',FALSE,[]);
-        $Mode=Common::quickParamet($UnionData,'mode','模式');
+        $Field=Common::quickParameter($UnionData,'field','字段');
+        $Optional=Common::quickParameter($UnionData,'optional','可选',FALSE,[]);
+        $Mode=Common::quickParameter($UnionData,'mode','模式');
         $Mode=strtolower($Mode);
         if ($Mode!='get'&&$Mode!='post'&&$Mode!='header') {
-            Api::wrong(['level'=>'F','detail'=>'Error#M.7.0'."\r\n\r\n @ ".$TempOp[0],'code'=>'M.7.0']);
+            Api::wrong(['level'=>'F','detail'=>'Error#M.7.0'."\r\n\r\n @ ".$Mode,'code'=>'M.7.0']);
         }
         foreach ($Field as $Key => $Val) {
             $TempOp=explode(',',$Val);
@@ -75,10 +72,10 @@ class Filter
             if ($Mode=='post'&&isset($_POST[$Key])) {
                 $TempData=$_POST[$Key];
             }
-            else if ($Mode=='get'&&isset($_GET[$Key])) {
+            elseif ($Mode=='get'&&isset($_GET[$Key])) {
                 $TempData=$_GET[$Key];
             }
-            else if ($Mode=='header') {
+            elseif ($Mode=='header') {
                 $KeyName='HTTP_'.str_replace('-','_',strtoupper($Key));
                 if (isset($_SERVER[$KeyName])) {
                     $TempData=$_SERVER[$KeyName];
@@ -97,12 +94,10 @@ class Filter
     }
 
     //从数据检查
-    public static function byData($UnionData=[])
+    public static function byData($UnionData=[]): bool
     {
-        $Data=Common::quickParamet($UnionData,'data','数据');
-        $Check=Common::quickParamet($UnionData,'check','校验');
-        
-        $Operate=explode(',',$Data);
+        $Data=Common::quickParameter($UnionData,'data','数据');
+        $Check=Common::quickParameter($UnionData,'check','校验');
 
         if (!self::emptyCheck($Check,$Data)||!self::lengthCheck($Check,$Data)||!self::ruleCheck($Check,$Data)) {
             return FALSE;

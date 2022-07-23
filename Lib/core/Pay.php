@@ -1,9 +1,9 @@
 <?php
 namespace core;
 
-use core\Common;
-use core\Api;
-use core\Tool;
+
+
+
 
 
 /*
@@ -23,29 +23,29 @@ class Pay
         if (getenv('HTTP_CLIENT_IP')&&strcasecmp(getenv('HTTP_CLIENT_IP'),'unknown')) {
             $ClientIp=getenv('HTTP_CLIENT_IP');
         }
-        else if (getenv('HTTP_X_FORWARDED_FOR')&&strcasecmp(getenv('HTTP_X_FORWARDED_FOR'),'unknown')) {
+        elseif (getenv('HTTP_X_FORWARDED_FOR')&&strcasecmp(getenv('HTTP_X_FORWARDED_FOR'),'unknown')) {
             $ClientIp=getenv('HTTP_X_FORWARDED_FOR');
         }
-        else if (getenv('REMOTE_ADDR')&&strcasecmp(getenv('REMOTE_ADDR'),'unknown')) {
+        elseif (getenv('REMOTE_ADDR')&&strcasecmp(getenv('REMOTE_ADDR'),'unknown')) {
             $ClientIp=getenv('REMOTE_ADDR');
         }
-        else if (isset($_SERVER['REMOTE_ADDR'])&&$_SERVER['REMOTE_ADDR']&&strcasecmp($_SERVER['REMOTE_ADDR'],'unknown')) {
+        elseif (isset($_SERVER['REMOTE_ADDR'])&&$_SERVER['REMOTE_ADDR']&&strcasecmp($_SERVER['REMOTE_ADDR'],'unknown')) {
             $ClientIp=$_SERVER['REMOTE_ADDR'];
         }
         else {
             $ClientIp='';
         }
-        return preg_match('/[\d\.]{7,15}/',$ClientIp,$Matches)?$Matches[0]:'';
+        return preg_match('/[\d.]{7,15}/',$ClientIp,$Matches)?$Matches[0]:'';
     }
     
     //支付宝支付接口
-    public static function aliPay($UnionData=[])
+    public static function aliPay($UnionData=[]): string
     {
-        $Id=Common::quickParamet($UnionData,'id','编号');
-        $Title=Common::quickParamet($UnionData,'title','标题');
-        $Total=Common::quickParamet($UnionData,'total','金额');
-        $QR=Common::quickParamet($UnionData,'qr','二维码',FALSE,FALSE);
-        $QRWidth=Common::quickParamet($UnionData,'qr_width','二维码宽度',FALSE,NULL);
+        $Id=Common::quickParameter($UnionData,'id','编号');
+        $Title=Common::quickParameter($UnionData,'title','标题');
+        $Total=Common::quickParameter($UnionData,'total','金额');
+        $QR=Common::quickParameter($UnionData,'qr','二维码',FALSE,FALSE);
+        $QRWidth=Common::quickParameter($UnionData,'qr_width','二维码宽度',FALSE);
         
         $PostArray=[
                 'service'=>'create_direct_pay_by_user',
@@ -63,12 +63,11 @@ class Pay
         if ($QR) {
             if (!empty($QRWidth)) {
                 $QRArray=['qr_pay_mode'=>'4','qrcode_width'=>$QRWidth];
-                $PostArray=array_merge($PostArray,$QRArray);
             }
             else {
                 $QRArray=['qr_pay_mode'=>'3'];
-                $PostArray=array_merge($PostArray,$QRArray);
             }
+            $PostArray=array_merge($PostArray,$QRArray);
         }
         ksort($PostArray);
         $SortString=NULL;
@@ -83,12 +82,12 @@ class Pay
     //微信支付接口
     public static function wxPay($UnionData=[])
     {
-        $Id=Common::quickParamet($UnionData,'id','编号');
-        $Title=Common::quickParamet($UnionData,'title','标题');
-        $Total=Common::quickParamet($UnionData,'total','金额');
-        $Mode=Common::quickParamet($UnionData,'mode','模式',FALSE,'NATIVE');
-        $Ip=Common::quickParamet($UnionData,'ip','ip地址',FALSE,NULL);
-        $OpenID=Common::quickParamet($UnionData,'openid','openid',FALSE,NULL);
+        $Id=Common::quickParameter($UnionData,'id','编号');
+        $Title=Common::quickParameter($UnionData,'title','标题');
+        $Total=Common::quickParameter($UnionData,'total','金额');
+        $Mode=Common::quickParameter($UnionData,'mode','模式',FALSE,'NATIVE');
+        $Ip=Common::quickParameter($UnionData,'ip','ip地址',FALSE);
+        $OpenID=Common::quickParameter($UnionData,'openid','openid',FALSE);
 
         if (empty($Ip)) {
             $Ip=self::getClientIp();
@@ -182,7 +181,7 @@ class Pay
     }
     
     //支付宝支付验签
-    public static function aliPayVerify($UnionData=[])
+    public static function aliPayVerify(): bool
     {
         $PostArray=$_POST;
         if (empty($PostArray)) {
@@ -221,7 +220,7 @@ class Pay
     //微信支付验签
     public static function wxPayVerify($UnionData=[])
     {
-        $String=Common::quickParamet($UnionData,'string','字符串');
+        $String=Common::quickParameter($UnionData,'string','字符串');
         $XmlArray=json_decode(json_encode(simplexml_load_string($String,'SimpleXMLElement',LIBXML_NOCDATA)),TRUE);
         if (empty($XmlArray)) {
             return FALSE;

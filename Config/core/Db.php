@@ -3,12 +3,9 @@
 $_SERVER['84PHP']['Config']['Db']=[
 	'log'=>FALSE,
 
-	'rwSplitting'=>FALSE,
-	
-	'dbType'=>'mysql',
-
 	'dbInfo'=>[
 		'default'=>[
+            'type'=>'mysql',
 			'address'=>'localhost',
 			'username'=>'root',
 			'password'=>'0000',
@@ -18,6 +15,7 @@ $_SERVER['84PHP']['Config']['Db']=[
 		],
 
 		'other'=>[
+            'type'=>'mysql',
 			'address'=>'',
 			'username'=>'',
 			'password'=>'',
