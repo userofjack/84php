@@ -95,7 +95,7 @@ class Log
                 "\r\n";
         }
         
-        $FilePath='/Temp/Log/'.$_SERVER['84PHP']['Config']['Base']['safeCode'].date('/Y-m/d',__TIME__);
+        $FilePath='/temp/log/'.$_SERVER['84PHP']['Config']['Base']['safeCode'].date('/Y-m/d',__TIME__);
         if (!file_exists(__ROOT__.$FilePath)) {
             mkdir(__ROOT__.$FilePath,0777,TRUE);
         }

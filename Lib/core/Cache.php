@@ -76,7 +76,7 @@ class Cache
         }
 
         $CacheChanged=FALSE;
-        $CacheDir=__ROOT__.'/Temp/Cache';
+        $CacheDir=__ROOT__.'/temp/cache';
                 
         $CacheFile=self::fileInfo($CacheDir.$Path.'.php');
         
@@ -84,7 +84,7 @@ class Cache
             return FALSE;
         }
 
-        $SourcePath=self::fileInfo(__ROOT__.'/Source'.$Path.'.php');
+        $SourcePath=self::fileInfo(__ROOT__.'/source'.$Path.'.php');
 
         if (!is_dir($CacheDir)&&!@mkdir($CacheDir,0777,TRUE)) {
             Api::wrong(['level'=>'F','detail'=>'Error#M.11.5'."\r\n\r\n @ ".$CacheDir,'code'=>'M.11.5']);
@@ -145,7 +145,7 @@ class Cache
     //重建所有缓存
     public static function reBuild($Path='')
     {
-        $SourceDir=__ROOT__.'/Source';
+        $SourceDir=__ROOT__.'/source';
         $DirHandle=@opendir($SourceDir.$Path);
         while ($SourceFile=readdir($DirHandle)) {
             if ($SourceFile!='.'&&$SourceFile!='..') {

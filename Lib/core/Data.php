@@ -107,7 +107,7 @@ class Data
     private static function getFilePath($Prefix,$Key,$Mkdir=FALSE)
     {
         $MD5=md5($Key);
-        $Path=__ROOT__.'/Temp/Data/'.$Prefix;
+        $Path=__ROOT__.'/temp/data/'.$Prefix;
         $Level=intval($_SERVER['84PHP']['Config']['Data']['connect']['file']['level']);
         if ($_SERVER['84PHP']['Config']['Data']['connect']['file']['level']<1) {
             $Level=0;

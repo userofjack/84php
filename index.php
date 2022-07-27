@@ -143,11 +143,11 @@ if (file_exists(__ROOT__.'/temp/cache'.__URI__.'.php')) {
 	require(__ROOT__.'/temp/cache'.__URI__.'.php');
 }
 elseif (file_exists(__ROOT__.'/web'.__URI__.'/index.html')) {
-	$Content=file_get_contents(__ROOT__.'/Web'.__URI__.'/index.html');
+	$Content=file_get_contents(__ROOT__.'/web'.__URI__.'/index.html');
 	echo($Content);
 }
 elseif (file_exists(__ROOT__.'/web'.__URI__.'/index.htm')) {
-	$Content=file_get_contents(__ROOT__.'/Web'.__URI__.'/index.htm');
+	$Content=file_get_contents(__ROOT__.'/web'.__URI__.'/index.htm');
 	echo($Content);
 }
 elseif (!empty($_SERVER['84PHP']['Config']['Base']['pageNotFound'])) {

@@ -23,8 +23,8 @@ class Ip
             return TRUE;
         }
         
-        self::$BlackListFile=__ROOT__.'/Temp/ip-blacklist.php';
-        self::$WhiteListFile=__ROOT__.'/Temp/ip-whitelist.php';
+        self::$BlackListFile=__ROOT__.'/temp/ip-blacklist.php';
+        self::$WhiteListFile=__ROOT__.'/temp/ip-whitelist.php';
         if (!file_exists(self::$BlackListFile)) {
             if (!file_put_contents(self::$BlackListFile,'<?php exit; ?>')) {
                 Api::wrong(['level'=>'F','detail'=>'Error#M.3.0','code'=>'M.3.0']);
