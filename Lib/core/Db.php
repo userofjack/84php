@@ -85,7 +85,6 @@ class Db
             'data'=>['data','数据',TRUE,NULL],
             'sumField'=>['sum','合计',TRUE,NULL],
             'fieldLimit'=>['field_limit','字段限制',FALSE,NULL],
-            'fetch'=>['fetch_result','取回结果',FALSE,FALSE],
             'rowCount'=>['row_count','行数统计',FALSE,FALSE],
             'autoOp'=>['auto_operate','自动操作',FALSE,NULL],
             'groupBy'=>['group_by','分组',FALSE,NULL],
@@ -490,14 +489,16 @@ class Db
     //查询自定义语句
     public static function other($UnionData=[])
     {
-        $Para=self::parameterCheck($UnionData,['fetch']);
+        $Sql=Common::quickParameter($UnionData,'sql','sql',FALSE);
+        $Bind=Common::quickParameter($UnionData,'bind','绑定',FALSE,[]);
+        $Fetch=Common::quickParameter($UnionData,'fetch_result','取回结果',FALSE,FALSE);
 
         self::initial();
 
-        $StmtKey=self::createBind($Para['sql']);
-        self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
+        $StmtKey=self::createBind($Sql);
+        self::bindData($StmtKey,[],$Bind,'',TRUE);
 
-        return self::execBind($StmtKey,$Para['sql'],$Para['fetch']?'FetchAll':'');
+        return self::execBind($StmtKey,$Sql,$Fetch?'FetchAll':'');
     }
     
     //事务
