@@ -13,7 +13,7 @@ class Page
 {
 
     //分页
-    public static function base($UnionData=[]): array
+    public static function get($UnionData=[]): array
     {
 
         $Page=Common::quickParameter($UnionData,'page','页码');
