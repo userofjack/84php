@@ -1,0 +1,883 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta content="email=no" name="format-detection" />
+<meta content="telephone=no" name="format-detection" />
+<meta name="screen-orientation" content="portrait">
+<meta name="browsermode" content="application">
+<meta name="x5-orientation" content="portrait">
+<title>欢迎 -84PHP</title>
+<script type="text/javascript" src="/js/clipboard.min.js"></script>
+<script type="text/javascript" src="/js/bluebird.min.js"></script>
+<script type="text/javascript" src="/js/axios.min.js"></script>
+<script type="text/javascript" src="/js/md5.js"></script>
+<script type="text/javascript" src="/js/vue.min.js"></script>
+<script type="text/javascript" src="/js/js.js"></script>
+<link rel="stylesheet" href="/css/style.css" type="text/css" />
+</head>
+<body>
+	<!--[if IE]>
+	<div class="IEBrowser-bg"></div>
+	<div class="IEBrowser">
+		<div class="IEBrowser-box">
+            <h1>页面无法正确被显示</h1><br><span>您可能使用了老旧的IE浏览器或现代浏览器的兼容模式。</span><br>请尝试关闭兼容模式，或使用如 <b>Chrome</b> 、<b>FireFox</b> 、<b>360极速浏览器</b> 等现代浏览器访问。<br>很抱歉给您带来不便，如需帮助请联系 cs@bux.cn。
+		</div>
+	</div>
+	<![endif]-->
+    <div class="app" id="app">
+        <div class="note note-slide" v-if="version.remote.status=='success'&&version.remote.value==version.native.value">恭喜！您当前使用的框架（V{{version.remote.value}}）是最新版本。</div>
+        <div class="note note-slide note-danger" v-if="version.remote.status=='success'&&version.remote.value!=version.native.value">你Out啦！84PHP框架已发布新版本，还不快去看看！<a href="https://www.84php.com" target="_blank"><span class="note-link">立即下载</span></a></div>
+        <div class="note note-slide note-danger" v-if="version.remote.status=='error'">框架最新版本号获取失败</div>
+        <div class="main">
+            <div class="main-logo">
+                <img src="/img/logo.svg"/>
+            </div>
+            <div class="main-nav">
+                <div class="main-nav-class">
+                    <div :class="{'main-nav-class-item':true,'main-nav-class-item-active':windowName=='devtool'?true:false}" @click="openWindow('devtool')">调试
+                        <div class="main-nav-class-item-linebox">
+                            <div class="main-nav-class-item-hoverline"></div>
+                        </div>
+                    </div>
+                    <div :class="{'main-nav-class-item':true,'main-nav-class-item-active':windowName=='doc'?true:false}" @click="openWindow('doc')">文档
+                        <div class="main-nav-class-item-linebox">
+                            <div class="main-nav-class-item-hoverline"></div>
+                        </div>
+                    </div>
+                    <div :class="{'main-nav-class-item':true,'main-nav-class-item-active':windowName=='ex-doc'?true:false}" @click="openWindow('ex-doc')">样例
+                        <div class="main-nav-class-item-linebox">
+                            <div class="main-nav-class-item-hoverline"></div>
+                        </div>
+                    </div>
+                    <div class="main-nav-class-item"><a href="https://www.84php.com" target="_blank">官网</a>
+                        <div class="main-nav-class-item-linebox">
+                            <div class="main-nav-class-item-hoverline"></div>
+                        </div>
+                    </div>
+                    <div class="main-nav-class-item"><a href="https://www.84php.com/?space=qun" target="_blank">加入QQ群</a>
+                        <div class="main-nav-class-item-linebox">
+                            <div class="main-nav-class-item-hoverline"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="main-devtool" :style="{'display': windowName=='devtool'?'':'none'}">
+                <div class="main-devtool-box">
+                    <div class="main-devtool-url">
+                        <div class="main-devtool-url-method">
+                            <select v-model="request.method">
+                                <option value="get">GET</option>
+                                <option value="post">POST</option>
+                                <option value="put">PUT</option>
+                                <option value="delete">DELETE</option>
+                            </select>
+                        </div>
+                        <div class="main-devtool-url-input">
+                            <input  v-model="request.url" placeholder="请输入接口地址" autocomplete="off">
+                        </div>
+                        <div class="main-devtool-url-submit">
+                            <div class="main-devtool-url-submit-icon" @click="sendRequest()"></div>
+                        </div>
+                    </div>
+                    <div class="main-devtool-request">
+                        <div class="main-devtool-request-menu">
+                            <div :class="{'main-devtool-request-menu-tab':true, 'main-devtool-request-menu-hover':(devtoolTab.now==key?true:false)}" @click="changeTab(key)" v-for="(val,key) in devtoolTab.list" v-html="val"></div>
+                        </div>
+                        <div class="main-devtool-request-input">
+                            <div class="main-devtool-request-input-option">
+                                <div class="main-devtool-request-input-option-select">
+                                    <select v-model="request.content_type" v-if="devtoolTab.now=='body'" @change="cleanAllFileValue()" v-if="devtoolTab.now!='favorites'">
+                                        <option value="">无</option>
+                                        <option value="multipart/form-data">multipart/form-data</option>
+                                        <option value="application/x-www-form-urlencoded">application/x-www-form-urlencoded</option>
+                                        <option value="application/json">application/json</option>
+                                        <option value="application/xml">application/xml</option>
+                                        <option value="text/html">text/html</option>
+                                        <option value="text/plain">text/plain</option>
+                                    </select>
+                                </div>
+                                <div class="main-devtool-request-input-option-btns">
+                                    <div class="main-devtool-request-input-option-btns-btn" v-if="devtoolTab.now!='favorites'&&devtoolTab.now!='auth'&&(devtoolTab.now!='body'||request.content_type=='multipart/form-data'||request.content_type=='application/x-www-form-urlencoded')" @click="openMask('input')">导入参数</div>
+                                    <div class="main-devtool-request-input-option-btns-btn" v-if="devtoolTab.now!='favorites'&&devtoolTab.now!='auth'&&(devtoolTab.now!='body'||request.content_type=='multipart/form-data'||request.content_type=='application/x-www-form-urlencoded')" @click="openMask('output')">导出参数</div>
+                                    <div class="main-devtool-request-input-option-btns-btn" @click="openMask('save')" v-if="devtoolTab.now!='favorites'">保存接口</div>
+                                    <div class="main-devtool-request-input-option-btns-btn" @click="deleteInput()" v-if="devtoolTab.now!='favorites'">清空</div>
+                                    <div class="main-devtool-request-input-option-btns-btn" @click="deleteFavorites()" v-if="devtoolTab.now=='favorites'">清空收藏</div>
+                                </div>
+                            </div>
+                            <div class="main-devtool-request-input-content">
+                                <div class="main-devtool-request-input-content-mask" v-if="mask!=''">
+                                    <div class="main-devtool-request-input-content-mask-content">
+                                        <div class="main-devtool-request-input-content-mask-content-notice" v-text="input.error" v-if="input.error!=''" :style="{'position':(mask=='save'?'absolute':'')}"></div>
+                                        <textarea placeholder="请输入文本" v-model="input[devtoolTab.now]" v-if="mask=='input'"></textarea>
+                                        <textarea v-if="mask=='output'">{{getRequestOutput()}}</textarea>
+                                        <input placeholder="请输入接口名称" v-model="input.saveName" v-if="mask=='save'">
+                                    </div>
+                                    <div class="main-devtool-request-input-content-mask-option">
+                                        <div class="main-devtool-request-input-content-mask-option-select">
+                                            <select v-model="input.dataType" v-if="mask=='input'">
+                                                <option value="none" disabled selected>请选择</option>
+                                                <option value="json">JSON</option>
+                                                <option value="kv">多行K-V</option>
+                                                <option value="urlencode">UrlEncode</option>
+                                            </select>
+                                        </div>
+                                        <div class="main-devtool-request-input-content-mask-option-btns">
+                                            <div class="main-devtool-request-input-content-mask-option-btns-btn" @click="dealInput(devtoolTab.now)" v-if="mask=='input'">确定</div>
+                                            <div class="main-devtool-request-input-content-mask-option-btns-btn" @click="copyRequest(devtoolTab.now)" v-if="mask=='output'">复制</div>
+                                            <div class="main-devtool-request-input-content-mask-option-btns-btn" @click="saveInfo()" v-if="mask=='save'">保存</div>
+                                            <div class="main-devtool-request-input-content-mask-option-btns-btn" @click="closeMask()">取消</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="main-devtool-request-input-content-table" v-if="devtoolTab.now=='body'&&request.content_type!='multipart/form-data'&&request.content_type!='application/x-www-form-urlencoded'">
+                                    <textarea placeholder="请输入文本" v-model="input.textBody"></textarea>
+                                </div>
+                                <div class="main-devtool-request-input-content-table" v-if="devtoolTab.now=='headers'||devtoolTab.now=='query'">
+                                    <div class="main-devtool-request-input-content-table-row" v-for="(item,key) in request.show[devtoolTab.now]">
+                                        <div class="main-devtool-request-input-content-table-row-checkbox">
+                                            <input type="checkbox" v-model="item.checked">
+                                        </div>
+                                        <div class="main-devtool-request-input-content-table-row-input">
+                                            <input placeholder="字段名" v-model="item.key">
+                                        </div>
+                                        <div class="main-devtool-request-input-content-table-row-input">
+                                            <input placeholder="字段值" v-model="item.value">
+                                        </div>
+                                        <div class="main-devtool-request-input-content-table-row-option" @click="deleteRow(key)" v-if="request.show[devtoolTab.now].length>1"><span>删除</span></div>
+                                    </div>
+                                    <div class="main-devtool-request-input-content-table-addrow" @click="addRow()">添加一行</div>
+                                </div>
+                                <div class="main-devtool-request-input-content-table" :style="{'display':(devtoolTab.now=='body'&&(request.content_type=='multipart/form-data'||request.content_type=='application/x-www-form-urlencoded')?'':'none')}">
+                                    <div class="main-devtool-request-input-content-table-row" v-for="(item,key) in request.show.body">
+                                        <div class="main-devtool-request-input-content-table-row-checkbox">
+                                            <input type="checkbox" v-model="item.checked">
+                                        </div>
+                                        <div class="main-devtool-request-input-content-table-row-select" v-if="request.content_type=='multipart/form-data'||request.content_type=='application/x-www-form-urlencoded'">
+                                            <select v-model="item.type" @change="cleanFileValue(key)">
+                                                <option value="text">文本</option>
+                                                <option value="file" v-if="request.content_type=='multipart/form-data'">文件</option>
+                                                <option value="md5">MD5( )</option>
+                                                <option value="base64">Base64( )</option>
+                                                <option value="auto">自增值 int</option>
+                                                <option value="s">时间戳 s</option>
+                                                <option value="ms">时间戳 ms</option>
+                                            </select>
+                                        </div>
+                                        <div class="main-devtool-request-input-content-table-row-input">
+                                            <input placeholder="字段名" v-model="item.key">
+                                        </div>
+                                        <div class="main-devtool-request-input-content-table-row-input">
+                                            <input placeholder="请求发送时将自动填充此字段的值" disabled="true" style="border: solid 1px transparent" v-if="item.type=='ms'||item.type=='s'">
+
+                                            <input placeholder="字段值" v-model="item.value" v-if="item.type!='file'&&item.type!='ms'&&item.type!='s'">
+
+                                            <input type="file" multiple="multiple" style="border: solid 1px transparent" v-if="item.type=='file'" @change="upload(key,$event)">
+                                        </div>
+                                        <div class="main-devtool-request-input-content-table-row-option" @click="deleteRow(key)" v-if="request.show.body.length>1"><span>删除</span></div>
+                                    </div>
+                                    <div class="main-devtool-request-input-content-table-addrow" @click="addRow()">添加一行</div>
+                                </div>
+                                <div class="main-devtool-request-input-content-table" v-if="devtoolTab.now=='favorites'">
+                                    <div class="main-devtool-request-input-content-table-row" v-for="(item,key) in favorites">
+                                        <div class="main-devtool-request-input-content-table-row-input">
+                                            <input v-model="item.name" v-model="item.name" readonly style="border: none !important;cursor: default">
+                                        </div>
+                                        <div class="main-devtool-request-input-content-table-row-input">
+                                            <input placeholder="字段值" v-model="item.url" disabled style="border: none !important">
+                                        </div>
+                                        <div class="main-devtool-request-input-content-table-row-option main-devtool-request-input-content-table-row-option-active" @click="inputInfo(key)"><span>导入</span></div>
+                                        <div class="main-devtool-request-input-content-table-row-option" @click="deleteInfo(key)"><span>删除</span></div>
+                                    </div>
+                                </div>
+                                <div class="main-devtool-request-input-content-table" v-if="devtoolTab.now=='auth'">
+                                    <div class="main-devtool-request-input-content-table-row">
+                                        <div class="main-devtool-request-input-content-table-row-select">
+                                            <select v-model="request.auth.type">
+                                                <option value="none">无需认证</option>
+                                                <option value="kv">私密键值对</option>
+                                                <option value="bearer">Bearer Auth</option>
+                                                <option value="basic">Basic Auth</option>
+                                            </select>
+                                        </div>
+                                        <div class="main-devtool-request-input-content-table-row-input" v-if="request.auth.type=='kv'||request.auth.type=='basic'">
+                                            <input placeholder="键名" v-model="request.auth.key" v-if="request.auth.type=='kv'">
+                                            <input placeholder="用户名" v-model="request.auth.username" v-if="request.auth.type=='basic'">
+                                        </div>
+                                        <div class="main-devtool-request-input-content-table-row-input" v-if="request.auth.type=='kv'||request.auth.type=='basic'">
+                                            <input placeholder="值" v-model="request.auth.value" v-if="request.auth.type=='kv'">
+                                            <input placeholder="密码" v-model="request.auth.password" v-if="request.auth.type=='basic'">
+                                        </div>
+                                        <div class="main-devtool-request-input-content-table-row-input_fullwidth" v-if="request.auth.type=='bearer'">
+                                            <input placeholder="Token" v-model="request.auth.token">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main-devtool-response">
+                        <div class="main-devtool-response-status">
+                            <div :class="{'main-devtool-response-status-loading_icon':(response.code==-1),'main-devtool-response-status-failed_icon':(response.code>=400),'main-devtool-response-status-success_icon':(response.code>0&&response.code<400)}" v-if="response.code!=0">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="35"/></svg>
+                            </div>
+                            <div class="main-devtool-response-status-message" v-text="(response.code>0&&response.code<999?(response.code+' '):'')+response.message"></div>
+                            <div class="main-devtool-response-status-time" v-if="response.code>0&&response.code<999" v-text="(response.timecost<1?'<1':response.timecost)+'ms'"></div>
+                            <div class="main-devtool-response-status-option">
+                                <div class="main-devtool-response-status-option-checkbox" v-if="response.code!=0&&response.isJson" ><input type="checkbox" v-model="response.style"> 格式化JSON</div>
+                                <div class="main-devtool-response-status-option-btn" v-if="response.code!=0" @click="copyResponseHeaders()">复制Header</div>
+                                <div class="main-devtool-response-status-option-btn" v-if="response.code!=0" @click="copyResponseBody()">复制Body</div>
+                                <div class="main-devtool-response-status-option-btn" v-if="response.code!=0" @click="reset()">清空</div>
+                            </div>
+                        </div>
+                        <div class="main-devtool-response-main">
+                            <div class="main-devtool-response-main-header" v-if="response.code>0&&response.code<999">
+                                <div class="main-devtool-response-main-header-row" v-for="(val,key) in response.headers">
+                                    <span class="main-devtool-response-main-header-row-field" v-text="key+': '"></span><span class="main-devtool-response-main-header-row-value" v-text="val"></span>
+                                </div>
+                            </div>
+                            <div class="main-devtool-response-main-body" v-if="response.code>0&&response.code<999">
+                                <div class="main-devtool-response-main-body-notice" v-if="!response.isJson">响应的内容不是JSON格式。</div>
+                                <pre class="main-devtool-response-main-body-text" v-text="response.isJson?(response.style?obj2json(response.body):response.responseText):(response.responseText==''?'（响应为空）':response.responseText)"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="main-document" :style="{'display': windowName=='doc'?'':'none'}">
+                <div class="main-document-loading">文档加载中...</div>
+                <iframe src="https://doc.bux.cn/84php"></iframe>
+            </div>
+            <div class="main-document" :style="{'display': windowName=='ex-doc'?'':'none'}">
+                <div class="main-document-loading">文档加载中...</div>
+                <iframe src="https://doc.bux.cn/84php-code-ex"></iframe>
+            </div>
+            <div class="main-version">框架版本号：<b :style="{'color':version.native.status=='error'?'#fa3137':''}" v-text="version.native.status=='loading'?'获取中...':(version.native.status=='success'?version.native.value:'版本获取失败')"></b></div>
+        </div>
+    </div>
+</body>
+<script>
+    var app=new Vue({
+        el: '#app',
+        data: {
+            "version":{
+                "native":{
+                    "status":"loading",
+                    "value":""
+                },
+                "remote":{
+                    "status":"loading",
+                    "value":""
+                }
+            },
+            "windowName":'devtool',
+            "devtoolTab":{
+                "now":"headers",
+                "list":{
+                    "headers":"头信息<br>（Headers）",
+                    "query":"查询<br>（Query）",
+                    "body":"正文<br>（Body）",
+                    "auth":"认证<br>（Auth）",
+                    "favorites":"收藏夹"
+                }
+            },
+            "mask":"",
+            "input":{
+                "headers":"",
+                "query":"",
+                "body":"",
+                "textBody":"",
+                "dataType":"none",
+                "error":'',
+                "saveName":''
+            },
+            "request":{
+                "name":"",
+                "timeout":1000,
+                "content_type":"multipart/form-data",
+                "method":"get",
+                "url":"/version",
+                "ready":{
+                    "headers":{},
+                    "query":{},
+                    "body":{}
+                },
+                "show":{
+                    "headers":[
+                        {
+                            "checked":true,
+                            "type":"text",
+                            "key":'',
+                            "value":'',
+                            "file":[]
+                        }
+                    ],
+                    "query":[
+                        {
+                            "checked":true,
+                            "type":"text",
+                            "key":'',
+                            "value":'',
+                            "file":[]
+                        }
+                    ],
+                    "body":[
+                        {
+                            "checked":true,
+                            "type":"text",
+                            "key":'',
+                            "value":'',
+                            "file":[]
+                        }
+                    ]
+                },
+                "auth":{
+                    "type":"none",
+                    "key":'',
+                    "value":'',
+                    "username":'',
+                    "password":'',
+                    "token":''
+                }
+            },
+            "response":{
+                "code":0,
+                "message":"等待发送请求...",
+                "requesttime":0,
+                "responsetime":0,
+                "timecost":0,
+                "headers":{},
+                "body":'',
+                "responseText":'',
+                "style":true,
+                "isJson":false
+            },
+            "favorites":[]
+        },
+        created:function(){
+            that=this
+        },
+        methods: {
+            openWindow: function (name){
+                that.windowName=name;
+            },
+            getVersion: function (){
+                axios
+                .get('https://www.84php.com/version/last')
+                .then(function(response){
+                    that.version.remote.value=response.data.data.version;
+                    that.version.remote.status="success";
+                })
+                .catch(function (error) {
+                    that.version.remote.status="error";
+                });
+            },
+            sendRequest: function(){
+                if(that.request.url==''){
+                    that.$options.methods.reset();
+                    return fale;
+                }
+                that.response.code=-1;
+                that.response.message='等待响应...';
+                that.response.requesttime=new Date().getTime();
+                that.response.responsetime=0;
+                that.response.body='';
+                
+                that.request.ready={
+                    "headers":{},
+                    "query":'?',
+                    "body":{}
+                }
+
+                that.request.ready.headers['content-type']=that.request.content_type;
+                if(that.request.auth.type!='none'){
+                    if(that.request.auth.type=='kv'){
+                        if(that.request.auth.key!=''){
+                            that.request.ready.headers[that.request.auth.key]=that.request.auth.value;
+                        }
+                    }
+                    else if(that.request.auth.type=='bearer'){
+                        that.request.ready.headers['authorization']='Bearer '+that.request.auth.token;
+                    }
+                    else{
+                        that.request.ready.headers['authorization']='Basic '+ window.btoa(that.request.auth.username+':'+that.request.auth.password);
+                    }
+                }
+                
+                that.request.show.headers.forEach(
+                    function(item){
+                        var itemKey=item.key.replace(/[: ]*$/,'').toLowerCase();
+                        
+                        if(itemKey!=''&&item.checked){
+                            that.request.ready.headers[itemKey]=item.value;
+                        }
+                    }
+                )
+                                
+                if(that.request.url.indexOf('?')!=-1){
+                    that.request.ready.query='';
+                }
+                that.request.show.query.forEach(
+                    function(item){
+                        if(item.key.replace(/\s/,'')!=''&&item.checked){
+                            that.request.ready.query+='&'+encodeURIComponent(item.key)+'='+encodeURIComponent(item.value);
+                        }
+                    }
+                )
+                if(that.request.ready.query.substr(0,2)=='?&'){
+                    that.request.ready.query='?'+that.request.ready.query.substr(2);
+                }
+                
+                if(that.request.method=='get'){
+                    that.request.ready.body=true;
+                }
+                else if(that.request.content_type!='multipart/form-data'&&that.request.content_type!='application/x-www-form-urlencoded'){
+                    that.request.ready.body=that.input.textBody;
+                }
+                else if(that.request.content_type=='application/x-www-form-urlencoded'){
+                    var encodeData='';
+
+                    that.request.show.body.forEach(
+                        function(item,itemKey){
+                            if(item.key.replace(/\s/,'')!=''&&item.checked){
+                                var newValue=item.value;
+                                if(item.type!='text'){
+                                    newValue=that.$options.methods.dealBodyData(itemKey,item.type,newValue);
+                                }
+                                encodeData+=encodeURIComponent(item.key)+'='+encodeURIComponent(newValue)+'&';
+                            }
+                        }
+                    )
+                    
+                    if(encodeData!=''){
+                        encodeData=encodeData.substr(0,encodeData.length-1);
+                    }
+                    that.request.ready.body=encodeData;
+                }
+                else{
+                    that.request.ready.body = new FormData();
+                    that.request.show.body.forEach(
+                        function(item,itemKey){
+                            if(item.key.replace(/\s/,'')!=''&&item.checked){
+                                if(item.type!='file'){
+                                    var newValue=item.value;
+                                    if(item.type!='text'){
+                                        newValue=that.$options.methods.dealBodyData(itemKey,item.type,newValue);
+                                    }
+                                    that.request.ready.body.append(item.key, newValue);
+                                }
+                                else{
+                                    for(var i=0;i<item.file.length;i++){
+                                        that.request.ready.body.append(item.key, item.file[i]);
+                                    }
+                                }
+                            }
+                        }
+                    )
+                }
+                
+                
+                axios({
+                    url:that.request.url+that.request.ready.query,
+                    method:that.request.method,
+                    timeout: that.request.timeout,
+                    data:that.request.ready.body,
+                    headers:that.request.ready.headers
+                })
+                .then(function(response){
+                    that.response.responsetime=new Date().getTime();
+                    that.response.timecost=that.response.responsetime-that.response.requesttime;
+                    that.response.code=response.status;
+                    that.response.message=response.statusText;
+                    that.response.headers=response.headers;
+                    that.response.body=response.data;
+                    that.response.responseText=response.request.responseText;
+                    that.$options.methods.resJsonCheck();
+                })
+                .catch(function (error) {
+                    console.log("Result is: %O",error);
+                    if(error.message=='Network Error'){
+                        that.response.code=999;
+                        that.response.message='网络异常';
+                    }
+                    else if(error.code=='ECONNABORTED'&&error.message.indexOf('timeout')!=-1){
+                        that.response.code=999;
+                        that.response.message='请求超时（>'+that.request.timeout+'ms）';
+                    }
+                    else{
+                        that.response.responsetime=new Date().getTime();
+                        that.response.timecost=that.response.responsetime-that.response.requesttime;
+                        that.response.code=error.response.status;
+                        that.response.message=error.response.statusText;
+                        that.response.headers=error.response.headers;
+                        that.response.body=error.response.data;
+                        that.response.responseText=error.request.responseText;
+                    }
+                    that.$options.methods.resJsonCheck();
+                });
+            },
+            reset: function(){
+                that.response.code=0;
+                that.response.message='等待发送请求...';
+            },
+            obj2str: function(obj){
+                var result='';
+                var objArray=Object.keys(obj);
+                var objLength=objArray.length;
+                objArray.forEach(function(key,index){
+                    result+=key+': '+obj[key];
+                    if(index<(objLength-1)){
+                        result+="\r\n";
+                    }
+                })
+                return result;
+            },
+            obj2json: function(obj){
+                return JSON.stringify(obj,null,4);
+            },
+            copyStr: function(str) {
+                var createInput = document.createElement("textarea");
+                createInput.value = str;
+                document.body.appendChild(createInput);
+                createInput.select();
+                document.execCommand("Copy");
+                createInput.style.display = "none";
+            },
+            copyResponseHeaders: function(){
+                that.$options.methods.copyStr(that.$options.methods.obj2str(that.response.headers));
+            },
+            copyResponseBody: function(){
+                if(that.response.style&&that.response.isJson){
+                    that.$options.methods.copyStr(that.$options.methods.obj2json(that.response.body));
+                }
+                else{
+                    that.$options.methods.copyStr(that.response.responseText);
+                }
+            },
+            resJsonCheck: function(){
+                if(typeof that.response.body!=='object'){
+                    that.response.isJson=false;
+                }
+                else{
+                    that.response.isJson=true;
+                }
+            },
+            changeTab: function(name){
+                that.mask="";
+                if(name=='favorites'){
+                    that.$options.methods.getFavorites();
+                }
+                that.devtoolTab.now=name;
+            },
+            openMask: function(type){
+                that.mask=type;
+                that.input.dataType="none";
+                that.input.error="";
+            },
+            closeMask: function(type){
+                that.mask='';
+            },
+            deleteInput:function(){
+                if(that.devtoolTab.now=='headers'){
+                    that.request.show.headers=[
+                        {
+                            "checked":true,
+                            "type":"text",
+                            "key":'',
+                            "value":'',
+                            "file":[]
+                        }
+                    ];
+                    that.input.headers='';
+                }
+                else if(that.devtoolTab.now=='query'){
+                    that.request.show.query=[
+                        {
+                            "checked":true,
+                            "type":"text",
+                            "key":'',
+                            "value":'',
+                            "file":[]
+                        }
+                    ];
+                    that.input.query='';
+                }
+                else if(that.devtoolTab.now=='body'){
+                    that.request.show.body=[
+                        {
+                            "checked":true,
+                            "type":"text",
+                            "key":'',
+                            "value":'',
+                            "file":[]
+                        }
+                    ];
+                    that.input.textBody='';
+                    that.input.body='';
+                }
+                else if(that.devtoolTab.now=='auth'){
+                    that.request.auth={
+                        "type":"none",
+                        "key":'',
+                        "value":'',
+                        "username":'',
+                        "password":'',
+                        "token":''
+                    };
+                }
+            },
+            isJson: function (str) {
+                if (typeof str == 'string') {
+                    try {
+                        var obj=JSON.parse(str);
+                        if(typeof obj == 'object' && obj ){
+                            return true;
+                        }else{
+                            return false;
+                        }
+
+                    } catch(e) {
+                        return false;
+                    }
+                }
+                return false;
+            },
+            dealInput:function(inputType){
+                var inputStr=that.input[inputType];
+                var inputData={};
+                if(that.input.dataType=='none'){
+                    that.input.error='请选择字符串格式。';
+                    return false;
+                }
+                
+                that.input.error='';
+                if(that.input.dataType=='json'){
+                    if(!that.$options.methods.isJson(inputStr)){
+                        that.input.error='输入的字符串不符合JSON格式。';
+                        return false;
+                    }
+                    inputData=JSON.parse(inputStr);
+                    
+                }
+                else if(that.input.dataType=='kv'){
+                    var LineArray=inputStr.split(/[(\r\n)\r\n]+/);
+                    LineArray.forEach(
+                        function(item){
+                            if(item!=''&&item!=''){
+                                if(item.indexOf(':')==-1){
+                                    inputData[item]='';
+                                }
+                                else{
+                                    var prefix='';
+                                    var tempArr=item.split(':');
+                                    var tempKey='';
+                                    var tempVal='';
+                                    if(tempArr.length==1){
+                                        tempKey=tempArr[0];
+                                    }
+                                    else{
+                                        if(tempArr[0]==''){
+                                            tempKey=':'+tempArr[1];
+                                        }
+                                        else{
+                                            tempKey=tempArr[0];
+                                            tempVal=tempArr[1];
+                                        }
+                                        for(var i=2;i<tempArr.length;i++){
+                                            tempVal+=':'+tempArr[i];
+                                        }
+                                    }
+                                    if(tempKey!=''){
+                                        inputData[tempKey]=tempVal;
+                                    }
+                                }
+                            }
+                        }
+                    )
+                }
+                else if(that.input.dataType=='urlencode'){
+                    var urlEncodeArry=inputStr.split("&");
+                    urlEncodeArry.forEach(
+                        function(item){
+                            var kvArray=item.split('=');
+                            var tempKey='';
+                            var tempVal='';
+                            if(kvArray.length==1){
+                                tempKey=kvArray[0];
+                            }
+                            else{
+                                tempKey=kvArray[0];
+                                tempVal=kvArray[1];
+
+                                for(var i=2;i<kvArray.length;i++){
+                                    tempVal+='='+kvArray[i];
+                                }
+                            }
+                            if(tempKey!=''){
+                                inputData[tempKey]=tempVal;
+                            }
+                        }
+                    )
+                }
+                for (var i in inputData){
+                    var dataKey=i;
+                    var dataVal='';
+                    
+                    if(dataKey!=''){
+                        if(typeof inputData[i]==='object'){
+                            dataVal=JSON.stringify(inputData[i]);
+                        }
+                        else{
+                            dataVal=inputData[i];
+                        }
+                        that.request.show[inputType].push({
+                            "checked":true,
+                            "type":"text",
+                            "key":dataKey,
+                            "value":dataVal,
+                            "file":[]
+                        });
+                    }
+                }
+                that.mask='';
+            },
+            addRow: function(){
+                that.request.show[that.devtoolTab.now].push({
+                    "checked":true,
+                    "type":"text",
+                    "key":'',
+                    "value":'',
+                    "file":[]
+                });
+            },
+            deleteRow: function(key){
+                that.request.show[that.devtoolTab.now].splice(key,1);
+            },
+            getRequestOutput: function(){
+                var outputData={};
+                that.request.show[that.devtoolTab.now].forEach(
+                    function(item){
+                        if(item.key!==''){
+                            if(item.type=='text'){
+                                outputData[item.key]=item.value;
+                            }
+                            else{
+                                outputData[item.key]='';
+                            }
+                        }
+                    }
+                );
+                return JSON.stringify(outputData,null,4);
+            },
+            copyRequest: function(){
+                that.$options.methods.copyStr(that.$options.methods.getRequestOutput());
+            },
+            getNowTime: function(type){
+                var time=new Date().getTime();
+                if(type=='ms'){
+                    return time;
+                }
+                else{
+                    return parseInt(time/1000);
+                }
+            },
+            cleanAllFileValue:function(){
+                for(var i=0;i<that.request.show.body.length;i++){
+                    if(that.request.show.body[i].type=='file'){
+                        that.request.show.body[i].file=[];
+                        that.request.show.body[i].type='text';
+                    }
+                }
+            },
+            cleanFileValue:function(key){
+                that.request.show.body[key].file=[];
+            },
+            dealBodyData:function(itemKey,type,value){
+                if(type=='md5'){
+                    return hex_md5(value);
+                }
+                else if(type=='base64'){
+                    return window.btoa(value)
+                }
+                else if(type=='auto'){
+                    var intValue=parseInt(value);
+                    if(isNaN(intValue)){
+                        intValue=0;
+                    }
+                    that.request.show.body[itemKey].value=intValue+1;
+                    return intValue;
+                }
+                else if(type=='ms'){
+                    return new Date().getTime();
+                }
+                else if(type=='s'){
+                    return parseInt(new Date().getTime()/1000);
+                }
+                else {
+                    return value;
+                }
+            },
+            upload:function(itemKey,event){
+                that.request.show.body[itemKey].file=event.target.files;
+            },
+            saveInfo:function(){
+                if(that.input.saveName==''){
+                    that.input.error="接口名称不能为空";
+                    return false;
+                }
+                var nowInfo=that.request;
+                nowInfo.ready={
+                    "headers":{},
+                    "query":{},
+                    "body":{}
+                };
+                
+                for(var i=0;i<nowInfo.show.body.length;i++){
+                    if(that.request.show.body[i].type=='file'){
+                        that.request.show.body[i].file=[];
+                    }
+                }
+                nowInfo.name=that.input.saveName;
+                that.favorites.unshift(nowInfo);
+                localStorage.setItem('apiFavorites',JSON.stringify(that.favorites));
+                that.input.saveName='';
+                that.$options.methods.changeTab('favorites');
+            },
+            deleteFavorites:function(){
+                localStorage.removeItem('apiFavorites');
+                that.$options.methods.getFavorites();
+            },
+            getFavorites:function(){
+                var lsInfo=localStorage.getItem('apiFavorites');
+                if(lsInfo===null){
+                    lsInfo='[]';
+                }
+                that.favorites=JSON.parse(lsInfo);
+            },
+            deleteInfo: function(key){
+                that.favorites.splice(key,1);
+                localStorage.setItem('apiFavorites',JSON.stringify(that.favorites));
+            },
+            inputInfo: function(key){
+                that.request=that.favorites[key];
+            },
+        },
+        mounted:function (){
+            this.$nextTick(function(){
+                axios
+                .get('/version.json')
+                .then(function(response){
+                    that.version.native.value=response.data.version;
+                    that.version.native.status="success";
+                    that.$options.methods.getVersion();
+                })
+                .catch(function (error) {
+                    that.version.native.status="error";
+                });
+            });
+        }
+    });
+</script>
+</html>

@@ -1,0 +1,17 @@
+<?php
+$_SERVER['84PHP']['Config']['Data']=[
+	'handle'=>'redis',
+	'connect'=>[
+		'file'=>[
+			'level'=>3,
+			'clean'=>1000,
+		],
+		'redis'=>[
+			'address'=>'localhost',
+			'password'=>'',
+			'dbnumber'=>0,
+			'port'=>6379,
+			'timeout'=>15
+		]
+	]
+];
