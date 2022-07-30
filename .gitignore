@@ -1,0 +1,6 @@
+!.gitignore
+.htaccess
+/temp/cache/*
+/temp/log/*
+/temp/data/*
+/.idea/*
