@@ -1,0 +1,24 @@
+<?php
+$_SERVER['84PHP']['Config']['Api']=[
+	'template'=>[
+		'code'=>1,
+		'status'=>'success',
+		'message'=>'',
+		'data'=>[],
+	],
+	'wrong'=>[
+		'style'=>[
+			'code'=>'{code}',
+            'status'=>'error',
+			'message'=>'{info}',
+            'data'=>'{stack}',
+            'time'=>'{time}',
+		],
+		'log'=>'SFA',
+		'respond'=>'U',
+		'replace'=>[
+            
+        ],
+        'ignore'=>[],
+	],
+];
