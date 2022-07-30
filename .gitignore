@@ -1,5 +1,5 @@
 !.gitignore
-.htaccess
+/.htaccess
 /temp/cache/*
 /temp/log/*
 /temp/data/*
