@@ -11,7 +11,7 @@ use PDOException;
 
   ©2022 84PHP.com
 
-  框架版本号：6.0.0
+  框架版本号：6.1.0
 */
 
 class Db

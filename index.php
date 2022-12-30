@@ -8,9 +8,9 @@ use core\Log;
 
   ©2022 84PHP.com
 
-  框架版本号：6.0.0
+  框架版本号：6.1.0
 */
-const __VERSION__ = '6.0.0';
+const __VERSION__ = '6.1.0';
 define('__TIME__',microtime(TRUE));
 define('__ROOT__',str_replace(['\\','//'],'/',dirname(__FILE__)));
 

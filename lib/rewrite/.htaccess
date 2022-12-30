@@ -6,16 +6,16 @@ RewriteBase /
 RewriteCond %{REQUEST_URI} !^/index.php$ [NC]
 RewriteRule ^(.*?)(\.php)+$ $1 [NC,DPI]
 
-RewriteRule ^(?!(Web/|index\.php))(.*?)$ Web/$2 [NC,DPI]
+RewriteRule ^(?!(web/|index\.php))(.*?)$ web/$2 [NC,DPI]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*?)([^/])$ $1$2/ [QSA,NC,DPI,L]
 
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(Web/)*(.*?)/$ index.php?p_a_t_h=/$2 [QSA,NC,DPI,L]
+RewriteRule ^(web/)*(.*?)/$ index.php?p_a_t_h=/$2 [QSA,NC,DPI,L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(Web/)*(.*?)(/)*$ index.php?p_a_t_h=/$2 [QSA,NC,DPI]
+RewriteRule ^(web/)*(.*?)(/)*$ index.php?p_a_t_h=/$2 [QSA,NC,DPI]
 </IfModule>
 
 <FilesMatch "\.*$">

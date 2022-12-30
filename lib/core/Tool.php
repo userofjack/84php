@@ -6,7 +6,7 @@ namespace core;
 
   ©2022 84PHP.com
 
-  框架版本号：6.0.0
+  框架版本号：6.1.0
 */
 
 use CURLFile;
@@ -85,10 +85,11 @@ class Tool
     public static function send($UnionData=[])
     {
         $Url=Common::quickParameter($UnionData,'url','地址');
-        $Mode=Common::quickParameter($UnionData,'mode','模式');
+        $Mode=Common::quickParameter($UnionData,'mode','模式',FALSE,'GET');
         $Data=Common::quickParameter($UnionData,'data','数据',FALSE,[]);
         $File=Common::quickParameter($UnionData,'file','文件',FALSE,[]);
         $Headers=Common::quickParameter($UnionData,'header','header',FALSE,[]);
+        $Encode=Common::quickParameter($UnionData,'encode','编码',FALSE,TRUE);
         $Timeout=Common::quickParameter($UnionData,'timeout','超时时间',FALSE,15);
         $Ssl=Common::quickParameter($UnionData,'ssl','ssl',FALSE,FALSE);
         
@@ -107,7 +108,10 @@ class Tool
         
         if ($Mode=='GET'){
             if (!empty($Data)) {
-               $Url.='?'.http_build_query($Data);
+                if (is_array($Data)){
+                    $Data=http_build_query($Data);
+                }
+                $Url.='?'.$Data;
             }
         }
         
@@ -128,7 +132,7 @@ class Tool
         if ($Mode!='GET'){
             if ($Mode=='POST'){
                 curl_setopt($Handle,CURLOPT_POST,TRUE);
-
+                
                 foreach ($File as $Key=>$Val) {
                     if (file_exists(Common::diskPath($Val))) {
                         $SendData[$Key]=new CURLFile(Common::diskPath($Val));
@@ -139,10 +143,16 @@ class Tool
             if ($Mode=='PUT'||$Mode=='DELETE'){
                 curl_setopt($Handle,CURLOPT_CUSTOMREQUEST,$Mode);
             }
-            
-            foreach ($Data as $Key=>$Val) {
-                $Val=urlencode($Val);
-                $SendData[$Key]=$Val;
+            if (is_array($Data)){
+                foreach ($Data as $Key=>$Val) {
+                    $SendData[$Key]=$Val;
+                }
+            }
+            else {
+                if ($Encode){
+                    $Data=urlencode($Data);
+                }
+                $SendData=$Data;
             }
 
             curl_setopt($Handle,CURLOPT_POSTFIELDS,$SendData);
