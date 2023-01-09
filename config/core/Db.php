@@ -23,5 +23,7 @@ $_SERVER['84PHP']['Config']['Db']=[
 			'port'=>3306,
 			'charset'=>'utf8'
 		]
-	]
+	],
+
+    'defalut'=>'default'
 ];

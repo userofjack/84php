@@ -19,49 +19,45 @@ class Db
     private static $DbHandle;
     private static $NowDb;
     private static $Stmts;
-    
-    private static function initial(): bool
-    {
-        if(!empty($_SERVER['84PHP']['Runtime']['Db']['initial'])){
-            return TRUE;
-        }
 
-        self::connect();
-        
-        $_SERVER['84PHP']['Runtime']['Db']['initial']=1;
-        return TRUE;
-    }
-    
     //选择数据库
-    public static function choose($ChooseDb)
+    public static function choose($UnionData)
     {
-        self::$DbHandle=null;
-        self::$NowDb=$ChooseDb;
-        self::connect();
+        $DbName=Common::quickParameter($UnionData,'db_name','数据库');
+        if (!empty($DbName)){
+            $_SERVER['84PHP']['Config']['Db']['default']=$DbName;
+        }
     }
     
     //连接数据库
-    private static function connect()
+    private static function connect($DbName)
     {
-        if (empty(self::$NowDb)) {
-            self::$NowDb='default';
+        if (empty($DbName)){
+            $DbName=$_SERVER['84PHP']['Config']['Db']['default'];
         }
-        self::$Stmts=[];
+        if (self::$NowDb!=$DbName){
+            self::$DbHandle=null;
+            self::$NowDb=$DbName;
+        }
 
-        if (empty($_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb])) {
-            Api::wrong(['level'=>'F','detail'=>'Error#M.8.0','code'=>'M.8.0']);
-        }
-        $Dsn=$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['type'].
-            ':host='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['address'].
-            ';port='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['port'].
-            ';dbname='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['dbname'].
-            ';charset='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['charset'];
-        try {
-            self::$DbHandle=@new PDO($Dsn,$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['username'],$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['password']);
-            self::$DbHandle->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-        }
-        catch(PDOException $Error) {
-            Api::wrong(['level'=>'F','detail'=>'Error#M.8.1'."\r\n\r\n @ ".'ErrorInfo: ('.$Error->getCode().') '.$Error->getMessage(),'code'=>'M.8.1']);
+        if (empty(self::$DbHandle)) {
+            self::$Stmts=[];
+
+            if (empty($_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb])) {
+                Api::wrong(['level'=>'F','detail'=>'Error#M.8.0','code'=>'M.8.0']);
+            }
+            $Dsn=$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['type'].
+                ':host='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['address'].
+                ';port='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['port'].
+                ';dbname='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['dbname'].
+                ';charset='.$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['charset'];
+            try {
+                self::$DbHandle=@new PDO($Dsn,$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['username'],$_SERVER['84PHP']['Config']['Db']['dbInfo'][self::$NowDb]['password']);
+                self::$DbHandle->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+            }
+            catch(PDOException $Error) {
+                Api::wrong(['level'=>'F','detail'=>'Error#M.8.1'."\r\n\r\n @ ".'ErrorInfo: ('.$Error->getCode().') '.$Error->getMessage(),'code'=>'M.8.1']);
+            }
         }
     }
 
@@ -79,6 +75,7 @@ class Db
             'index'=>Common::quickParameter($UnionData,'index','索引',FALSE),
             'sql'=>Common::quickParameter($UnionData,'sql','sql',FALSE),
             'bind'=>Common::quickParameter($UnionData,'bind','绑定',FALSE,[]),
+            'dbName'=>Common::quickParameter($UnionData,'db_name','数据库',FALSE,''),
         ];
 
         $ExtraParameters=[
@@ -87,11 +84,11 @@ class Db
             'fieldLimit'=>['field_limit','字段限制',FALSE,NULL],
             'rowCount'=>['row_count','行数统计',FALSE,FALSE],
             'autoOp'=>['auto_operate','自动操作',FALSE,NULL],
-            'groupBy'=>['group_by','分组',FALSE,NULL],
+            'groupBy'=>['group_by','分组',FALSE,NULL]
         ];
 
         foreach($ExtraParameters as $Key =>$Val){
-            if(in_array($Key,$Extra)){
+            if (in_array($Key,$Extra)){
                 $Parameters[$Key]=Common::quickParameter($UnionData,$Val[0],$Val[1],$Val[2],$Val[3]);
             }
         }
@@ -100,8 +97,9 @@ class Db
     }
 
     //创建绑定
-    private static function createBind($PreSql): string
+    private static function createBind($PreSql,$DbName): string
     {
+        self::connect($DbName);
         $StmtKey=md5($PreSql);
         if (empty(self::$Stmts[$StmtKey])) {
             self::$Stmts[$StmtKey]=self::$DbHandle->prepare($PreSql);
@@ -320,14 +318,12 @@ class Db
     {
         $Para=self::parameterCheck($UnionData,['fieldLimit']);
 
-        self::initial();
-
         $Para['limit']=[1];
         $Para['groupBy']=NULL;
 
         $QueryString='SELECT '.self::getFieldList($Para['fieldLimit'],'*').' FROM'.self::getTableList($Para['table']).self::queryToSql($Para);
 
-        $StmtKey=self::createBind($QueryString);
+        $StmtKey=self::createBind($QueryString,$Para['db_name']);
         self::bindData($StmtKey,$Para['field'],$Para['value'],'_Where_');
         self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
 
@@ -339,11 +335,9 @@ class Db
     {
         $Para=self::parameterCheck($UnionData,['fieldLimit','groupBy']);
 
-        self::initial();
-
         $QueryString='SELECT '.self::getFieldList($Para['fieldLimit'],'*').' FROM'.self::getTableList($Para['table']).self::queryToSql($Para);
 
-        $StmtKey=self::createBind($QueryString);
+        $StmtKey=self::createBind($QueryString,$Para['db_name']);
         self::bindData($StmtKey,$Para['field'],$Para['value'],'_Where_');
         self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
  
@@ -355,16 +349,14 @@ class Db
     {
         $Para=self::parameterCheck($UnionData,['fieldLimit','groupBy']);
 
-        self::initial();
-
         $Para['fieldLimit']='';
         if (!empty($Para['groupBy'])) {
             $Para['fieldLimit'].=self::getFieldList($Para['groupBy'],'').',';
         }
         
         $QueryString='SELECT '.$Para['fieldLimit'].' COUNT(*) AS Total FROM'.self::getTableList($Para['table']).self::queryToSql($Para);
-        
-        $StmtKey=self::createBind($QueryString);
+
+        $StmtKey=self::createBind($QueryString,$Para['db_name']);
         self::bindData($StmtKey,$Para['field'],$Para['value'],'_Where_');
         self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
 
@@ -384,8 +376,6 @@ class Db
     {
         $Para=self::parameterCheck($UnionData,['sumField']);
 
-        self::initial();
-
         $SumSql='';
         foreach ($Para['sumField'] as $Key => $Val) {
             $SumSql.=' SUM('.$Key.')'.' AS '.$Val.',';
@@ -395,8 +385,7 @@ class Db
         $Para['groupBy']=NULL;
         $QueryString='SELECT'.$SumSql.' FROM'.self::getTableList($Para['table']).self::queryToSql($Para);
 
-        $StmtKey=self::createBind($QueryString);
-                
+        $StmtKey=self::createBind($QueryString,$Para['db_name']);
         self::bindData($StmtKey,$Para['field'],$Para['value'],'_Where_');
         self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
         
@@ -414,8 +403,6 @@ class Db
     {
         $Para=self::parameterCheck($UnionData,['data']);
 
-        self::initial();
-
         $InsertField=NULL;
         $InsertValue=NULL;
         
@@ -428,7 +415,7 @@ class Db
         
         $QueryString='INSERT INTO'.self::getTableList($Para['table']).' ( '.$InsertField.' ) VALUES ( '.$InsertValue.' )'.' '.$Para['sql'];
 
-        $StmtKey=self::createBind($QueryString);
+        $StmtKey=self::createBind($QueryString,$Para['db_name']);
         self::bindData($StmtKey,[],$Para['data'],'_Insert_',TRUE);
         self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
 
@@ -440,12 +427,10 @@ class Db
     {
         $Para=self::parameterCheck($UnionData,['rowCount']);
 
-        self::initial();
-        
         $Para['groupBy']=NULL;
         $QueryString='DELETE FROM'.self::getTableList($Para['table']).self::queryToSql($Para);
 
-        $StmtKey=self::createBind($QueryString);
+        $StmtKey=self::createBind($QueryString,$Para['db_name']);
         self::bindData($StmtKey,$Para['field'],$Para['value'],'_Where_');
         self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
 
@@ -456,8 +441,6 @@ class Db
     public static function update($UnionData=[])
     {
         $Para=self::parameterCheck($UnionData,['data','rowCount','autoOp']);
-
-        self::initial();
 
         $DataSql=NULL;
         $AutoOpNumber=0;
@@ -478,7 +461,7 @@ class Db
         $Para['groupBy']=NULL;
         $QueryString='UPDATE'.self::getTableList($Para['table']).' SET '.$DataSql.self::queryToSql($Para);
 
-        $StmtKey=self::createBind($QueryString);
+        $StmtKey=self::createBind($QueryString,$Para['db_name']);
         self::bindData($StmtKey,$Para['field'],$Para['value'],'_Where_');
         self::bindData($StmtKey,[],$Para['data'],'_Update_',TRUE);
         self::bindData($StmtKey,[],$Para['bind'],'',TRUE);
@@ -492,10 +475,9 @@ class Db
         $Sql=Common::quickParameter($UnionData,'sql','sql',FALSE);
         $Bind=Common::quickParameter($UnionData,'bind','绑定',FALSE,[]);
         $Fetch=Common::quickParameter($UnionData,'fetch_result','取回结果',FALSE,FALSE);
+        $DbName=Common::quickParameter($UnionData,'db_name','数据库',FALSE,'');
 
-        self::initial();
-
-        $StmtKey=self::createBind($Sql);
+        $StmtKey=self::createBind($Sql,$DbName);
         self::bindData($StmtKey,[],$Bind,'',TRUE);
 
         return self::execBind($StmtKey,$Sql,$Fetch?'FetchAll':'');
@@ -505,8 +487,6 @@ class Db
     public static function acid($UnionData=[]): bool
     {
         $Option=Common::quickParameter($UnionData,'option','操作');
-
-        self::initial();
 
         if ($Option=='begin') {
             try {  
