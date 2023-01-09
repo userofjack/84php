@@ -25,5 +25,5 @@ $_SERVER['84PHP']['Config']['Db']=[
 		]
 	],
 
-    'defalut'=>'default'
+    'default'=>'default'
 ];
