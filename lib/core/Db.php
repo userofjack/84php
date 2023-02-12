@@ -314,7 +314,7 @@ class Db
                 $Para['table']
             ) . self::queryToSql($Para);
 
-        $StmtKey = self::createBind($QueryString, $Para['db_name']);
+        $StmtKey = self::createBind($QueryString, $Para['dbName']);
         self::bindData($StmtKey, $Para['field'], $Para['value'], '_Where_');
         self::bindData($StmtKey, [], $Para['bind'], '', true);
 
@@ -330,7 +330,7 @@ class Db
                 $Para['table']
             ) . self::queryToSql($Para);
 
-        $StmtKey = self::createBind($QueryString, $Para['db_name']);
+        $StmtKey = self::createBind($QueryString, $Para['dbName']);
         self::bindData($StmtKey, $Para['field'], $Para['value'], '_Where_');
         self::bindData($StmtKey, [], $Para['bind'], '', true);
 
@@ -351,7 +351,7 @@ class Db
                 $Para['table']
             ) . self::queryToSql($Para);
 
-        $StmtKey = self::createBind($QueryString, $Para['db_name']);
+        $StmtKey = self::createBind($QueryString, $Para['dbName']);
         self::bindData($StmtKey, $Para['field'], $Para['value'], '_Where_');
         self::bindData($StmtKey, [], $Para['bind'], '', true);
 
@@ -378,7 +378,7 @@ class Db
         $Para['groupBy'] = null;
         $QueryString = 'SELECT' . $SumSql . ' FROM' . self::getTableList($Para['table']) . self::queryToSql($Para);
 
-        $StmtKey = self::createBind($QueryString, $Para['db_name']);
+        $StmtKey = self::createBind($QueryString, $Para['dbName']);
         self::bindData($StmtKey, $Para['field'], $Para['value'], '_Where_');
         self::bindData($StmtKey, [], $Para['bind'], '', true);
 
@@ -410,7 +410,7 @@ class Db
                 $Para['table']
             ) . ' ( ' . $InsertField . ' ) VALUES ( ' . $InsertValue . ' )' . ' ' . $Para['sql'];
 
-        $StmtKey = self::createBind($QueryString, $Para['db_name']);
+        $StmtKey = self::createBind($QueryString, $Para['dbName']);
         self::bindData($StmtKey, [], $Para['data'], '_Insert_', true);
         self::bindData($StmtKey, [], $Para['bind'], '', true);
 
@@ -425,7 +425,7 @@ class Db
         $Para['groupBy'] = null;
         $QueryString = 'DELETE FROM' . self::getTableList($Para['table']) . self::queryToSql($Para);
 
-        $StmtKey = self::createBind($QueryString, $Para['db_name']);
+        $StmtKey = self::createBind($QueryString, $Para['dbName']);
         self::bindData($StmtKey, $Para['field'], $Para['value'], '_Where_');
         self::bindData($StmtKey, [], $Para['bind'], '', true);
 
@@ -454,7 +454,7 @@ class Db
         $Para['groupBy'] = null;
         $QueryString = 'UPDATE' . self::getTableList($Para['table']) . ' SET ' . $DataSql . self::queryToSql($Para);
 
-        $StmtKey = self::createBind($QueryString, $Para['db_name']);
+        $StmtKey = self::createBind($QueryString, $Para['dbName']);
         self::bindData($StmtKey, $Para['field'], $Para['value'], '_Where_');
         self::bindData($StmtKey, [], $Para['data'], '_Update_', true);
         self::bindData($StmtKey, [], $Para['bind'], '', true);
